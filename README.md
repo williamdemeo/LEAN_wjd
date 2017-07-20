@@ -1,18 +1,73 @@
 # Notes on Learning Lean
 
-# Intallation
+## Intallation
 
 On Ubuntu 16.04 I installed Lean from source following the directions
 here:
 
+https://github.com/leanprover/lean/blob/master/doc/make/ubuntu-16.04.md
 
-## Lean in Emacs
+To summarize the installation process, assuming you have the necessary dependencies, you do the following:
 
-From the `lean/bin` directory, run the command `leanemacs_build`
+    git clone https://github.com/leanprover/lean.git
+    cd lean
+    mkdir -p build/release
+    cd build/release
+    cmake ../../src
+    make
+
+---------------------------------
+
+## A first Lean session in Emacs
+
+In the Lean repository that you cloned above, go into the directory called `lean/bin`, then run the command `leanemacs_build`.
+
+After launching emacs this way, open a new file called `check.lean` and 
+put `#check id` on the first line.  Then hover over the word "check." 
+You should be shown the type of the `id` function.
+
+To view the output of commands such as `check` and `print` in the emacs buffer, enable this feature with the key sequence `C-c C-b`.
+
+### Making things permanent
+You can include `lean-mode` permanently in your emacs init file by putting 
+some code in your Emacs init file (typically `~/.emacs.d/init.el`).
+
+If you already have the dependencies installed, it should suffice
+to add the following three lines to your `init.el` file:
+
+    (setq lean-rootdir "~/projects/lean")
+    (setq load-path (cons "~/projects/lean/src/emacs" load-path))
+    (require 'lean-mode)
+
+Otherwise, add the following to your `init.el` file:
+
+    ;; You need to modify the following two lines:
+    (setq lean-rootdir "~/projects/lean")
+    (setq lean-emacs-path "~/projects/lean/src/emacs")
+
+    (setq lean-mode-required-packages '(company dash dash-functional f
+                               flycheck let-alist s seq))
+
+    (require 'package)
+    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+    (package-initialize)
+    (let ((need-to-refresh t))
+      (dolist (p lean-mode-required-packages)
+        (when (not (package-installed-p p))
+          (when need-to-refresh
+            (package-refresh-contents)
+            (setq need-to-refresh nil))
+          (package-install p))))
+
+    (setq load-path (cons lean-emacs-path load-path))
+
+    (require 'lean-mode)
+
+
 
 ### Emacs Key Bindings and Commands
 
-| Key                | Function                                                                        |
+| Key Binding      | Function                                                                        |
 |--------------------|---------------------------------------------------------------------------------|
 | <kbd>M-.</kbd>     | jump to definition in source file (`lean-find-definition`)                      |
 | <kbd>S-SPC</kbd>   | auto complete identifiers, options, imports, etc. (`company-complete`)          |
@@ -26,3 +81,25 @@ From the `lean/bin` directory, run the command `leanemacs_build`
 | <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
 | <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
 | <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |
+
+
+## Theorem Proving in Lean
+This section collects some important excerpts from the pdf tutorial
+[Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf)
+
+### Introduction
+
+The Lean Theorem Prover aims to bridge the gap between interactive and automated
+theorem proving, by situating automated tools and methods in a framework that supports
+user interaction and the construction of fully specified axiomatic proofs.
+
+Lean's underlying logic has a computational interpretation, and Lean can be viewed
+equally well as a programming language. More to the point, it can be viewed as a
+system for writing programs with a precise semantics, as well a reasoning about
+the functions that the programs compute. 
+Lean also has mechanisms to serve as its own *metaprogramming
+language*, which means that one can implement automation and extend the
+functionality of Lean using Lean itself. 
+These aspects of Lean are explored in a companion tutorial to this one,
+[Programming in Lean](https://leanprover.github.io/programming_in_lean), 
+though computational aspects of the system will make an appearance here.
