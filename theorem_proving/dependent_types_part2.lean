@@ -278,7 +278,41 @@ end page27
 #print "Section 2.9 Implicit Arguments"
 /- Lean allows us to specify that this argument should, by default, be left implicit. 
    This is done by putting the arguments in curly braces. -/
-namespace page28
+namespace implicits
   universe u
   def ident {α : Type u} (x : α) := x
   variables α β : Type u
+  variables (a : α) (b : β)
+  #check ident
+  #check ident a
+  #check ident b
+
+  /- This makes the first argument to ident implicit. Notationally, this hides the specification
+     of the type, making it look as though ident simply takes an argument of any type. -/
+
+  /- Sometimes, however, we may find ourselves in a situation where we have declared an
+     argument to a function to be implicit, but now want to provide the argument explicitly. -/
+
+  #check @id
+  #check @id α
+  #check @id β
+  #check @id α a
+  #check @id β b
+
+  /- Notice that the first #check command now gives the type of the identifier, id, without
+     inserting placeholders. Moreover, the output indicates that the first argument is 
+     implicit. -/
+
+end implicits
+
+
+/- Section 2.9 output
+                ident : ?M_1 → ?M_1
+                ident a : α
+                ident b : β
+                id : Π {α : Sort u_1}, α → α
+                id : α → α
+                id : β → β
+                id a : α
+                id b : β
+-/
