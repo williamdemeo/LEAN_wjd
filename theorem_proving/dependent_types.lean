@@ -442,7 +442,33 @@ end page20
 #print "------------------------------------------------"
 #print "Section 2.6. Variables and Sections"
 
+-- some organizational features of Lean (not part of axiomatic framework per se)
 
+/- Recall, the `constant` command allows us to declare new objects, which
+   then become part of the global context. This can be somewhat dangerous since 
+   declaring a new constant is tantamount to declaring an axiomatic extension of 
+   our foundational system, and may result in inconsistency.
+
+   This can be avoided, using implicit or explicit lambda abstraction
+   in our definitions to declare such objects "locally".
+-/
+namespace page21
+
+  def compose (α β γ : Type) (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
+
+  def do_twice (α : Type) (h : α → α) (x : α) : α := h (h x)
+
+  /- Repeating declarations in this way can be tedious, however. Lean provides us with
+     the `variable` and `variables` commands to make such declarations look global:
+  -/
+  variables (α β γ : Type)
+  def compose_alt (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
+
+end page21
+/- The variable and variables commands look like the constant and constants commands, 
+   but there is an important difference. Rather than creating permanent entities, 
+   the `variables` command simply instructs Lean to insert the declared variables 
+   as bound variables in definitions that refer to them. -/
 
 #print "------------------------------------------------"
 #print "Section 2.7 Namespaces"
