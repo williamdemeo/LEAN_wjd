@@ -110,8 +110,8 @@ contains source code accumulated while working through the first 20 pages of the
 (50-page) tutorial 
 [An Introduction to Lean](https://leanprover.github.io/introduction_to_lean/introduction_to_lean.pdf).
 
-The [intro tutorial](https://leanprover.github.io/introduction_to_lean/introduction_to_lean.pdf) is essentially a 50-page compendium of examples aimed at showing off what Lean can do.
-After only 12 pages of this tutorial, the authors suggest moving on to one of the
+That tutorial is essentially a 50-page compendium of examples aimed at showing off what 
+Lean can do, and after just 12 pages the authors suggest moving on to one of the 
 other tutorials. They give the following advice:
 
 "If you are motivated to continue using Lean in earnest, we recommend
