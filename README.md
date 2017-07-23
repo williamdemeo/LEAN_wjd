@@ -114,19 +114,16 @@ That tutorial is essentially a 50-page compendium of examples aimed at showing o
 Lean can do, and after just 12 pages the authors suggest moving on to one of the 
 other tutorials. They give the following advice:
 
-"If you are motivated to continue using Lean in earnest, we recommend
-continuing, from here, to either of the following more expansive introductions:
+*If you are motivated to continue using Lean in earnest, we recommend
+continuing, from here, to either of the following more expansive introductions:*
 
-**Theorem Proving in Lean** 
-[online](https://leanprover.github.io/theorem_proving_in_lean), 
-[pdf](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf)
++ **Theorem Proving in Lean** 
+  ([online](https://leanprover.github.io/theorem_proving_in_lean), 
+  [pdf](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf))
 
-**Programming in Lean**
-[online](https://leanprover.github.io/programming_in_lean/)
-[pdf](https://leanprover.github.io/programming_in_lean/programming_in_lean.pdf)
-
-The first focuses on the use of Lean as a theorem prover, whereas the second focuses
-on aspects of Lean related to programming and metaprogramming."
++ **Programming in Lean**
+  ([online](https://leanprover.github.io/programming_in_lean/)
+  [pdf](https://leanprover.github.io/programming_in_lean/programming_in_lean.pdf))
 
 
 So let's move on to the
