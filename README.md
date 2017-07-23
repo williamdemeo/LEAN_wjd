@@ -1,6 +1,29 @@
-# Notes on Learning Lean
+# LEAN_wjd
 
-## Intallation
+Personal notes accumulated in the process of learning
+the [Lean Theorem Prover](http://leanprover.github.io/).
+
+*The contents of this repository are not intended for public consumption.*
+
+## Background and Motivation
+
+The [Lean Theorem Prover](http://leanprover.github.io/) aims to bridge the gap 
+between interactive and automated theorem proving, by situating automated tools 
+and methods in a framework that supports user interaction and the construction 
+of fully specified axiomatic proofs. 
+
+Lean's underlying logic has a computational interpretation, and Lean can be viewed
+equally well as a programming language. More to the point, it can be viewed as a
+system for writing programs with a precise semantics, as well a reasoning about
+the functions that the programs compute. 
+
+Lean also has mechanisms to serve as its own *metaprogramming language*, which 
+means that one can implement automation and extend the functionality of Lean using 
+Lean itself. Metaprogramming aspects of Lean are explored in the tutorial
+[Programming in Lean](https://leanprover.github.io/programming_in_lean).
+
+
+## Intallation of Lean
 
 On Ubuntu 16.04 I installed Lean from source following the directions
 here:
@@ -82,24 +105,36 @@ Otherwise, add the following to your `init.el` file:
 | <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
 | <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |
 
+The [introduction](https://github.com/williamdemeo/LEAN_wjd/tree/master/introduction) directory
+contains source code accumulated while working through the first 20 pages of the 
+(50-page) tutorial 
+[An Introduction to Lean](https://leanprover.github.io/introduction_to_lean/introduction_to_lean.pdf).
+
+The [intro tutorial](https://leanprover.github.io/introduction_to_lean/introduction_to_lean.pdf) is essentially a 50-page compendium of examples aimed at showing off what Lean can do.
+After only 12 pages of this tutorial, the authors suggest moving on to one of the
+other tutorials. They give the following advice:
+
+"If you are motivated to continue using Lean in earnest, we recommend
+continuing, from here, to either of the following more expansive introductions:
+
+**Theorem Proving in Lean** 
+[online](https://leanprover.github.io/theorem_proving_in_lean), 
+[pdf](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf)
+
+**Programming in Lean**
+[online](https://leanprover.github.io/programming_in_lean/)
+[pdf](https://leanprover.github.io/programming_in_lean/programming_in_lean.pdf)
+
+The first focuses on the use of Lean as a theorem prover, whereas the second focuses
+on aspects of Lean related to programming and metaprogramming."
+
+
+So let's move on to the
+[Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf) tutorial...
+
 
 ## Theorem Proving in Lean
-This section collects some important excerpts from the pdf tutorial
+
+The directory [theorem-proving](https://github.com/williamdemeo/LEAN_wjd/tree/master/theorem_proving) collects my notes on, and excerpts from, the pdf tutorial
 [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf)
 
-### Introduction
-
-The Lean Theorem Prover aims to bridge the gap between interactive and automated
-theorem proving, by situating automated tools and methods in a framework that supports
-user interaction and the construction of fully specified axiomatic proofs.
-
-Lean's underlying logic has a computational interpretation, and Lean can be viewed
-equally well as a programming language. More to the point, it can be viewed as a
-system for writing programs with a precise semantics, as well a reasoning about
-the functions that the programs compute. 
-Lean also has mechanisms to serve as its own *metaprogramming
-language*, which means that one can implement automation and extend the
-functionality of Lean using Lean itself. 
-These aspects of Lean are explored in a companion tutorial to this one,
-[Programming in Lean](https://leanprover.github.io/programming_in_lean), 
-though computational aspects of the system will make an appearance here.
