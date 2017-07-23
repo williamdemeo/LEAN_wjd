@@ -126,11 +126,7 @@ continuing, from here, to either of the following more expansive introductions:*
   [pdf](https://leanprover.github.io/programming_in_lean/programming_in_lean.pdf))
 
 
-So let's move on to the
-[Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf) tutorial...
-
-
-## Theorem Proving in Lean
+So let's move on...
 
 The directory [theorem-proving](https://github.com/williamdemeo/LEAN_wjd/tree/master/theorem_proving) collects my notes on, and excerpts from, the pdf tutorial
 [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf)
