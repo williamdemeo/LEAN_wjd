@@ -228,40 +228,53 @@ end page36
 
 #print "------------------------------------------------"
 #print "Section 3.3 Propositional Logic"
-namespace Section_3_3
-  /- If we have p q r : Prop, the expression p → q → r reads 
-     "if p, then if q, then r." NB this is the "curried" form of p ∧ q → r. -/
 
-  /- Lambda abstraction can be viewed as an "introduction rule" for →. 
-     It "introduces" (or establishes) an implication.  Application, on the other hand,
-     is an "elimination rule" showing how to "eliminate" (or use) an implication in a proof. -/ 
+/- If we have p q r : Prop, the expression p → q → r reads 
+   "if p, then if q, then r." NB this is the "curried" form of p ∧ q → r. -/
 
-end Section_3_3
+/- Lambda abstraction can be viewed as an "introduction rule" for →. 
+   It "introduces" (or establishes) an implication.  Application, on the other hand,
+   is an "elimination rule" showing how to "eliminate" (or use) an implication in a proof. -/ 
 
 
-#print "------------------------------------------------"
-#print "Section 3.4 Introducing Auxiliary Subgoals"
-namespace Section_3_4
+namespace page37
+  -- Conjunction
+  /- The expression and.intro h1 h2 builds a proof of p ∧ q using proofs h1 : p and h2 : q. 
+     `and.intro` is known as the "and-introduction rule." -/
 
-end Section_3_4
+  -- Let's use `and.intro` to create a proof of `p → q → p ∧ q`.
+  variables p q : Prop
+  theorem t3 (hp : p) (hq : q) :  p ∧ q := and.intro hp hq
+  #check t3
 
+  -- Alternatively, 
+  theorem t3' : Π (hp : p) (hq : q),  p ∧ q := λ (h₁ : p) (h₂ :q), and.intro h₁ h₂
+  #check t3'
 
-#print "------------------------------------------------"
-#print "Section 3.5 Classical Logic"
-namespace Section_3_5
+  /- `and.elim_left` gives a proof of `p` from a proof of `p ∧ q`.   
+     Similarly for `and.elim_right` and `q`, resp. 
+     These are known as the right and left /and-elimination/ rules. -/
+  example (h : p ∧ q) : p := and.elim_left h   -- std lib abbreviation: `and.left`
+  example (h : p ∧ q) : q := and.elim_right h  -- std lib abbreviation: `and.right`
 
-end Section_3_5
+  /- The `example` command states a theorem without naming it or storing it in the 
+     permanent context. It just checks that the given term has the indicated type. -/
 
+  -- Let's prove `p ∧ q → q ∧ p`
+  theorem and_comm (h : p ∧ q) : q ∧ p := and.intro (and.right h) (and.left h)
+  #check and_comm
 
-#print "------------------------------------------------"
-#print "Section 3.6 Examples of Propositional Validities"
-namespace Section_3_6
+  theorem and_comm' : Π (α : Prop) (β : Prop), (α ∧ β) → (β ∧ α) := 
+          λ (α β : Prop), λ (h : α ∧ β), and.intro (and.right h) (and.left h)
+  #check and_comm'
+end page37
 
-end Section_3_6
+/- `and-introduction` and `and-elimination` are similar to the pairing and projection 
+   operations for the cartesian product. The difference is that given `hp : p` and `hq : q`, 
+   `and.intro hp hq` has type `p ∧ q : Prop`, while `pair hp hq` has type `p × q : Type`.
 
+   The similarity between ∧ and × is another instance of the Curry-Howard isomorphism, but
+   in contrast to implication and the function space constructor, ∧ and × are treated sepa-
+   rately in Lean.
+-/
 
-#print "------------------------------------------------"
-#print "Section 3.7 Exercises"
-namespace Section_3_7
-
-end Section_3_7
