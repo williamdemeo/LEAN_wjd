@@ -28,7 +28,6 @@ namespace Sec_3_1
   constant and_comm : Π p q : Prop, Proof (implies (and p q) (and q p))
 
   #check and_comm p q      -- Proof (implies (and p q) (and q p))
-
   
   /- In addition to axioms, however, we would also need rules to build new proofs from 
      old ones. For example, in many proof systems for propositional logic, we have the 
@@ -237,10 +236,13 @@ end page36
    is an "elimination rule" showing how to "eliminate" (or use) an implication in a proof. -/ 
 
 
+-- ____CONJUNCTION____
+
 namespace page37
-  -- Conjunction
   /- The expression and.intro h1 h2 builds a proof of p ∧ q using proofs h1 : p and h2 : q. 
      `and.intro` is known as the "and-introduction rule." -/
+
+  -- __AND_INTRO__
 
   -- Let's use `and.intro` to create a proof of `p → q → p ∧ q`.
   variables p q : Prop
@@ -250,6 +252,9 @@ namespace page37
   -- Alternatively, 
   theorem t3' : Π (hp : p) (hq : q),  p ∧ q := λ (h₁ : p) (h₂ :q), and.intro h₁ h₂
   #check t3'
+
+
+  -- __AND_ELIM__
 
   /- `and.elim_left` gives a proof of `p` from a proof of `p ∧ q`.   
      Similarly for `and.elim_right` and `q`, resp. 
@@ -278,3 +283,80 @@ end page37
    rately in Lean.
 -/
 
+
+namespace page38
+
+  -- __ANONYMOUS_CONSTRUCTORS__
+
+  /- Certain types in Lean are structures, which is to say, the type is defined with a 
+     single canonical constructor which builds an element of the type from a sequence of 
+     suitable arguments. The expression `p ∧ q` is an example. -/
+
+  /- Lean allows us to use *anonymous constructor* notation ⟨arg1, arg2, ...⟩ in situations 
+     like these, when the relevant type is an inductive type and can be inferred from the 
+     context. In particular, we can often write ⟨hp, hq⟩ instead of and.intro hp hq. -/
+
+  variables p q : Prop
+  variables (hp : p) (hq : q)
+
+  #check (⟨hp, hq⟩ : p ∧ q)        -- and.intro hp hq : p ∧ q
+
+  /- Here's another useful syntactic gadget. Given an expression `e` of an inductive 
+     type `fu`, the notation e.bar is shorthand for `fu.bar e`. Thus we can access 
+     functions without opening a namespace. For example, these mean the same thing. -/
+  variable l : list ℕ
+  #check list.head l               -- list.head l : ℕ
+  #check l.head                    -- list.head l : ℕ
+
+  /- Another example: given `h : p ∧ q`, we can write `h.left` for `and.left h` and 
+     `h.right` for `and.right h`.  Thus the sample proof above can be given as follows: -/
+  example (h : p ∧ q) : q ∧ p := ⟨h.right, h.left⟩
+
+end page38
+
+/-  ____DISJUNCTION____
+
+   `or.intro_left q hp` creates a proof of `p ∨ q` from a proof `hp : p`.
+   `or.intro_right p hq` creates a proof of `p ∨ q` from a proof `hq : q`. 
+   These are called the left and right "or-introduction" rules. 
+-/
+
+namespace page39
+  variables p q : Prop
+  variables (hp : p) (hq : q)
+
+  -- __OR_INTRO__
+
+  example (hp : p) : p ∨ q := or.intro_left q hp
+  example (hq : q) : p ∨ q := or.intro_right p hq
+
+  -- __OR_ELIM__
+
+  /- The `or-elimination` rule is slightly more complicated. The idea is that we can prove
+     `r` from `p ∨ q`, by showing that `r` follows from `p` and that `r` follows from `q`.  -/
+
+  /- In the expression `or.elim hpq hpr hqr`, the function `or.elim` takes three arguments:
+            hpq : p ∨ q,     hpr : p → r,     hqr : q → r
+     and produces a proof of `r`. 
+  -/
+
+  -- Let's use `or.elim` to prove `p ∨ q → q ∨ p`.
+  theorem or_comm : Π (α β : Prop), α ∨ β → β ∨ α := λ (α β : Prop) (h : α ∨ β), 
+      or.elim h (λ (a : α), or.inr a) (λ (b : β), or.inl b)
+
+  -- Here's the textbook's version:
+  example (h : p ∨ q) : q ∨ p :=
+  or.elim h
+    (assume hq : p,
+      show q ∨ p, from or.intro_right q hp)
+    (assume hq : q,
+      show q ∨ p, from or.intro_left p hq)
+
+end page39
+
+namespace page40
+/-In most cases, the first argument of or.intro_right and or.intro_left can be in-
+ferred automatically by Lean. Lean therefore provides or.inr and or.inl as shorthands
+for or.intro_right _ and or.intro_left _. Thus the proof term above could be written
+more concisely: -/
+end page40
