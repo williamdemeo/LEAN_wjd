@@ -442,10 +442,30 @@ namespace page41
   variables p q r : Prop
   variables (hp : p) (hq : q)
 
-  -- theorem and_swap : p ∧ q ↔ q ∧ p :=
-  --   iff.intro
+  theorem and_swap : p ∧ q ↔ q ∧ p :=
+    iff.intro
+      (assume h: p ∧ q,
+        show q ∧ p, from and.intro (and.elim_right h) (and.elim_left h))
+      (assume h: q ∧ p,
+        show p ∧ q, from and.intro (and.elim_right h) (and.elim_left h))
 
-  --  LEFT OFF HERE
+  #check and_swap                        -- ∀ (p q : Prop), p ∧ q ↔ q ∧ p
+  #check and_swap p                      --   ∀ (q : Prop), p ∧ q ↔ q ∧ p
+  #check and_swap p q                    --                 p ∧ q ↔ q ∧ p
+
+  /- iff.elim_left and iff.elim_right represent a form of modus ponens,
+     so they can be abbreviated iff.mp and iff.mpr, respectively. -/
+
+  /- We can use the anonymous constructor notation to construct a proof of p ↔ q from 
+     proofs of the forward and backward directions, and we can also use . notation with 
+     mp and mpr. -/
+
+  theorem and_swap' : p ∧ q ↔ q ∧ p :=
+    ⟨λ (h : p ∧ q), ⟨h.right, h.left⟩, λ (h : q ∧ p), ⟨h.right, h.left⟩⟩
+
+  example (h : p ∧ q) : q ∧ p := (and_swap' p q).elim_left h
+
+  example (h : p ∧ q) : q ∧ p := (and_swap' p q).mp h
 
   #print " "
 end page41
