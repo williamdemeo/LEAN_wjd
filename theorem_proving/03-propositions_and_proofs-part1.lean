@@ -3,8 +3,10 @@
 /- This chapter explains how to write mathematical assertions and proofs in the language
 of dependent type theory. -/
 
-#print "------------------------------------------------"
+#print "=================================="
 #print "Section 3.1 Propositions as Types"
+#print " "
+
 namespace Sec_3_1
   /- We introduce a new type, `Prop`, to represent propositions, and introduce 
      constructors to build new propositions from others.
@@ -121,6 +123,7 @@ namespace Sec_3_1
   -/
 
 
+  #print " "
 end Sec_3_1
 
 /- Section 3.1 output:
@@ -130,10 +133,13 @@ end Sec_3_1
                 and_comm p q : Proof (implies (and p q) (and q p))
 -/
 
-#print "------------------------------------------------"
+#print "================================================"
 #print "Section 3.2 Working with Propositions as Types"
+#print " "
 
 namespace page34
+  #print "-------------- page 34 ----------------"
+
   constants p q : Prop
 
   theorem t1 : p → q → p := λ hp : p, λ hq : q, hp
@@ -147,9 +153,14 @@ namespace page34
   lemma t1'' : p → q → p := assume hp : p, assume hq : q, show p, 
     from hp
 
+  #print " "
 end page34
 
+
+
 namespace page35
+  #print "-------------- page 35 ----------------"
+
   constants p q : Prop
 
   /- As with ordinary defs, we can move lambda-abstracted variables to the left of colon. -/
@@ -180,9 +191,12 @@ namespace page35
      propositions, so that they are generalized for us automatically. 
      When we generalize t1 in that way, we can then apply it to different pairs of 
      propositionshe to obtain different instances of the general theorem. -/
+  #print " "
 end page35
 
 namespace page36
+  #print "-------------- page 36 ----------------"
+
   variables p q r s : Prop
   variable h : r → s
   #check h
@@ -206,6 +220,7 @@ namespace page36
 
   /- As a theorem of propositional logic, what does thm2 say? 
      (given `p implies q` and `q implies r`, we can derive `p implies r`) -/
+  #print " "
 end page36
 
 /- Section 3.2 output:
@@ -225,8 +240,9 @@ end page36
 
 
 
-#print "------------------------------------------------"
+#print "================================="
 #print "Section 3.3 Propositional Logic"
+  #print " "
 
 /- If we have p q r : Prop, the expression p → q → r reads 
    "if p, then if q, then r." NB this is the "curried" form of p ∧ q → r. -/
@@ -239,6 +255,8 @@ end page36
 -- ____CONJUNCTION____
 
 namespace page37
+  #print "-------------- page 37 ----------------"
+
   /- The expression and.intro h1 h2 builds a proof of p ∧ q using proofs h1 : p and h2 : q. 
      `and.intro` is known as the "and-introduction rule." -/
 
@@ -272,6 +290,8 @@ namespace page37
   theorem and_comm' : Π (α : Prop) (β : Prop), (α ∧ β) → (β ∧ α) := 
           λ (α β : Prop), λ (h : α ∧ β), and.intro (and.right h) (and.left h)
   #check and_comm'
+
+  #print " "
 end page37
 
 /- `and-introduction` and `and-elimination` are similar to the pairing and projection 
@@ -285,6 +305,7 @@ end page37
 
 
 namespace page38
+  #print "-------------- page 38 ----------------"
 
   -- __ANONYMOUS_CONSTRUCTORS__
 
@@ -312,6 +333,7 @@ namespace page38
      `h.right` for `and.right h`.  Thus the sample proof above can be given as follows: -/
   example (h : p ∧ q) : q ∧ p := ⟨h.right, h.left⟩
 
+  #print " "
 end page38
 
 /-  ____DISJUNCTION____
@@ -322,6 +344,8 @@ end page38
 -/
 
 namespace page39
+  #print "-------------- page 39 ----------------"
+
   variables p q : Prop
   variables (hp : p) (hq : q)
 
@@ -344,7 +368,9 @@ namespace page39
   theorem or_comm : Π (α β : Prop), α ∨ β → β ∨ α := λ (α β : Prop) (h : α ∨ β), 
       or.elim h (λ (a : α), or.inr a) (λ (b : β), or.inl b)
 
-  -- Here's the textbook's version:
+  #check or_comm
+
+  -- Here's the tutorial's version:
   example (h : p ∨ q) : q ∨ p :=
   or.elim h
     (assume hq : p,
@@ -352,11 +378,74 @@ namespace page39
     (assume hq : q,
       show q ∨ p, from or.intro_left p hq)
 
+  -- Here's an alternative version from the tutorial.
+  theorem or_comm' (h : p ∨ q) : q ∨ p := 
+    or.elim h (λ (hp : p), or.inr hp) (λ (hq : q), or.inl hq)
+  #check or_comm'
+    
+  #print " "
 end page39
 
-namespace page40
 /-In most cases, the first argument of or.intro_right and or.intro_left can be in-
 ferred automatically by Lean. Lean therefore provides or.inr and or.inl as shorthands
 for or.intro_right _ and or.intro_left _. Thus the proof term above could be written
 more concisely: -/
+
+namespace page40
+  #print "-------------- page 40 ----------------"
+
+  variables p q r : Prop
+  variables (hp : p) (hq : q)
+
+  /- Because or has two constructors, we cannot use anonymous constructor notation. 
+     But we can still write h.elim instead of or.elim h. -/
+  theorem or_comm'' (h : p ∨ q) : q ∨ p := 
+    h.elim (λ (hp : p), or.inr hp) (λ (hq : q), or.inl hq)
+  
+  #check or_comm''
+
+  -- Negation and Falsity
+  /- Negation, `¬p`, is defined to be p → false, so we obtain ¬p by assuming
+     p and then deriving a contradiction. 
+
+     Similarly, the expression `hnp hp` produces a proof of false from `hp : p`
+     and `hnp : ¬p`. The next example uses both these rules to produce a proof of 
+     `(p → q) → ¬q → ¬p`.
+  -/
+
+  theorem mt (hpq : p → q) (hnq : ¬q) : ¬p :=
+    assume hp : p,
+    show false, from hnq (hpq hp)
+
+  #check mt
+
+  /- The connective false has a single elimination rule, false.elim, which expresses the
+     fact that anything follows from a contradiction. This rule is sometimes called ex falso
+     (short for ex falso sequitur quodlibet), or the principle of explosion. -/
+
+  example (hp : p) (hnp : ¬p) : q := false.elim (hnp hp)
+
+  example (hnp : ¬p) (hq : q) (hqp : q → p) : r := absurd (hqp hq) hnp
+
+  #print " "
 end page40
+
+
+namespace page41
+  #print "-------------- page 41 ----------------"
+
+  /- __Logical Equivalence__
+    The expression `iff.intro h1 h2` produces a proof of `p ↔ q` from `h1 : p → q` and 
+    `h2 : q → p`. The expression `iff.elim_left h` produces a proof of `p → q` from 
+    `h : p ↔ q`. Similarly, `iff.elim_right h` produces a proof of `q → p` from 
+    `h : p ↔ q`. -/
+  variables p q r : Prop
+  variables (hp : p) (hq : q)
+
+  -- theorem and_swap : p ∧ q ↔ q ∧ p :=
+  --   iff.intro
+
+  --  LEFT OFF HERE
+
+  #print " "
+end page41
