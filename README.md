@@ -6,7 +6,7 @@ the [Lean Theorem Prover](http://leanprover.github.io/).
 *This repository is intended for my own personal use; you are welcomed to use it, 
 but was not intended for public consumption.*
 
-The latest versions of the lean tutorials are on the [leanprover.github.io](https://leanprover.github.io) site:*
+The latest versions of the lean tutorials are on the [leanprover.github.io](https://leanprover.github.io) site:
 
 + [Introduction to Lean](https://leanprover.github.io/introduction_to_lean)
 + [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean)
