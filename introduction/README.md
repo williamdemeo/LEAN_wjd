@@ -1,4 +1,9 @@
-First, to compile the introduction_to_lean.pdf, I did the following:
+
+### compiling introduction_to_lean.pdf
+
+(**NOTE:** The following compilation of introduction_to_lean.pdf never worked.)
+
+To compile the introduction_to_lean.pdf, I did the following:
 
     sudo apt-get install mercurial python2.7 texlive-latex-recommended \
                      texlive-humanities texlive-xetex texlive-science \
@@ -17,4 +22,17 @@ First, to compile the introduction_to_lean.pdf, I did the following:
 	export PATH="home/williamdemeo/.cask/bin:$PATH"
 	make install-pygments
 	make
+
+------------------------------------------------
+
+### overview.lean
+
+**Useful commands:** `C-c C-b`, `C-c C-x`, `C-c C-r`
+
+To execute the commands in the file `overview.lean`, load the file into emacs and then run
+`C-c C-b` to see the results inline, or `C-c C-x` to execute the file in stand-alone mode.
+
+If you notice that hover-over is no longer working when you move the mouse over the `#check` 
+command, then try `C-c C-r` to re-read (re-typecheck) the file.
+
 

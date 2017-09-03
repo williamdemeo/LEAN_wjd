@@ -135,9 +135,9 @@ namespace page14
   constant γ : Type u
   #check γ
 
-end page14
+end page14 -- (page 8 of new edition)
 
-/- the ability to treat type constructors as instances of 
+/- The ability to treat type constructors as instances of 
    ordinary mathematical functions is a powerful feature of 
    dependent type theory.         -/
 
@@ -170,7 +170,7 @@ end page14
 #print "------------------------------------------------"
 #print "Section 2.3. Function Abstraction and Evaluation"
 
--- page 15 (lambda abstraction)
+-- page 15 (lambda abstraction) (page 8 in new edition)
 namespace page15
   #check fun x : nat, x + 5
   #check λ x : ℕ, x + 5
@@ -187,7 +187,7 @@ namespace page15
 end page15
 
 
-namespace page16
+namespace page16 -- (page 9 in new edition)
   constants α β γ : Type
   constant f : α → β
   constant g : β → γ
@@ -214,7 +214,7 @@ namespace page16
 -/
 end page16
 
-namespace page17
+namespace page17 -- (page 10 of new edition)
   constants α β γ : Type
   constant f : α → β
   constant g : β → γ
@@ -369,7 +369,7 @@ namespace page19
   def do_twice_alt : (ℕ → ℕ) → ℕ → ℕ := λ (f: ℕ → ℕ) (x: ℕ), f (f x)
   #check do_twice_alt
   #print do_twice_alt
-  #reduce do_twice_alt double 2
+  #reduce do_twice_alt double_alt 2
 
   /- As an exercise, we encourage you to use do_twice and double to define 
      functions that quadruple their input, and multiply the input by 8.   -/  
@@ -385,11 +385,14 @@ namespace page19
                 Do_Twice : ((N → N) → (N → N)) → (N → N) → (N → N) 
      which applies its argument twice, so that `Do_Twice do_twice` is a 
      function that iterates its input four times.  -/   
-  def Do_Twice : ((ℕ → ℕ) → (ℕ → ℕ)) → (ℕ → ℕ) → (ℕ → ℕ) :=
-                 λ (f: (ℕ → ℕ) → (ℕ → ℕ)) (g: ℕ → ℕ), f (f g)
+
+  def Do_Twice : ((ℕ → ℕ) → (ℕ → ℕ)) → (ℕ → ℕ) → (ℕ → ℕ) := 
+    λ (F : (ℕ → ℕ) → (ℕ → ℕ)) (f: ℕ → ℕ), F (F f)
+
+  def Four_Times : (ℕ → ℕ) → ℕ → ℕ := Do_Twice do_twice
 
   -- Finally, evaluate `Do_Twice do_twice double 2`.
-  #reduce Do_Twice do_twice double 2                    -- 32
+  #reduce Four_Times double 2                    -- 32
 
   /- As another exercise, we encourage you to complete the following
      definitions, which "curry" and "uncurry" a function. -/
@@ -426,4 +429,180 @@ end page19
                 32
 -/
 
+
+#print "------------------------------------------------"
+#print "Section 2.5. Local Definitions"
+
+-- Lean allows you to introduce "local" definitions using the let construct.
+
+/- The expression let `a := t1 in t2` is definitionally equal to the result of 
+   replacing every occurrence of `a` in `t2` by `t1`. -/
+namespace page20
+  #check let y := 2 + 2 in y * y                     -- ℕ
+  #reduce let y := 2 + 2 in y * y                    -- 16
+  def t (x : ℕ) : ℕ := let y := x + x in y * y
+  #reduce t 2                                        -- 16
+end page20
+
+
+#print "------------------------------------------------"
+#print "Section 2.6. Variables and Sections"
+
+-- some organizational features of Lean (not part of axiomatic framework per se)
+
+/- Recall, the `constant` command allows us to declare new objects, which
+   then become part of the global context. This can be somewhat dangerous since 
+   declaring a new constant is tantamount to declaring an axiomatic extension of 
+   our foundational system, and may result in inconsistency.
+
+   This can be avoided, using implicit or explicit lambda abstraction
+   in our definitions to declare such objects "locally".
+-/
+namespace page21 -- (page 13 in new edition)
+
+  def compose (α β γ : Type) (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
+
+  def do_twice (α : Type) (h : α → α) (x : α) : α := h (h x)
+
+  /- Repeating declarations in this way can be tedious, however. Lean provides us with
+     the `variable` and `variables` commands to make such declarations look global:
+  -/
+  variables (α β γ : Type)
+  def compose_alt (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
+
+end page21
+/- The variable and variables commands look like the constant and constants commands, 
+   but there is an important difference. Rather than creating permanent entities, 
+   the `variables` command simply instructs Lean to insert the declared variables 
+   as bound variables in definitions that refer to them. -/
+
+/- A variable stays in scope until the end of the file we are working on, and we 
+   cannot declare another variable with the same name. 
+
+   To limit the scope of a variable, Lean provides the notion of a section:
+-/
+
+section useful
+  variables (α β γ : Type)
+  variables (g : β → γ) (f : α → β) (h: α → α)
+  variable x : α
+  def compose := g (f x)
+  def do_twice := h (h x)
+end useful
+
+
+
+#print "------------------------------------------------"
+#print "Section 2.7 Namespaces"
+
+/- Lean provides us with the ability to group definitions, notation, and other 
+   information into nested, hierarchical namespaces.
+-/
+
+namespace fu
+  def a : ℕ :=5
+  def f (x : ℕ) : ℕ := x+7
+
+  def fa : ℕ := f a
+  def ffa : ℕ := f (f a)
+
+  #print "inside fu"
+  #check a
+  #check f
+  #check fa
+  #check ffa
+  #check fu.fa
+  
+end fu
+#print "outside the fu namespace"
+-- #check a               -- error
+-- #check f               -- error
+#check fu.a
+#check fu.ffa
+
+open fu
+#print "opened fu"
+#check a
+-- #check f     -- still an error because ambiguous (f was also defined above)
+#check fu.f
+#check ffa
+
+/- The `open` command brings the shorter names into the current context. Often, 
+   when we import a theory file, we will want to open one or more of the namespaces 
+   it contains, to have access to the short identifiers, notations, and so on. 
+   But sometimes we will want to leave this information hidden, for example, when 
+   they conflict with identifiers and notations in another namespace we want to use. 
+   Thus namespaces give us a way to manage our working environment.
+-/
+
+-- Lean groups definitions and theorems involving lists into a namespace `list`.
+
+#check list.nil
+#check list.cons
+#check list.append
+
+open list
+#check nil
+#check cons
+#check append
+
+-- like sections, namespaces can be nested
+namespace page24
+  namespace pre
+    def a : ℕ := 5
+    def f (x : ℕ) : ℕ := x+7
+  end pre
+
+  namespace top
+    def fa : ℕ := pre.f a
+    
+    namespace bar
+      def ffa : ℕ := pre.f (pre.f a)
+
+      #check fa
+      #check ffa
+    end bar
+
+    #check fa
+    #check bar.ffa
+
+  end top
+
+
+end page24
+
+-- Namespaces that have been closed can later be reopened, even in another file.
+
+namespace page24
+  def b : ℕ := 5
+end page24
+
+/- Namespaces and sections serve different purposes: namespaces organize data and 
+   sections declare variables for insertion in theorems. -/
+
+/- Section 2.7. output:
+                inside fu
+                a : ℕ
+                f : ℕ → ℕ
+                fa : ℕ
+                ffa : ℕ
+                fa : ℕ
+                outside the fu namespace
+                fu.a : ℕ
+                fu.ffa : ℕ
+                opened fu
+                a : ℕ
+                f : ℕ → ℕ
+                ffa : ℕ
+                list.nil : list ?M_1
+                list.cons : ?M_1 → list ?M_1 → list ?M_1
+                list.append : list ?M_1 → list ?M_1 → list ?M_1
+                nil : list ?M_1
+                cons : ?M_1 → list ?M_1 → list ?M_1
+                append : ?M_1 → ?M_1 → ?M_1
+                fa : ℕ
+                ffa : ℕ
+                fa : ℕ
+                bar.ffa : ℕ
+-/
 
