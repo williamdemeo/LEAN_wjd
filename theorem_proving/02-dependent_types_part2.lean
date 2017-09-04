@@ -30,7 +30,8 @@
    depend on α.
 -/
 
-namespace page25 -- (page 17 in new ed)
+namespace page25
+  #print "----- page17, new ed-------------------"
   universe u
   constant list : Type u → Type u   -- N.B. we don't just want `list : Type → Type`
   constant cons : Π (α : Type u), α → list α → list α
@@ -76,6 +77,7 @@ end page18
 -/
 
 namespace page27
+  #print "----- page18, new ed-------------------"
   variable α : Type
   variable β : α → Type
   variable a : α

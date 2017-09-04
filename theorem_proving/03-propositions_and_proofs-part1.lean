@@ -27,7 +27,7 @@ namespace Sec_3_1
   constant Proof : Prop → Type
 
   -- example of an axiom:
-  constant and_comm : Π p q : Prop, Proof (implies (and p q) (and q p))
+  constant and_comm : Π (p q : Prop), Proof (implies (and p q) (and q p))
 
   #check and_comm p q      -- Proof (implies (and p q) (and q p))
   
@@ -35,6 +35,9 @@ namespace Sec_3_1
      old ones. For example, in many proof systems for propositional logic, we have the 
      rule of modus ponens. -/
   constant modus_ponens (p q : Prop) : Proof (implies p q) →  Proof p → Proof q
+  constant modus_ponens' : Π (p q : Prop), Proof (implies p q) →  Proof p → Proof q
+  #check modus_ponens p q
+  #check modus_ponens' p q
  
   /- Systems of natural deduction for propositional logic also typically rely on 
      the following rule: -/
@@ -95,15 +98,15 @@ namespace Sec_3_1
 
   /- IMPORTANT DISTINCTION: 
 
-     "proofs as if people matter"
+     "proofs as if people matter" or "proof relevance"
      From the constructive point of view, proofs are *abstract mathematical objects* that 
      may be denoted (in various ways) by suitable expressions in dependent type theory. 
 
-     "proofs as if people don't matter"
-     From the non-constructive point of view, the proofs are not abstract entities. 
+     "proofs as if people don't matter" or "proof irrelevance"
+     From the non-constructive point of view, proofs are not abstract entities. 
      A syntactic expression---that we formulate using type theory in order to prove 
-     a proposition---doesn't denote some abstract proof.  Rather, the expression is itself
-     the proof. And such an expression does not denote anything beyond the fact that 
+     a proposition---doesn't denote some abstract proof.  Rather, the expression itself
+     /is/ the proof. And such an expression does not denote anything beyond the fact that 
      (assuming it type-checks) the proposition in question is "true" (i.e., has a proof). -/
 
   /- We may slip back and forth between these two ways of talking, at times saying that 
