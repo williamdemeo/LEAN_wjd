@@ -50,6 +50,17 @@ end page25
 
 
 
+namespace page18 --(new edition)
+  universe u
+  constant vec : Type u → ℕ → Type u
+
+  namespace vec
+    constant empty : Π (α : Type u), vec α 0
+    constant cons : Π (α : Type u) (n : ℕ), α → vec α n → vec α (n+1)
+    constant append : Π (α : Type u) (n m : ℕ), vec α n → vec α m → vec α (n+m)
+  end vec
+end page18
+
 /- One more important and illustrative example of dependent types, the
    *Sigma types*, `Σ x : α, β x`, sometimes known as *dependent products*.
 
@@ -78,8 +89,8 @@ namespace page27
   #reduce (sigma.mk a b).2
 end page27
 
-/- When p is a dependent pair `(sigma.mk a b).1` and `(sigma.mk a b).2` 
-   are short for `sigma.fst (sigma.mk a b)` and `sigma.snd (sigma.mk a b)`, 
+/- `(sigma.mk a b).1` and `(sigma.mk a b).2` are short for 
+   `sigma.fst (sigma.mk a b)` and `sigma.snd (sigma.mk a b)`, 
    and these reduce to a and b, respectively.
    (cf. 3rd to last line of output below)
 -/
