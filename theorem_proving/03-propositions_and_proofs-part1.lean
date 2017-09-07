@@ -197,7 +197,8 @@ namespace page35
   #print " "
 end page35
 
-namespace page36
+namespace page36 -- (page 26 of new edition)
+
   #print "-------------- page 36 ----------------"
 
   variables p q r s : Prop
@@ -224,6 +225,7 @@ namespace page36
   /- As a theorem of propositional logic, what does thm2 say? 
      (given `p implies q` and `q implies r`, we can derive `p implies r`) -/
   #print " "
+
 end page36
 
 /- Section 3.2 output:
@@ -246,13 +248,20 @@ end page36
 #print "================================="
 #print "Section 3.3 Propositional Logic"
   #print " "
+/- Propositional connectives are operators on the space Prop 
+   For example, if we have p q r : Prop, then the expression
+   p → q  read "if p then q" and this is a Prop, so we see
+   that → is a binary operation on Prop; thus we could write
+   → : Prop × Prop → Prop
 
-/- If we have p q r : Prop, the expression p → q → r reads 
+   the expression p → q → r reads 
    "if p, then if q, then r." NB this is the "curried" form of p ∧ q → r. -/
 
 /- Lambda abstraction can be viewed as an "introduction rule" for →. 
-   It "introduces" (or establishes) an implication.  Application, on the other hand,
-   is an "elimination rule" showing how to "eliminate" (or use) an implication in a proof. -/ 
+   It "introduces" (or establishes) an implication.  
+
+   Application, on the other hand, is an "elimination rule" for →.
+   It shows how to "eliminate" or /use/ an implication in a proof. -/ 
 
 
 -- ____CONJUNCTION____
@@ -368,8 +377,9 @@ namespace page39
   -/
 
   -- Let's use `or.elim` to prove `p ∨ q → q ∨ p`.
+
   theorem or_comm : Π (α β : Prop), α ∨ β → β ∨ α := λ (α β : Prop) (h : α ∨ β), 
-      or.elim h (λ (a : α), or.inr a) (λ (b : β), or.inl b)
+      or.elim h (λ (a : α), or.intro_right β a) (λ (b : β), or.intro_left α b)
 
   #check or_comm
 
