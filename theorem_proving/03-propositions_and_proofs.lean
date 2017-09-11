@@ -607,7 +607,10 @@ namespace exer
 
 -- LEFT OFF HERE
 --  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
---   or.inl (assume h₂ : ¬¬p, (mp₁ h h₂) )
+--   have h₁ : ((¬p → false) → p), from h,
+--   or.inr (assume h₂ : ¬p, h₂) 
+   -- have h₂ : ((p → false) → false) → p, from h₁,
+   
 --   or.inr (assume h₁ : ¬p, h₁)
 
 
