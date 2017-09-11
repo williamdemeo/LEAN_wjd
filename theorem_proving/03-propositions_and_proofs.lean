@@ -355,16 +355,14 @@ end page38
    These are called the left and right "or-introduction" rules. 
 -/
 
-namespace page39
+namespace page39a
   #print "-------------- page 39 ----------------"
-
-  variables p q : Prop
-  variables (hp : p) (hq : q)
 
   -- __OR_INTRO__
 
-  example (hp : p) : p ∨ q := or.intro_left q hp
-  example (hq : q) : p ∨ q := or.intro_right p hq
+  variables p q : Prop
+  example (h₁ : p) : p ∨ q := or.intro_left q h₁
+  example (h₂ : q) : p ∨ q := or.intro_right p h₂
 
   -- __OR_ELIM__
 
@@ -376,28 +374,33 @@ namespace page39
      and produces a proof of `r`. 
   -/
 
+end page39a
+
+namespace page39b
   -- Let's use `or.elim` to prove `p ∨ q → q ∨ p`.
+  theorem or_comm₁ : Π (p q : Prop), p ∨ q → q ∨ p := λ (p q : Prop) (h : p ∨ q), 
+      or.elim h (λ (h₁ : p), or.intro_right q h₁) (λ (h₂ : q), or.intro_left p h₂)
+  -- note that using a Π type, we don't need to introduce variables p and q in advance
 
-  theorem or_comm : Π (α β : Prop), α ∨ β → β ∨ α := λ (α β : Prop) (h : α ∨ β), 
-      or.elim h (λ (a : α), or.intro_right β a) (λ (b : β), or.intro_left α b)
+  -- Here's the tutorial's version 
+  -- (note we need to introduce p and q as variables)
 
-  #check or_comm
-
-  -- Here's the tutorial's version:
+  variables p q : Prop
   example (h : p ∨ q) : q ∨ p :=
-  or.elim h
-    (assume hq : p,
-      show q ∨ p, from or.intro_right q hp)
-    (assume hq : q,
-      show q ∨ p, from or.intro_left p hq)
+    or.elim h
+      (assume h₁ : p,
+        show q ∨ p, from or.intro_right q h₁)
+      (assume h₂ : q,
+        show q ∨ p, from or.intro_left p h₂)
 
   -- Here's an alternative version from the tutorial.
-  theorem or_comm' (h : p ∨ q) : q ∨ p := 
-    or.elim h (λ (hp : p), or.inr hp) (λ (hq : q), or.inl hq)
-  #check or_comm'
-    
+  theorem or_comm₂ (h : p ∨ q) : q ∨ p := 
+    or.elim h (λ (h₁ : p), or.inr h₁) (λ (h₂ : q), or.inl h₂)
+
+  #check or_comm₁
+  #check or_comm₂
   #print " "
-end page39
+end page39b
 
 /-In most cases, the first argument of or.intro_right and or.intro_left can be in-
 ferred automatically by Lean. Lean therefore provides or.inr and or.inl as shorthands
@@ -408,14 +411,14 @@ namespace page40
   #print "-------------- page 40 ----------------"
 
   variables p q r : Prop
-  variables (hp : p) (hq : q)
+  -- variables (h₁ : p) (h₂ : q)
 
   /- Because or has two constructors, we cannot use anonymous constructor notation. 
      But we can still write h.elim instead of or.elim h. -/
-  theorem or_comm'' (h : p ∨ q) : q ∨ p := 
-    h.elim (λ (hp : p), or.inr hp) (λ (hq : q), or.inl hq)
+  theorem or_comm (h : p ∨ q) : q ∨ p := 
+    h.elim (λ (h₁ : p), or.inr h₁) (λ (h₂ : q), or.inl h₂)
   
-  #check or_comm''
+  #check or_comm
 
   -- Negation and Falsity
   /- Negation, `¬p`, is defined to be p → false, so we obtain ¬p by assuming
@@ -431,25 +434,25 @@ namespace page40
 
   #check mt
 
-  -- Alternatively,
-  theorem mt' : Π (p q : Prop),  (p → q) → ¬q → ¬p := 
+  -- Alternatively, without predeclared variables,
+  theorem mt₁ : Π (p q : Prop),  (p → q) → ¬q → ¬p := 
     λ (p q : Prop) (h₁: p → q) (h₂ : ¬q) (h₃ : p), h₂ (h₁ h₃) 
-  #print mt'
+  #print mt₁
   /- The connective false has a single elimination rule, false.elim, which 
      expresses the fact that anything follows from a contradiction. This 
      rule is sometimes called ex falso, or the principle of explosion. -/
 
-  example (hp : p) (hnp : ¬p) : q := false.elim (hnp hp)
+  example (h₁ : p) (h₂ : ¬p) : q := false.elim (h₂ h₁)
+  example (h₁ : p) (h₂ : ¬p) : q := absurd h₁ h₂ -- notice reversal of order of hypoths
+  example (h₁ : ¬p) (h₂ : q) (h₃ : q → p) : r := absurd (h₃ h₂) h₁
 
-  example (hp : p) (hnp : ¬p) : q := absurd hp hnp -- notice the order of the hypoths
+  /- Alternatively, without predeclared variables, the last three examples could 
+     be implemented using Π types and λ terms.   -/
+  theorem ex_falso₁ : Π (p q : Prop), p → ¬p → q := 
+    λ (p q : Prop) (h₁ : p) (h₂ : ¬p), false.elim (h₂ h₁)
 
-  theorem ex_falso : Π (p q : Prop), p → ¬p → q := 
-    λ (p q : Prop) (hp : p) (hnp : ¬p), false.elim (hnp hp)
-
-  theorem ex_falso' : Π (p q : Prop), p → ¬p → q := 
-    λ (p q : Prop) (hp : p) (hnp : ¬p), absurd hp hnp
-
-  example (hnp : ¬p) (hq : q) (hqp : q → p) : r := absurd (hqp hq) hnp
+  theorem ex_falso₂ : Π (p q : Prop), p → ¬p → q := 
+    λ (p q : Prop) (h₁ : p) (h₂ : ¬p), absurd h₁ h₂
 
   theorem absurd_example : Π (p q r : Prop), ¬p → q → (q → p) → r :=
     λ (p q r : Prop) (h₁ : ¬p) (h₂ : q) (h₃ : q → p), absurd (h₃ h₂) h₁
@@ -496,8 +499,13 @@ namespace page41
 
 
   #check and_swap                        -- ∀ (p q : Prop), p ∧ q ↔ q ∧ p
+  #check and_swap₁                        -- ∀ (p q : Prop), p ∧ q ↔ q ∧ p
+  #print "--"
   #check and_swap p                      --   ∀ (q : Prop), p ∧ q ↔ q ∧ p
+  #check and_swap₂ p                      --   ∀ (q : Prop), p ∧ q ↔ q ∧ p
+  #print "--"
   #check and_swap p q                    --                 p ∧ q ↔ q ∧ p
+  #check and_swap₃ p q                    --                 p ∧ q ↔ q ∧ p
 
   /- iff.elim_left and iff.elim_right represent a form of modus ponens,
      so they can be abbreviated iff.mp and iff.mpr, respectively. -/
@@ -521,29 +529,42 @@ end page41
 #print "==========================================="
 #print "Section 3.4 Introducing Auxiliary Subgoals"
 #print "  "
-/- This is a good place to introduce another device Lean offers to help structure long proofs,
-   namely, the have construct, which introduces an auxiliary subgoal in a proof. Here is a
-   small example, adapted from the last section: -/
+  /- This is a good place to introduce another device Lean offers to help 
+     structure long proofs, namely, the `have` construct, which introduces 
+     an auxiliary subgoal in a proof. -/
 
 namespace Sec_3_4
   variables p q : Prop
   
   theorem and_swap (h : p ∧ q) : q ∧ p :=
-    have hp : p, from and.elim_left h,
-    have hq : q, from and.elim_right h,
-    show q ∧ p, from  and.intro hq hp
+    have h₁ : p, from and.elim_left h,
+    have h₂ : q, from and.elim_right h,
+    show q ∧ p, from  and.intro h₂ h₁
 
-  /- Lean also supports a structured way of reasoning backwards from a goal, which models
-     the "suffices to show" construction in ordinary mathematics. The next example simply
-     permutes that last two lines in the previous proof. -/
+  -- `show` is just for clarity; it's not required, as we see here.
+  theorem and_swap₁ (h : p ∧ q) : q ∧ p :=
+    have h₁ : p, from and.elim_left h,
+    have h₂ : q, from and.elim_right h, and.intro h₂ h₁
 
-  theorem and_swap' (h : p ∧ q) : q ∧ p :=
-    have hp : p, from and.elim_left h,
-    suffices hq : q, from and.intro hq hp,
+  /- Under the hood, the expression 
+         have h : p, from s, t
+     produces the term 
+         (λ (h : p), t) s
+
+     In other words, `s` is a proof of `p`, `t` is a proof of the desired 
+     conclusion assuming `h : p`, and the two are combined by lambda 
+     astraction and application. -/
+
+  /- Lean also supports a structured way of reasoning backwards from a goal,
+     which models the "suffices to show" construction in ordinary mathematics. -/
+
+  theorem and_swap₂ (h : p ∧ q) : q ∧ p :=
+    have h₁ : p, from and.elim_left h,
+    suffices h₂ : q, from and.intro h₂ h₁,
     show q, from and.elim_right h
 
-  
-  #check and_swap'
+  #check and_swap₁
+  #check and_swap₂
 
 end Sec_3_4
 
@@ -553,7 +574,7 @@ end Sec_3_4
 #print "Section 3.5 Classical Logic"
 #print "  "
 
-namespace page42
+namespace page43
 
   /- The constructive "or" is very strong: asserting p ∨ q amounts to knowing
      which is the case. If RH represents the Riemann hypothesis, a classical 
@@ -562,36 +583,36 @@ namespace page42
 
   open classical 
 
-  --variable p : Prop
   #check λ (p : Prop), em p            -- p ∨ ¬p
-
-end page42
-
-
-namespace page43
 
   /- One consequence of the law of the excluded middle is the principle of double-negation
      elimination: -/
-  open classical 
-
   theorem dne {p : Prop} (h : ¬¬p) : p :=
     or.elim (em p)
-      (assume hp : p, hp)
-      (assume hnp : ¬p, absurd hnp h)
+      (assume h₁ : p, h₁)
+      (assume h₂ : ¬p, false.elim (h h₂))
+--      (assume h₂ : ¬p, absurd h₂ h)
 
   #check @dne
   /- double-negation elimination allows one to carry out a proof by contradiction, 
      something which is not always possible in constructive logic. -/
 
-
 end page43
 
 /- Exercise: prove the converse of dne, showing that em can be proved from dne. -/
 namespace exer
-  variable p : Prop
+
+  variables p q : Prop
+  theorem mp₁ (h₁ : p → q) (h₂ : p) : q := h₁ h₂
 
 -- LEFT OFF HERE
---  example (h : ¬¬p → p) : p ∨ ¬p :=  
+--  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
+--   or.inl (assume h₂ : ¬¬p, (mp₁ h h₂) )
+--   or.inr (assume h₁ : ¬p, h₁)
+
+
+--    or.elim h (λ (h₁ : p), or.inr h₁) (λ (h₂ : q), or.inl h₂)
+     
 --    suffices pof : p ∨ false, from or.elim pof (λ h:p, or.inl h) (false.elim),
 --    show p ∨ false, from  
 
