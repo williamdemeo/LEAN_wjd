@@ -608,12 +608,14 @@ namespace exer
     (λ (h₂ : ¬p), or.inr h₂)
     (λ (h₃ : ¬¬p), or.inl (h h₃))
 -/
-/- second try, by the `cases` tactic (but this only works in classical)
+/- second try (still didn't get it done...but getting closer) -/
   theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
-  by_cases
-    (assume h₂ : ¬p, or.inr h₂)
-    (assume h₃ : ¬¬p, or.inl (h h₃))
--/
+    show p ∨ ¬p, from  
+      suffices h₁ : ¬p ∨ ¬¬p, from or.elim h₁ 
+        (assume h₂ : ¬p, or.inr h₂)
+        (assume h₃ : ¬¬p, or.inl (h h₃)),
+      show ¬p ∨ ¬¬p, from sorry
+
 end exer
 
 #print "  "
@@ -628,43 +630,49 @@ end exer
 namespace Section_3_6
 variables p q r s : Prop
 
--- commutativity of ∧
-example : p ∧ q ↔ q ∧ p := iff.intro
-  (assume h: p ∧ q,
-    show q ∧ p, from and.intro (and.elim_right h) (and.elim_left h))
-  (assume h: q ∧ p,
-    show p ∧ q, from and.intro (and.elim_right h) (and.elim_left h))
+  -- commutativity of ∧
+  theorem and_comm : p ∧ q ↔ q ∧ p := sorry
 
--- commutativity of ∨
-example : p ∨ q ↔ q ∨ p := iff.intro
-  (assume h₁: p ∨ q,
-    show q ∨ p, from or.elim h₁ (assume h₂ : p, or.inr h₂) (assume h₃ : q, or.inl h₃))
-  (assume h₁: q ∨ p,
-    show p ∨ q, from or.elim h₁ (assume h₁ : q, or.inr h₁) (assume h₂ : p, or.inl h₂))
+  -- commutativity of ∨
+  theorem or_comm : p ∨ q ↔ q ∨ p := sorry
 
--- associativity of ∧
-example: p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := iff.intro
-  (assume h : p ∧ (q ∧ r),
-    show (p ∧ q) ∧ r, from and.intro (and.intro h.left h.right.left) h.right.right) 
-  (assume h : (p ∧ q) ∧ r,
-    show p ∧ (q ∧ r), from and.intro h.left.left (and.intro h.left.right h.right))
+  -- associativity of ∧
+  theorem and_assoc : p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := sorry
 
--- associativity of ∨
-example: p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := iff.intro
-  (assume h : p ∨ (q ∨ r),
-    show (p ∨ q) ∨ r, from or.elim h 
-      (assume h₁ : p, or.inl (or.inl h₁)) 
-      (assume h₂ : q ∨ r, or.elim h₂
-        (assume h₃ : q, or.inl (or.inr h₃))
-        (assume h₄ : r, or.inr h₄)))
-  (assume h : (p ∨ q) ∨ r,
-    show p ∨ (q ∨ r), from or.elim h 
-      (assume h₁ : (p ∨ q), or.elim h₁
-        (assume h₂ : p, or.inl h₂)
-        (assume h₂ : q, or.inr (or.inl h₂)))
-      (assume h₃ : r, or.inr (or.inr h₃)))
+  -- associativity of ∨
+  theorem or_assoc : p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := sorry
+
+  -- distributivity of ∧ over ∨
+  theorem and_dist : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := sorry
+          
+
+  -- distributivity of ∨ over ∧
+  theorem or_distr : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := sorry
 
 
+  -- other properties
+  example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
+  example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
+  example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
+  example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
+  example : ¬(p ∧ ¬ p) := sorry
+  example : p ∧ ¬q → ¬(p → q) := sorry
+  example : ¬p → (p → q) := sorry
+  example : (¬p ∨ q) → (p → q) := sorry
+  example : p ∨ false ↔ p := sorry
+  example : p ∧ false ↔ false := sorry
+  example : ¬(p ↔ ¬p) := sorry
+  example : (p → q) → (¬q → ¬p) := sorry
+
+  -- these require classical reasoning
+  open classical
+  example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := sorry
+  example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
+  example : ¬(p → q) → p ∧ ¬q := sorry
+  example : (p → q) → (¬p ∨ q) := sorry
+  example : (¬q → ¬p) → (p → q) := sorry
+  example : p ∨ ¬p := sorry
+  example : (((p → q) → p) → p) := sorry
 
 end Section_3_6
 
