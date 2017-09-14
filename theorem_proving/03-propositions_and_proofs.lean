@@ -590,8 +590,7 @@ namespace page43
   theorem dne {p : Prop} (h : ¬¬p) : p :=
     or.elim (em p)
       (assume h₁ : p, h₁)
-      (assume h₂ : ¬p, false.elim (h h₂))
---      (assume h₂ : ¬p, absurd h₂ h)
+      (assume h₂ : ¬p, false.elim (h h₂))  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
 
   #check @dne
   /- double-negation elimination allows one to carry out a proof by contradiction, 
@@ -603,30 +602,68 @@ end page43
 namespace exer
 
   variables p q : Prop
-  theorem mp₁ (h₁ : p → q) (h₂ : p) : q := h₁ h₂
 
--- LEFT OFF HERE
---  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
---   have h₁ : ((¬p → false) → p), from h,
---   or.inr (assume h₂ : ¬p, h₂) 
-   -- have h₂ : ((p → false) → false) → p, from h₁,
-   
---   or.inr (assume h₁ : ¬p, h₁)
-
-
---    or.elim h (λ (h₁ : p), or.inr h₁) (λ (h₂ : q), or.inl h₂)
-     
---    suffices pof : p ∨ false, from or.elim pof (λ h:p, or.inl h) (false.elim),
---    show p ∨ false, from  
-
+/- first try (didn't get this to work)
+  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
+    (λ (h₂ : ¬p), or.inr h₂)
+    (λ (h₃ : ¬¬p), or.inl (h h₃))
+-/
+/- second try, by the `cases` tactic (but this only works in classical)
+  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
+  by_cases
+    (assume h₂ : ¬p, or.inr h₂)
+    (assume h₃ : ¬¬p, or.inl (h h₃))
+-/
 end exer
 
 #print "  "
 #print "================================================"
 #print "Section 3.6 Examples of Propositional Validities"
 #print "  "
+/- Lean's standard library contains proofs of many valid statements of propositional 
+   logic, all of which you are free to use in proofs of your own. The following list 
+   includes a number of common identities. The ones that require classical reasoning 
+   are grouped together at the end, while the rest are constructively valid. -/
+
 namespace Section_3_6
-variables p q : Prop
+variables p q r s : Prop
+
+-- commutativity of ∧
+example : p ∧ q ↔ q ∧ p := iff.intro
+  (assume h: p ∧ q,
+    show q ∧ p, from and.intro (and.elim_right h) (and.elim_left h))
+  (assume h: q ∧ p,
+    show p ∧ q, from and.intro (and.elim_right h) (and.elim_left h))
+
+-- commutativity of ∨
+example : p ∨ q ↔ q ∨ p := iff.intro
+  (assume h₁: p ∨ q,
+    show q ∨ p, from or.elim h₁ (assume h₂ : p, or.inr h₂) (assume h₃ : q, or.inl h₃))
+  (assume h₁: q ∨ p,
+    show p ∨ q, from or.elim h₁ (assume h₁ : q, or.inr h₁) (assume h₂ : p, or.inl h₂))
+
+-- associativity of ∧
+example: p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := iff.intro
+  (assume h : p ∧ (q ∧ r),
+    show (p ∧ q) ∧ r, from and.intro (and.intro h.left h.right.left) h.right.right) 
+  (assume h : (p ∧ q) ∧ r,
+    show p ∧ (q ∧ r), from and.intro h.left.left (and.intro h.left.right h.right))
+
+-- associativity of ∨
+example: p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := iff.intro
+  (assume h : p ∨ (q ∨ r),
+    show (p ∨ q) ∨ r, from or.elim h 
+      (assume h₁ : p, or.inl (or.inl h₁)) 
+      (assume h₂ : q ∨ r, or.elim h₂
+        (assume h₃ : q, or.inl (or.inr h₃))
+        (assume h₄ : r, or.inr h₄)))
+  (assume h : (p ∨ q) ∨ r,
+    show p ∨ (q ∨ r), from or.elim h 
+      (assume h₁ : (p ∨ q), or.elim h₁
+        (assume h₂ : p, or.inl h₂)
+        (assume h₂ : q, or.inr (or.inl h₂)))
+      (assume h₃ : r, or.inr (or.inr h₃)))
+
 
 
 end Section_3_6
