@@ -616,6 +616,9 @@ namespace exer
         (assume h₃ : ¬¬p, or.inl (h h₃)),
       show ¬p ∨ ¬¬p, from sorry
 
+
+
+
 end exer
 
 #print "  "
@@ -631,23 +634,80 @@ namespace Section_3_6
 variables p q r s : Prop
 
   -- commutativity of ∧
-  theorem and_comm : p ∧ q ↔ q ∧ p := sorry
+  theorem and_comm : p ∧ q ↔ q ∧ p := iff.intro
+    (assume h: p ∧ q,
+      show q ∧ p, from and.intro (and.elim_right h) (and.elim_left h))
+    (assume h: q ∧ p,
+      show p ∧ q, from and.intro (and.elim_right h) (and.elim_left h))
 
   -- commutativity of ∨
-  theorem or_comm : p ∨ q ↔ q ∨ p := sorry
+  theorem or_comm : p ∨ q ↔ q ∨ p := iff.intro
+    (assume h₁: p ∨ q,
+      show q ∨ p, from or.elim h₁ (assume h₂ : p, or.inr h₂) (assume h₃ : q, or.inl h₃))
+    (assume h₁: q ∨ p,
+      show p ∨ q, from or.elim h₁ (assume h₁ : q, or.inr h₁) (assume h₂ : p, or.inl h₂))
 
   -- associativity of ∧
-  theorem and_assoc : p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := sorry
+  theorem and_assoc : p ∧ (q ∧ r) ↔ (p ∧ q) ∧ r := iff.intro
+    (assume h : p ∧ (q ∧ r),
+      show (p ∧ q) ∧ r, from and.intro (and.intro h.left h.right.left) h.right.right) 
+    (assume h : (p ∧ q) ∧ r,
+      show p ∧ (q ∧ r), from and.intro h.left.left (and.intro h.left.right h.right))
 
   -- associativity of ∨
-  theorem or_assoc : p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := sorry
+  theorem or_assoc : p ∨ (q ∨ r) ↔ (p ∨ q) ∨ r := iff.intro
+    (assume h : p ∨ (q ∨ r),
+      show (p ∨ q) ∨ r, from or.elim h 
+        (assume h₁ : p, or.inl (or.inl h₁)) 
+        (assume h₂ : q ∨ r, or.elim h₂
+          (assume h₃ : q, or.inl (or.inr h₃))
+          (assume h₄ : r, or.inr h₄)))
+    (assume h : (p ∨ q) ∨ r,
+      show p ∨ (q ∨ r), from or.elim h 
+        (assume h₁ : (p ∨ q), or.elim h₁
+          (assume h₂ : p, or.inl h₂)
+          (assume h₂ : q, or.inr (or.inl h₂)))
+        (assume h₃ : r, or.inr (or.inr h₃)))
 
   -- distributivity of ∧ over ∨
-  theorem and_dist : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := sorry
+  theorem and_dist : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := iff.intro
+
+    (assume h : p ∧ (q ∨ r),
+      have h₀ : q ∨ r, from h.right,
+      show (p ∧ q) ∨ (p ∧ r), from or.elim h₀
+          (assume h₁: q, or.inl (and.intro h.left h₁))
+          (assume h₂: r, or.inr (and.intro h.left h₂))
+    )
+    
+    (assume h : (p ∧ q) ∨ (p ∧ r),
+      show p ∧ (q ∨ r), from or.elim h
+        (assume h₁ : p ∧ q, and.intro h₁.left (or.inl h₁.right))
+        (assume h₂ : p ∧ r, and.intro h₂.left (or.inr h₂.right))
+    )
           
 
   -- distributivity of ∨ over ∧
-  theorem or_distr : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := sorry
+
+  theorem or_distr : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := iff.intro
+
+    (assume h : p ∨ (q ∧ r),
+      show (p ∨ q) ∧ (p ∨ r), from or.elim h
+        (assume h₁ : p, and.intro (or.inl h₁) (or.inl h₁))
+        (assume h₂ : (q ∧ r), and.intro (or.inr h₂.left) (or.inr h₂.right))
+    )
+
+    (assume h: (p ∨ q) ∧ (p ∨ r),
+      show p ∨ (q ∧ r), from 
+        have h₁ : p ∨ q, from h.left,
+        have h₂ : p ∨ r, from h.right,
+          or.elim h₁
+            (assume h₃ : p, or.inl h₃)
+            (assume h₄ : q, 
+              or.elim h₂ 
+                (assume h₅ : p, or.inl h₅)
+                (assume h₆ : r, or.inr (and.intro h₄ h₆))
+            )
+    )
 
 
   -- other properties
