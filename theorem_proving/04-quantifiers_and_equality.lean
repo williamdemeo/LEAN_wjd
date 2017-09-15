@@ -128,6 +128,13 @@ namespace Sec_4_1
      In other words, if β is a proposition depending on α, then ∀ x : α, β is 
      again a proposition. This reflects the interpretation of Prop as the type of 
      propositions rather than data, and it is what makes Prop *impredicative*.
+
+     Impredicativity of Prop Type:
+     If α is a type, we can form the type α → Prop of all predicates on α (aka 
+     the "power type" of α). The impredicativity of Prop means that we can form 
+     propositions (i.e., inhabitants of Prop) that quantify over α → Prop. In 
+     particular, we can define predicates on α by quantifying over all predicates 
+     on α; this is the type of circularity that was once considered problematic.
   -/
 
 
@@ -136,23 +143,260 @@ end Sec_4_1
 #print "=================================="
 #print "Section 4.2 Equality"
 #print " "
+  /- Chapter 7 explains how equality is defined from primitives of Lean's 
+     logical framework. Here we just see how to use equality. -/
+
+  -- Of course, equality is an equivalence relation:
 
 namespace Sec_4_2
+
+  namespace example1
+    #check eq.refl          -- ∀ (a : ?M_1), a = a
+    #check eq.symm          -- ?M_2 = ?M_3 → ?M_3 = ?M_2
+    #check eq.trans         -- ?M_2 = ?M_3 → ?M_3 = ?M_4 → ?M_2 = ?M_4
+
+    /- Output is easier to read if we have Lean instantiate implicit arguments at a
+       particular universe u. -/
+
+    universe u
+
+    #check @eq.refl.{u}   -- ∀ {α : Sort u} (a : α), a = a
+    #check @eq.symm.{u}   -- ∀ {α : Sort u} {a b : α}, a = b → b = a
+    #check @eq.trans.{u}  -- ∀ {α : Sort u} {a b c : α}, a = b → b = c → a = c
+
+  end example1
+
+
+  /- Reflexivity is more powerful than it looks. Recall that the Calculus of
+     Constructions treats terms with a common reduct as equal. As a result, some 
+     nontrivial identities can be proved by reflexivity. -/
+
+  namespace example2
+    universe u
+    variables (α β : Type u)
+    example (f : α → β) (a : α) : (λ x : α, f x) a = f a := eq.refl _
+    example (a₁ : α) (a₂ : α) : (a₁, a₂).1 = a₁ := eq.refl _
+    example : 2 + 3 = 5 := eq.refl _
+
+  -- This feature is so important Lean defines a notation `rfl` for `eq.refl _`.
+    example (f : α → β) (a : α) : (λ x : α, f x) a = f a := rfl
+
+  end example2
+
+  /- Equality is more than just an equivalence relation. It is a congruence 
+     (the smallest congruence) in every congruence lattice; thus, it has the 
+     property that every assertion respects the equivalence.  -/
+
+  /- For instance, given `h₁ : a = b` and `h₂ : p a`, we can construct a proof 
+     for `p b` using substitution: `eq.subst h₁ h₂`. -/
+  namespace example3
+    universe u
+    example (α : Type u) (a₁ a₂ : α) (p : α → Prop)
+      (h₁ : a₁ = a₂) (h₂ : p a₁) : p a₂ := eq.subst h₁ h₂
+
+  -- Lean has a shorthand for eq.subst as well; it's ▸, as shown here.
+    example (α : Type u) (a₁ a₂ : α) (p : α → Prop)
+      (h₁ : a₁ = a₂) (h₂ : p a₁) : p a₂ := h₁ ▸ h₂
+  
+  
+  end example3
+
+
+  /- `eq.subst` is used to define the following auxiliary rules, which carry out 
+     more explicit substitutions. They deal with applicative terms (of form s t). 
+     Specifically, we use `congr_arg` to replace the argument, `congr_fun` to
+     replace the term that is being applied, and `congr` to replace both at once. -/
+
+  namespace example4
+    variable α : Type
+    variables a₁ a₂ : α
+    variables f g : α → ℕ
+    variable h₁ : a₁ = a₂
+    variable h₂ : f = g
+
+    example : f a₁ = f a₂ := congr_arg f h₁
+    example : f a₁ = g a₁ := congr_fun h₂ a₁
+    example : f a₁ = g a₂ := congr h₂ h₁
+    
+  end example4
+
+  namespace example5
+    variables a b c d : ℤ
+    example : a + 0 = a := add_zero a
+    example : 0 + a = a := zero_add a
+    example : a * 1 = a := mul_one a
+    example : 1 * a = a := one_mul a
+    example : -a + a = 0 := neg_add_self a
+    example : a + -a = 0 := add_neg_self a
+    example : a - a = 0 := sub_self a
+    example : a + b = b + a := add_comm a b
+    example : a + b + c = a + (b + c) := add_assoc a b c
+    example : a * b = b * a := mul_comm a b
+    example : a * b * c = a * (b * c) := mul_assoc a b c
+    example : a * (b + c) = a * b + a * c := mul_add a b c
+    example : a * (b + c) = a * b + a * c := left_distrib a b c
+    example : (a + b) * c = a * c + b * c := add_mul a b c
+    example : (a + b) * c = a * c + b * c := right_distrib a b c
+    example : a * (b - c) = a * b - a * c := mul_sub a b c
+    example : (a - b) * c = a * c - b * c := sub_mul a b c
+  end example5
+
+  /- Identities likes these work in arbitrary instances of the relevant 
+     algebraic structures, using the type class mechanism described in Chapter 10. 
+     Chapter 6 provides shows how to find theorems like this in the library. -/
+
+  namespace example6
+    example (x y z : ℕ) : x * (y + z) = x * y + x * z := sorry
+    example (x y z : ℕ) : x * (y + z) = x * y + x * z := sorry
+    example (x y z : ℕ) : x + y + z = x + (y + z) := sorry
+
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y := sorry
+  end example6
+
+
+  /- The 2nd implicit parameter to ▸ provides the context in which the subst occurs.
+     This parameter has type α → Prop, so inferring this predicate requires an 
+     instance of *higher-order unification*.  The problem of determining whether 
+     a higher-order unifier exists is undecidable, and Lean can at best provide 
+     imperfect and approximate solutions. As a result, eq.subst doesn't always do 
+     what you want; this is discussed in greater detail in Section 6.10. -/
+
+  /- IMPORTANT (for project proposal)
+     Because equational reasoning is so common and important, Lean provides a 
+     number of mechanisms to carry it out more effectively. The next section offers 
+     syntax that allow you to write calculational proofs in a more natural and 
+     perspicuous way. But, more importantly, equational reasoning is supported by 
+     a term rewriter, a simplifier, and other kinds of automation. The term rewriter 
+     and simplifier are described briefly in the next setion, and then in greater 
+     detail in the next chapter. -/
+
+
+
 end Sec_4_2
 
 
 #print "=================================="
 #print "Section 4.3 Calculational Proofs"
 #print " "
+  /- A calculational proof (or "proof sequence") is a chain of intermediate 
+     results meant to be composed by basic principles such as the transitivity 
+     of equality. In Lean, such proofs start with the keyword `calc`, and have 
+     the following syntax:
+
+           calc
+             <expr>_0  'op_1'  <expr>_1  ':'  <proof>_1
+             '...'   'op_2'  <expr>_2  ':'  <proof>_2
+              ...
+             '...'   'op_n'  <expr>_n  ':'  <proof>_n
+
+     where each `<proof>_i` is a proof for `<expr>_{i-1} op_i <expr>_i`. -/
 
 namespace Sec_4_3
+  namespace example1
+    variables a b c d e : ℕ
+    variables h₁ : a = b
+    variables h₂ : b = c + 1
+    variables h₃ : c = d
+    variables h₄ : e = 1 + d
+
+  theorem T : a = e :=
+    calc
+      a     = b     : h₁
+        ... = c + 1 : h₂
+        ... = d + 1 : congr_arg _ h₃
+        ... = 1 + d : add_comm d ( 1 : ℕ)
+        ... = e     : eq.symm h₄
+
+
+  end example1
+
+  /- The style is most effective when used in conjunction with `simp` and `rewrite` 
+     tactics, discussed in greater detail in Ch 5. -/
+
+  namespace example2
+    variables a b c d e : ℕ
+    variables h₁ : a = b
+    variables h₂ : b = c + 1
+    variables h₃ : c = d
+    variables h₄ : e = 1 + d
+
+  include h₁ h₂ h₃ h₄
+  theorem T₁ : a = e :=
+    calc
+      a     = b      : h₁
+        ... = c + 1  : h₂
+        ... = d + 1  : by rw h₃
+        ... = 1 + d  : by rw add_comm
+        ... = e      : by rw h₄
+
+  -- Rewrites can applied sequentially, so the above can be shortened as follows:
+  theorem T₂ : a = e :=
+    calc
+      a     = d + 1 : by rw [h₁, h₂, h₃]
+        ... = 1 + d : by rw add_comm
+        ... = e     : by rw h₄
+
+  -- ...or even this
+  theorem T₃ : a = e := by rw [h₁, h₂, h₃, add_comm, h₄]
+
+  end example2
+
 end Sec_4_3
 
 #print "=================================="
 #print "Section 4.4 The Existential Quantifier"
 #print " "
 
+  /- Finally, consider the existential quantifier, which can be written as either 
+     `exists x : α, p x` or `∃ x : α, p x`. Both versions are actually abbreviations
+     for the expression `Exists (λ x : α, p x)`, defined in Lean's library. -/
+
+  /- As usual, the library includes both an intro and elim rule for exists. 
+     INTRO: to prove `∃ x : α, p x`, it suffices to provide a term `t : α` and 
+     a proof of `p t`. -/
+
 namespace Sec_4_4
+
+  namespace example1
+    open nat
+    example : ∃ x : ℕ, x > 0 := 
+      have h : 1 > 0, from zero_lt_succ 0, exists.intro 1 h
+    
+    example (x : ℕ) (h : x > 0) : ∃ y : ℕ, y < x := exists.intro 0 h
+    
+    example (x y z : ℕ) (h₁ : x < y) (h₂ : y < z) : ∃ w, x < w ∧ w < z :=
+      exists.intro y (and.intro h₁ h₂)
+
+    #check @exists.intro
+
+  end example1
+
+  namespace example2
+    variable g : ℕ → ℕ → ℕ
+    variable h₁ : g 0 0 = 0
+
+    theorem g₁ : ∃ x, g x x = x := ⟨0, h₁⟩
+    theorem g₂ : ∃ x, g x 0 = x := ⟨0, h₁⟩
+    theorem g₃ : ∃ x, g 0 0 = x := ⟨0, h₁⟩
+    theorem g₄ : ∃ x, g x x = 0 := ⟨0, h₁⟩
+
+    set_option pp.implicit true    -- (to display implicit arguments)
+    #check g₁
+    #check g₂
+    #check g₃
+    #check g₄
+  
+  
+  end example2
+
+  namespace example3
+
+  end example3
+
+  namespace example4
+
+  end example4
+
 end Sec_4_4
 
 #print "=================================="
