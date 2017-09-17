@@ -246,11 +246,18 @@ namespace Sec_4_2
      Chapter 6 provides shows how to find theorems like this in the library. -/
 
   namespace example6
-    example (x y z : ℕ) : x * (y + z) = x * y + x * z := sorry
-    example (x y z : ℕ) : x * (y + z) = x * y + x * z := sorry
-    example (x y z : ℕ) : x + y + z = x + (y + z) := sorry
+    example (x y z : ℕ) : x * (y + z) = x * y + x * z := mul_add x y z
+      
+    example (x y z : ℕ) : x + y + z = x + (y + z) := add_assoc x y z
 
-    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y := sorry
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=  --sorry
+      have h₁ : (x + y) * (x + y) = x * (x + y) + y * (x + y), from add_mul x y (x + y),
+      have h₃ : x * (x + y)  = x * x + x * y, from mul_add x x y,
+      have h₄ : y * (x + y) = y * x + y * y, from mul_add y x y,
+      calc
+        (x + y) * (x + y) = x * (x + y) + y * (x + y) : by rw h₁
+                      ... = (x*x + x*y) + (y*x + y*y) : by rw [h₃, h₄]
+                      ... = x*x + y*x + x*y + y*y   : by simp
   end example6
 
 
@@ -389,13 +396,161 @@ namespace Sec_4_4
   
   end example2
 
+  /- We can view `exists.intro` as an information-hiding operation, since it hides 
+     the witness to the body of the assertion. 
+
+     The existential elimination rule, `exists.elim`, performs the opposite operation. 
+     It allows us to prove a proposition `q` from `∃ x : α, p x`, by showing that `q` follows 
+     from `p w` for an arbitrary value `w`. 
+
+     Roughly speaking, since we know there is some `x` satisfying `p x`, we can give it a name, 
+     say, `w`. If `q` does not mention `w`, then showing that `q` follows from `p w` is tantamount 
+     to showing that `q` follows from the existence of any such `x`.  -/
+
   namespace example3
+    variables (α : Type) (p q : α → Prop)
+
+    example (h : ∃ x, p x ∧ q x) : ∃ x, q x ∧ p x :=
+      exists.elim h
+      (assume w,
+        assume hw : p w ∧ q w,
+        show ∃ x, q x ∧ p x, from ⟨w, hw.right, hw.left⟩)
+
+    /- IMPORTANT NOTE: 
+       The anonymous constructor notation ⟨w, hw.right, hw.left⟩ abbreviates a nested application.
+       Equivalently, ⟨w, ⟨hw.right, hw.left⟩⟩. -/
 
   end example3
 
+  /- It may be helpful to compare the exists-elimination rule to the or-elimination rule: 
+     the assertion ∃ x : α, p x can be thought of as a big disjunction of the propositions p a, 
+     as a ranges over all the elements of α. -/
+
+  /- An existential proposition is very similar to a sigma type (Sec 2.8). The difference is that, given 
+     `a : α` and `h : p a`, the term 
+                                      `exists.intro a h` has type  `(∃ x : α, p x) : Prop` 
+     whereas the term 
+                                      `sigma.mk a h`     has type  `(Σ x : α, p x) : Type`  
+     The similarity between ∃ and Σ is another instance of Curry-Howard. -/
+
+  -- PATTERN MATCHING --
   namespace example4
+    variables (α : Type) (p q : α → Prop)
+    
+    example (h : ∃ x, p x ∧ q x) : ∃ x, q x ∧ p x :=
+      match h with ⟨w, hw⟩ :=  
+        ⟨w, hw.right, hw.left⟩ 
+      end
+  
+    -- We can (and should, imho) annotate the types used in the match for greater clarity.
+    example (h : ∃ x, p x ∧ q x) : ∃ x, q x ∧ p x :=
+      match h with ⟨(w: α), (hw : p w ∧ q w)⟩ :=  
+      ⟨w, hw.right, hw.left⟩ 
+      end
+
+    -- We can even use match to decompose the conjunction at the same time.
+    example (h : ∃ x, p x ∧ q x) : ∃ x, q x ∧ p x :=
+      match h with ⟨(w: α), (hwp : p w), (hwq : q w)⟩ := ⟨w, hwq, hwp⟩ end
+
+    -- Lean will even allow us to use an implicit match in the assume statement:
+    example : (∃ x, p x ∧ q x) → ∃ x, q x ∧ p x :=
+      assume ⟨(w: α), (hwp : p w), (hwq : q w)⟩, ⟨w, hwq, hwp⟩
+
+    -- In Ch 8 we see that all these variations are instances of a more general pattern-matching construct.
 
   end example4
+
+  /- Next, we define `even a` as `∃ b, a = 2*b`, and then show the sum of two even numbers is even. -/
+  namespace example5
+    def is_even (a : ℕ) := ∃ b, a = 2 * b
+
+    theorem even_plus_even_is_even {a b : ℕ}
+      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+      exists.elim h₁ 
+        (assume w₁, assume hw1 : a = 2 * w₁,
+          exists.elim h₂
+            (assume w₂, assume hw2 : b = 2 * w₂,
+              exists.intro (w₁ + w₂)
+                (calc
+                  a + b = 2 * w₁ + 2 * w₂ : by rw [hw1, hw2]
+                    ... = 2 * (w₁ + w₂)   : by rw mul_add)))
+
+    -- we can rewrite the last proof more concisely...
+    theorem even_plus_even {a b : ℕ}
+      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+    match h₁, h₂ with
+      ⟨w₁, hw1⟩, ⟨w₂, hw2⟩ := ⟨w₁ + w₂, by rw [hw1, hw2, mul_add]⟩
+    end
+
+    -- ...again, it's clearer to annotate the types.
+    theorem even_plus_even' {a b : ℕ}
+      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+    match h₁, h₂ with
+      ⟨(w₁ : ℕ), (hw1: a = 2 * w₁)⟩, ⟨(w₂ : ℕ), (hw2 : b = 2 * w₂)⟩ := 
+      ⟨w₁ + w₂, by rw [hw1, hw2, mul_add]⟩
+    end
+  end example5  
+
+  /- Just as the constructive "or" is stronger than the classical "or," 
+     so, too, is the constructive "exists" stronger than the classical "exists". 
+     For example, the following implication requires classical reasoning because, 
+     from a constructive standpoint, knowing that it is not the case that every x 
+     satisfies `¬ p x` is not the same as having a particular `x` that satisfies `p x`.
+  -/   
+
+  namespace example6
+    open classical
+    variables (α : Type) (p : α → Prop)
+    example (h : ¬ ∀ x, ¬ p x) : ∃ x, p x :=
+      by_contradiction
+        (assume h₁ : ¬ ∃ x, p x,
+          have h₂ : ∀ x, ¬ p x, from
+            assume x,
+            assume h₃ : p x,
+            have h₄ : ∃ x, p x, from ⟨x, h₃⟩,
+            show false, from h₁ h₄,
+          show false, from h h₂)
+  end example6
+
+  /- Here are some common identities involving the existential quantifier. (Prove as many as you can and
+     determine which are nonconstructive, and hence require some form of classical reasoning.) -/
+
+  namespace examples_existential_quantifier
+
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+
+  example : (∃ x : α, r) → r := assume ⟨(w : α), hr⟩, hr
+  example : r → (∃ x : α, r) := exists.intro a
+  example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := iff.intro
+    -- ⇒ 
+    (assume ⟨w, (h₁ : p w ∧ r)⟩, ⟨⟨w, h₁.left⟩, h₁.right⟩)   
+    -- ⇐
+    (assume (h : (∃ x, p x) ∧ r),
+      exists.elim h.left 
+      (assume w, 
+        assume hpw : p w,
+         show (∃ x, p x ∧ r), from ⟨w, hpw, h.right⟩
+      )        
+    )
+
+  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := iff.intro
+    -- ⇒ 
+    (assume ⟨w, (h₁ : p w ∨ q w)⟩, 
+      or.elim h₁
+        (assume hpw : p w, or.inl ⟨w, hpw⟩)
+        (assume hqw : q w, or.inr ⟨w, hqw⟩))
+    -- ⇐
+    (assume h : (∃ x, p x) ∨ (∃ x, q x),
+      or.elim h
+        (assume ⟨w, hpw⟩, ⟨w, or.inl hpw⟩)
+        (assume ⟨w, hpq⟩, ⟨w, or.inr hpq⟩))
+    
+
+  end examples_existential_quantifier
+    
+    
 
 end Sec_4_4
 
