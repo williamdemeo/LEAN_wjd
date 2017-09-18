@@ -515,7 +515,7 @@ namespace Sec_4_4
   /- Here are some common identities involving the existential quantifier. (Prove as many as you can and
      determine which are nonconstructive, and hence require some form of classical reasoning.) -/
 
-  namespace examples_existential_quantifier
+  namespace examples_constructive_existential_quantifier
 
   variables (α :Type) (p q : α → Prop)
   variable a : α
@@ -546,9 +546,67 @@ namespace Sec_4_4
       or.elim h
         (assume ⟨w, hpw⟩, ⟨w, or.inl hpw⟩)
         (assume ⟨w, hpq⟩, ⟨w, or.inr hpq⟩))
-    
 
-  end examples_existential_quantifier
+
+  -- example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
+  -- 
+  --    NOTE: for this example, only one direction require classical axioms.
+  --    We split the proof up in two in order to highlight this fact. -/
+
+    theorem constructive_double_neg : (∀ x, p x) → ¬ (∃ x, ¬ p x) := 
+      assume h : ∀ x, p x,
+      assume h' : (∃ x, ¬ p x),  -- then reach a contradiction, to conclude `¬ (∃ x, ¬ p x)`
+        exists.elim h'
+          (assume w, 
+            assume hw': ¬ p w, 
+            have hw : p w, from h w,
+            show false, from hw' hw)
+
+  end examples_constructive_existential_quantifier
+
+  /- Next we handle the other (classical) direction of the example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) -/
+
+  namespace examples_classical_existential_quantifier
+
+    open classical    
+    variables (α :Type) (p q : α → Prop)
+    variable a : α
+    variable r : Prop
+
+    theorem dne : Π {α : Type} {x : α} {p : α → Prop}, (¬ ¬ (p x)) → (p x) := 
+      λ (α : Type) (x : α) (p : α → Prop) (h : ¬ ¬ p x), 
+        or.elim (em (p x))
+        (assume h₂ : p x, h₂)  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
+        (assume h₃ : ¬ p x, false.elim (h h₃))
+
+    #check dne
+
+    theorem classical_double_neg : ¬ (∃ x, ¬ p x) → (∀ x, p x) :=
+      assume h₁ : ¬ (∃ x, ¬ p x), 
+      by_contradiction
+        (assume hc : ¬ (∀ x, p x), -- (reach a contradiction to prove `∀ x, p x`)
+         have hcc : ∀ x, ¬ ¬ p x, from
+           assume w,
+           assume h₂ : ¬ p w, -- (reach a contradiction to prove hucc)
+           have h₃ : ∃ x, ¬ p x, from ⟨w, h₂⟩,
+           show false, from h₁ h₃, -- (done proving hcc)
+         have hz : ∀ x, p x, from
+           assume z,
+           show p z, from dne (hcc z),
+         show false, from hc hz)
+
+    #check classical_double_neg
+
+  
+  example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
+  example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
+  example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
+
+  example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+  example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+  example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+
+  end examples_classical_existential_quantifier
     
     
 
