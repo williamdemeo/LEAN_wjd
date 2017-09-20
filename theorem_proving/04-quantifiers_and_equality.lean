@@ -549,12 +549,14 @@ namespace Sec_4_4
 
   end constructive_examples
 
-  /-  example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
+
+
+  namespace example1
+  /-  (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
 
       NOTE: for this example, only one direction require classical axioms.
       We split the proof up in two in order to highlight this fact. -/
 
-  namespace example1
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variable r : Prop
@@ -600,12 +602,12 @@ namespace Sec_4_4
   end example1
 
 
-  /- Next we are asked to prove the following equivalence:  
-         (∃ x, p x) ↔ ¬ (∀ x, ¬ p x)
-     However, as above, we split it up to show one direction can be done constructively.
-  -/
 
   namespace example2
+  /- We are asked to prove the following equivalence:  
+       (∃ x, p x) ↔ ¬ (∀ x, ¬ p x)
+     As above, we split it up to show one direction can be done constructively. -/
+
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variable r : Prop
@@ -638,12 +640,11 @@ namespace Sec_4_4
 
   end example2
 
-  /- Next we are asked to prove the following equivalence:  
-         (¬ ∃ x, p x) ↔ (∀ x, ¬ p x)
-     Again, we split it up to show one direction can be done without classical axioms. 
-  -/
-
   namespace example3
+  /- We are asked to prove the following equivalence:  
+       (¬ ∃ x, p x) ↔ (∀ x, ¬ p x)
+     Again, we split it up to show one direction can be done without classical axioms. -/
+
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variable r : Prop
@@ -670,9 +671,8 @@ namespace Sec_4_4
   end example3
   
 
-  /- `(¬ ∀ x, p x) ↔ (∃ x, ¬ p x)` splits into constructive/classical directions -/
-
   namespace example4
+  /- `(¬ ∀ x, p x) ↔ (∃ x, ¬ p x)` splits into constructive/classical directions -/
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variable r : Prop
@@ -693,19 +693,53 @@ namespace Sec_4_4
         have hc : ∀ x, p x, from example1.classical₁ α p hn,        
         show false, from h hc)
 
-        
-
-  end example4
+   end example4
     
-  namespace last_three_examples
+
+  namespace example5
+  /- (∀ x, p x → r) ↔ (∃ x, p x) → r
+     In this case, neither direction requires classical axioms. -/
+
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variable r : Prop
-    example :(∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
-    example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
-    example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
-  end last_three_examples
-    
+
+    theorem constructive₅ : (∀ x, (p x → r)) ↔ (∃ x, p x) → r := iff.intro
+
+      (assume h₁ : ∀ x, (p x → r),
+        assume h₂ : ∃ x, p x,
+        exists.elim h₂
+          (assume w,
+            assume hw : p w,
+            show r, from h₁ w hw))
+
+      (assume h : ((∃ x, p x) → r),
+        assume w,
+        assume hw : p w,
+        show r, from h ⟨w, hw⟩)
+  end example5
+
+
+
+  namespace example6
+  /- (∃ x, p x → r) ↔ (∀ x, p x) → r := -/
+
+    theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
+      (assume h : ∃ x, p x → r,
+        assume h' : ∀ x, p x,
+        exists.elim h
+          ( assume w,
+            assume hw : p w → r,
+            show r, from hw (h' w) )
+      )
+
+   theorem classical₆ : (∀ x, p x) → r → (∃ x, p x → r) :=  sorry
+
+  end example6
+
+  namespace example7
+   example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+  end example7  
     
 
 end Sec_4_4
