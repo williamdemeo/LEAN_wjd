@@ -1,0 +1,9 @@
+/_build
+.*.sw?
+*.pyc
+__pycache__
+/.vscode
+/.venv
+*~
+*.log
+*.aux
