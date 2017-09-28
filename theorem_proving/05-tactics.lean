@@ -224,4 +224,99 @@ namespace Sec_5_3
     -- case hq : q
     left, exact hq
   end     
+
+
+  -- `cases` can also be used to decompose a conjunction.
+  example (p q : Prop) : p ∧ q → q ∧ p :=
+  begin
+    intro h,
+    cases h with hp hq,
+    constructor, exact hq, exact hp -- could have used: `apply and.intro hq hp`
+  end
+
+  -- Here's a demo of these tactics using an example from earlier.
+  example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    apply iff.intro,
+    intro h,
+      cases h with hp hqr,
+      cases hqr with hq hr,
+        left, constructor, exact hp, exact hq,
+        right, constructor, exact hp, exact hr,
+    intro h,
+      cases h with hpq hpr,
+      cases hpq with hp hq,
+        constructor, exact hp, left, exact hq,
+      cases hpr with hp hr,
+      constructor, exact hp, right, exact hr
+  end
+
+  /- `cases` decomposes any element of an inductively defined type; 
+    `constructor` applies the first constructor of an inductively defined type;
+     `left` and `right` are used with inductively defined types with exactly two constructors. 
+  -/   
+
+  -- We can use `cases` and `constructor` with an existential quantifier.
+  example (p q : ℕ → Prop) : (∃ x, p x) → ∃ x, p x ∨ q x :=
+  begin
+    intro h,
+    cases h with x px,
+    constructor, left, exact px
+  end
+  /- Here, `constructor` leaves the first component of the existential assertion (i.e., `x`) 
+     implicit. It is represented by a metavariable, which we must instantiate. The instantiated
+     value is determined by the tactic `exact px`, since `px` has type `p x`. -/
+
+  /- To specify a witness to the exists quantifier explicitly, use the `existsi` tactic: -/
+  example (p q : ℕ → Prop) : (∃ x, p x) → ∃ x, p x ∨ q x :=
+  begin
+    intro h,
+    cases h with x px,
+    existsi x, left, exact px
+  end
+
+  -- Another example:
+  example (p q : ℕ → Prop) : (∃ x, p x ∧ q x) → (∃ x, q x ∧ p x) :=
+  begin
+    intro h,
+    cases h with x hpq,
+    cases hpq with hpx hqx,
+    existsi x,
+    split; assumption  -- `;` tells Lean to apply `assumption` to both goals of the conj
+  end
+  
+  /- These tactics can be used on data just as well as propositions. -/
+
+  -- Here they're used to define functions that swap components of product and sum types:
+  universes u v
+  def swap_pair {α : Type u} {β : Type v} : α × β → β × α :=
+  begin
+    intro h,
+    cases h with ha hb,
+    constructor; assumption
+  end
+
+  def swap_sum {α : Type u} {β : Type v} : α ⊕ β → β ⊕ α :=
+  begin
+    intro h,
+    cases h with ha hb,
+    right, exact ha, left, exact hb
+  end
+
+  -- `cases` will do case distinctions on a natural number:
+  open nat
+  example (P : ℕ → Prop) (h₀ : P 0) (h₁ : ∀ n, P (succ n)) (m : ℕ) : P m :=
+  begin
+    cases m with m', exact h₀, exact h₁ m'
+  end
+
+  -- `contradiction` searches for a contradiction among the current hypotheses:
+  example (p q : Prop) : p ∧ ¬ p → q :=
+  begin
+    intro h,
+    cases h with hp hnp,
+    contradiction
+  end
+
+
 end Sec_5_3
