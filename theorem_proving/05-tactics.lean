@@ -320,3 +320,96 @@ namespace Sec_5_3
 
 
 end Sec_5_3
+
+
+#print "==================================="
+#print "Section 5.4. Structuring Tactic Proofs"
+#print " "
+
+namespace Sec_5_4
+  /- it is possible to mix term-style and tactic-style proofs, and pass between the two freely. 
+     `apply` and `exact` expect arbitrary terms, e.g., using `have`, `show`, etc.
+     Conversely, arbitrary terms can use tactic mode by inserting `begin...end`.-/
+  example (p q r : Prop) : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    intro h,
+    exact
+      have hp : p, from h.left,
+      have hqr : q ∨ r, from h.right,
+      show p ∧ q ∨ p ∧ r,
+      begin
+        cases hqr with hq hr,
+        left, split; assumption,   -- alternatively `exact or.inl ⟨hp, hq⟩`
+        right, split; assumption   -- alternatively `exact or.inr ⟨hp, hr⟩` 
+      end
+  end
+  -- Here's a more natural example.
+  example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    apply iff.intro,
+      intro h,
+      cases h.right with hq hr,
+        exact or.inl ⟨h.left, hq⟩,
+        exact or.inr ⟨h.left, hr⟩,
+      intro h,
+      cases h with hpq hpr,
+        exact ⟨hpq.left, or.inl hpq.right⟩,
+        exact ⟨hpr.left, or.inr hpr.right⟩
+  end
+ 
+  /- There is also a `show` tactic, which is analogous to the `show` keyword in a proof term. 
+     The `show` tactic declares the type of the goal that is about to be solved, while 
+     remaining in tactic mode. And, in tactic mode `from` is an alternative name for `exact`.  -/
+  example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    apply iff.intro,
+      intro h,
+      cases h.right with hq hr,
+        show p ∧ q ∨ p ∧ r,
+          from or.inl ⟨h.left, hq⟩,  -- alternatively, { left, split, exact h.left, assumption },
+        show p ∧ q ∨ p ∧ r,
+          from or.inr ⟨h.left, hr⟩,
+      intro h,
+      cases h with hpq hpr,
+        show p ∧ (q ∨ r),
+          from ⟨hpq.left, or.inl hpq.right⟩, 
+        show p ∧ (q ∨ r),
+          from ⟨hpr.left, or.inr hpr.right⟩
+  end
+
+  -- `show` can be used to rewrite a goal to something definitionally equivalent.
+  example (n : ℕ) : n+1 = nat.succ n := -- could just do `begin reflexivity end`
+  begin
+    show nat.succ n = nat.succ n, reflexivity
+  end
+
+  /- When there are multiple goals, `show` can be used to select which goal to work on.
+     Thus, both of these proofs work:    -/
+  example (p q : Prop) : p ∧ q → q ∧ p :=
+  begin
+    intro h, cases h with hp hq, split,
+    show q, from hq,
+    show p, from hp
+  end
+  example (p q : Prop) : p ∧ q → q ∧ p :=
+  begin
+    intro h, cases h with hp hq, split,
+    show p, from hp,
+    show q, from hq
+  end
+
+  
+  
+     
+end Sec_5_4
+
+
+
+#print "==================================="
+#print "Section 5.5. Tactic Combinators"
+#print " "
+
+namespace Sec_5_5
+
+end Sec_5_5
+
