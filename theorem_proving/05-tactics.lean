@@ -398,9 +398,83 @@ namespace Sec_5_4
     show q, from hq
   end
 
+  -- the `have` tactic introduces a new subgoal, just as when writing proof terms:  
+  example (p q r : Prop) : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    intro h,
+    cases h with hp hqr,
+    show (p ∧ q) ∨ (p ∧ r),
+    cases hqr with hq hr,
+      have hpq : p ∧ q, from and.intro hp hq, left, exact hpq,
+      have hpr : p ∧ r, from and.intro hp hr, right, exact hpr
+  end
   
   
-     
+  -- With both `show` and `have` you can omit `from` and stay in tactic mode;
+  -- you can also omit the hypothesis label and refer to the given term as `this`.
+  example (p q r : Prop) : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    intro h,
+    cases h with hp hqr,
+    show (p ∧ q) ∨ (p ∧ r),
+    cases hqr with hq hr,
+      have : p ∧ q,              -- no label for `p ∧ q`
+        exact ⟨hp, hq⟩,
+      exact or.inl this,  -- refer to `p ∧ q` as `this`
+      have : p ∧ r,
+        exact ⟨hp, hr⟩,
+      exact or.inr this
+  end
+
+  -- alternatively, you can use `:=` instead of `from`
+  example (p q r : Prop) : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    intro h,
+    have hp : p := h.left,
+    have hqr : q ∨ r := h.right,
+    cases hqr with hq hr,
+      exact or.inl ⟨hp, hq⟩,
+      exact or.inr ⟨hp, hr⟩
+  end
+
+  -- the `let` tactic is similar to `have` but introduces local definitions instead
+  -- auxiliary facts. It is the tactic analogue of a `let` in a proof term.
+  example : ∃ x, x + 2 = 8 :=
+  begin
+    let a := 6,
+    existsi a,
+    reflexivity
+  end
+
+  -- You can nest `begin...end` blocks within other `begin...end` blocks.
+  -- Within a `begin...end` block, nested `begin...end` blocks can be abbrev with curly braces:
+  example (p q r : Prop) : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) :=
+  begin
+    apply iff.intro,
+    { intro h,
+      cases h.right with hq hr,
+      { exact or.inl ⟨h.left, hq⟩ },
+      { exact or.inr ⟨h.left, hr⟩ }
+    },
+    { intro h,
+      cases h with hpq hpr,
+      { exact ⟨hpq.left, or.inl hpq.right⟩ },
+      { exact ⟨hpr.left, or.inr hpr.right⟩ }
+    }
+  end
+
+  -- Combining these various mechanisms makes for nicely structured tactic proofs:
+  example (p q : Prop) : p ∧ q ↔ q ∧ p :=
+  begin
+    apply iff.intro,
+    { intro h,
+      exact ⟨h.right, h.left⟩ 
+    },
+    { intro h,
+      exact ⟨h.right, h.left⟩
+    }
+  end
+  
 end Sec_5_4
 
 
@@ -408,8 +482,81 @@ end Sec_5_4
 #print "==================================="
 #print "Section 5.5. Tactic Combinators"
 #print " "
+/- Tactic combinators are operations that form new tactics from old ones. A sequencing combinator
+   is already implicit in the comma that appear in a `begin...end` block. -/
 
 namespace Sec_5_5
+  example (p q : Prop) (hp : p) : p ∨ q :=
+  by { left, assumption }
+
+  -- Here `{ left, assumption }` is functionally equiv to a single tactic which first 
+  -- applies `left` and then applies `assumption`.
+
+  -- `t₁; t₂` says "apply t₁ to the current goal and then apply `t₂` to *all* resulting subgoals:
+  example (p q : Prop) (hp : p) (hq : q) : p ∧ q :=
+  by split; assumption
+
+  -- The orelse combinator, denoted <|>, applies one tactic, and then backtracks and 
+  -- applies another if the first one failed:
+  example (p q : Prop) (hp : p) : p ∨ q :=
+  by { left, assumption } <|> { right, assumption} -- first one succeeds
+
+  example (p q : Prop) (hq : q) : p ∨ q :=
+  by { left, assumption } <|> { right, assumption} -- first one fails, but second succeeds
+  
+
 
 end Sec_5_5
+
+
+#print "==================================="
+#print "Section 5.6. Rewriting"
+#print " "
+  /- The rewrite tactic provide a basic mechanism for applying substitutions to goals and 
+     hypotheses, providing a convenient and efficient way of working with equality. -/
+
+namespace Sec_5_6
+  variables (f : ℕ → ℕ) (k : ℕ)
+
+  example (h₁ : f 0 = 0) (h₂ : k = 0) : f k = 0 :=
+  begin
+    rw h₂, -- replace k with 0
+    rw h₁  -- replace f 0 with 0
+  end
+
+
+end Sec_5_6
+
+
+#print "==================================="
+#print "Section 5.7. Using the Simplifier"
+#print " "
+  /- Whereas `rewrite` is designed as a surgical tool for manipulating a goal, 
+     the simplifier offers a more powerful form of automation. A number of identities 
+     in Lean's library have been tagged with the `[simp]` attribute, and the simp tactic 
+     uses them to iteratively rewrite subterms in an expression. -/
+
+namespace Sec_5_7
+
+end Sec_5_7
+
+
+#print "==================================="
+#print "Section 5.8. Exercises"
+#print " "
+
+namespace Sec_5_8
+
+  -- Ex 1. Go back to the exercises in Chapter 3 and Chapter 4 and redo as many as 
+  --       you can now with tactic proofs, using also `rw` and `simp` as appropriate.
+
+
+
+  -- Ex 2. Use tactic combinators to obtain a one line proof of the following:
+  example (p q r : Prop) (hp : p) : (p ∨ q ∨ r) ∧ (q ∨ p ∨ r) ∧ (q ∨ r ∨ p) := 
+  by exact ⟨or.inl hp, or.inr (or.inl hp), or.inr (or.inr hp)⟩
+
+
+end Sec_5_8
+
 
