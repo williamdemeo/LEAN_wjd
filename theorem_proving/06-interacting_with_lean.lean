@@ -1,19 +1,50 @@
 -- 6. Interacting with Lean
 
+/- Not all of the information in this section will be useful right away. 
+   Skim this section to get a sense of Lean's features, and return later, as necessary. -/
 
 #print "========================================"
 #print "Section 6.1. Importing Files"
 #print " "
 
 namespace Sec_6_1 
+  /- When Lean starts, it automatically imports the contents of the library init folder, 
+     which includes a number of fundamental definitions and constructions. If you want to 
+     use additional files, they need to be imported manually. 
+
+     The command `import foo bar.baz.blah` imports the files `foo.lean` and `bar/baz/blah.lean`,
+     where the descriptions are interpreted relative to the Lean search path. 
+
+     One can also specify imports relative to the current directory; for example,
+     `import .foo ..bar.baz` tells Lean to import `foo.lean` from the current directory 
+     and `bar/baz.lean` relative to the parent of the current directory. -/
+
+
 
 end Sec_6_1 
 
 #print "========================================"
 #print "Section 6.2. More on Sections"
 #print " "
-
 namespace Sec_6_2 
+  /- The `section` command makes it possible not only to group together elements of a 
+     theory that go together, but also to declare variables that are inserted as arguments 
+     to theorems and definitions, as necessary. Remember that the point of the variable 
+     command is to declare variables for use in theorems, as in the following example: -/
+
+  section
+    variables x y : ℕ
+
+    def double := x + x
+    #check double y
+    #check double (2 * x)
+
+    theorem t₁ : double (x + y) = double x + double y :=
+    by simp [double]
+  end
+
+  /- Note that double does not have y as argument. Variables are only included in 
+     declarations where they are actually mentioned. -/
 
 end Sec_6_2 
 
