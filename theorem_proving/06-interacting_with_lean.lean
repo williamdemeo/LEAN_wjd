@@ -51,9 +51,18 @@ end Sec_6_2
 #print "========================================"
 #print "Section 6.3. More on Namespaces"
 #print " "
+  /- The command `namespace foo` causes foo to be prepended to the name of each definition 
+     and theorem until `end foo` is encountered. The command `open foo` then creates 
+     temporary aliases to definitions and theorems that begin with prefix `foo`. -/
 
 namespace Sec_6_3 
+  namespace foo
+    def bar : ℕ := 1
+  end foo
 
+  open foo
+  #check bar
+  #check foo.bar
 end Sec_6_3 
 
 #print "========================================"
