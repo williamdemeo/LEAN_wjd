@@ -214,7 +214,6 @@ namespace Sec_7_2
 
   -- Here's the definition of a semigroup:
 
-  universe u
   structure Semigroup := (carrier : Type u) 
     (mul : carrier → carrier → carrier)
     (mul_assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
@@ -266,9 +265,73 @@ end Sec_7_2
    `Prop`. In fact, this is exactly how the logical connectives are defined. -/
 
 namespace Sec_7_3
+  namespace hide₅
+    inductive false : Prop
+    inductive true : Prop | intro : true
+    inductive and (a b : Prop) : Prop | intro : a → b → and
+    inductive or (a b : Prop) : Prop 
+    | intro_left : a → or 
+    | intro_right : b → or
+
+    -- Alternatively, we could give names to the inhabitants:
+    inductive and_alt (P Q : Prop) : Prop | intro (a : P) (b : Q) : and_alt
+    inductive or_alt (P Q : Prop) : Prop
+    | intro_left (a : P) : or_alt
+    | intro_right (b : Q) : or_alt
+  end hide₅
+
+  -- Think about how these give rise to the intro and elim rules we've already seen.
+
+  -- There are rules that govern what the eliminator of an inductive type can eliminate to;
+  -- that is, what kinds of types can be the target of a recursor.
+
+  /- Roughly speaking, what characterizes inductive types in Prop is that one can only 
+     eliminate to other types in Prop. This agrees with the fact that if `p : Prop`, then
+     an element `hp : p` carries no info. (There is one exception discussed below.) -/
+
+  -- Even the existential quantifier is inductively defined:
+
+  namespace hide₆
+    universe u
+
+    inductive Exists {α : Type u} (p : α → Prop) : Prop
+    | intro : ∀(a : α), p a → Exists
+
+    inductive Exists_alt {α : Type u} (p : α → Prop) : Prop
+    | intro (w : ∀(a : α), p a) : Exists_alt
+  
+    def exists.intro := @Exists.intro
+  end hide₆
+
+  -- The notation `∃ x : α, p` is syntactic sugar for `Exists (λ x : α, p)`.
+
+  /- The defs of `false`, `true`, `and`, and `or` are analogous to the defs of 
+     `empty`, `unit`, `prod`, and `sum`. The difference is the former yield
+     elements of `Prop`, and the latter yield elements of `Type u` for some `u`. -/
+
+  -- Similarly, `∃ x : α, p` is a `Prop`-valued variant of `Σ x : α, p`.
+
+  /- Another inductive type, denoted `{x : α | p}`, is sort of a hybrid between 
+     `∃ x : α, P` and `Σ x : α, P`. It is the `subtype` type. -/
+
+  namespace hide₇
+    universe u
+    inductive subtype {α : Type u} (p : α → Prop)
+    | mk : Π(x : α), p x → subtype
+
+    inductive subtype_alt {α : Type u} (p : α → Prop)
+    | mk (w : Π(x : α), p x) : subtype_alt
+  end hide₇
+
+ -- This next example is unclear to me.
+ namespace confusing_example
+   universe u
+   variables {α : Type u} (p : α → Prop)
+   #check subtype p        -- why is the result `subtype p : Type u` ??
+   #check {x : α // p x }  -- why is the result `{x // p x } : Type u` ??
+ end confusing_example
 
 end Sec_7_3
-
 
 #print "==========================================="
 #print "Section 7.4. Defining the Natural Numbers"
