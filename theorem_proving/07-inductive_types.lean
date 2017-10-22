@@ -338,6 +338,134 @@ end Sec_7_3
 #print " "
 
 namespace Sec_7_4
+  /- The inductively defined types we have seen so far are "flat": constructors wrap data and
+     insert it into a type, and the corresponding recursor unpacks the data and acts on it. 
+     Things get more interesting when constructors act on elements of the type being defined. -/
+
+  -- A canonical example:
+  namespace hide_7_4_1
+    inductive nat : Type 
+    | zero : nat 
+    | succ : nat → nat
+
+  /- The recursor for `nat` defines a dependent function `f` from `nat` to any domain, 
+     that is, `nat.rec` defines an element `f` of `Π n : nat, C n` for any `C : nat → Type`. 
+     It has to handle two cases: the case where the input is zero, and the case where the 
+     input is of the form succ n for some n : nat. 
+     First case: we specify a target value of appropriate type. 
+     Second case: the recursor assumes f(n) has been computed and the recursor uses the 
+     next input arg to specify a value for f (succ n) in terms of n and f n. -/
+ 
+    #check @nat.rec_on  -- returns: Π {C : nat → Sort u_1} (n : nat), -- arg 1: major premise
+                      --           C nat.zero →                     -- arg 2: minor premise 1
+                      -- (Π (a : nat), C a → C (nat.succ a))        -- arg 3: specifies how to 
+                      --                                                       construct f(n+1) 
+                      --                                                       given n and f(n)
+                      -- → C n                                      -- output type
+
+    namespace nat
+      def add (m n : nat) : nat := nat.rec_on n m (λ n add_m_n, succ add_m_n)
+      #reduce add (succ zero) (succ (succ zero)) -- result: succ (succ (succ zero))
+
+      -- Can we recurse on m instead of n?  Yes, of course.
+      def add' (m n : nat) : nat := nat.rec_on m n (λ m add_m_n, succ add_m_n)
+      #reduce add' (succ zero) (succ (succ zero)) -- same result as above
+
+      /- Let's go back to the first definition of `add` and dissect it. 
+         + First, `nat.rec_on n` says "recurse on n".  
+         + The next symbol is `m` which indicates what to answer in the base case n=zero.  
+         + The next group of symbols is `(λ n add_m_n, succ add_m_n)` which gives the answer
+           in the inductive case. The first argument to the λ abstraction is `n`, which means 
+           assume we know the value, `add_m_n`, that should be returned on input `m n`.
+           Finally, use this to say what to do when the input is `m (succ n)`; namely,  
+           return `succ add_m_n`. That's all there is to it! -/
+
+      instance : has_zero nat := has_zero.mk zero
+      instance : has_add nat := has_add.mk add
+
+      theorem add_zero (m : nat) : m + 0 = m := rfl
+      theorem add_succ (m n : nat) : m + succ n = succ (m + n) := rfl
+    end nat
+
+  end   hide_7_4_1
+
+    /- Proving `0 + m = m`, however, requires induction. The induction principle is just a 
+       special case of the recursion principle when the codomain `C n` is an element of `Prop`. 
+       It represents the familiar pattern of proof by induction: to prove `∀ n, C n`, first
+       prove `C 0`, and then, for arbitrary `n`, assume `ih : C n` and prove `C (succ n)`. -/
+  namespace hide_7_4_2
+  open nat
+
+  theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
+    (show 0 + 0 = 0, from rfl)
+    (assume n, 
+      assume ih : 0 + n = n,
+      show 0 + succ n = succ n, from 
+        calc
+          0 + succ n = succ (0 + n) : rfl
+            ... = succ n : by rw ih)
+
+
+  /- N.B. when `nat.rec_on` is used in a proof, it's the induction principle in disguise. 
+     The `rewrite` and `simp` tactics tend to be effective in proofs like these. -/
+  theorem zero_add' (n : ℕ) : 0 + n = n := nat.rec_on n 
+  rfl (λ n ih, by simp only [add_succ, ih])
+
+  theorem zero_add'' (n : ℕ) : 0 + n = n := nat.rec_on n 
+  rfl (λ n ih, by simp only [add_succ, ih])
+  /- N.B. leaving off the `only` modifier would be misleading because `zero_add` is declared 
+     in the standard library. Using `only` guarantees `simp` uses only the identities listed.-/
+
+  /- Associativity of addition: ∀ m n k, m + n + k = m + (n + k). 
+     The hardest part is figuring out which variable to do the induction on. 
+     Since addition is defined by recursion on the second argument, k is a good guess. -/
+  theorem add_assoc (m n k : ℕ) : m + n + k = m + (n + k) := nat.rec_on k
+  (show m + n + 0 = m + (n + 0), from rfl)
+  (assume k,
+    assume ih : m + n + k = m + (n + k), 
+    show (m + n) + succ k = m + (n + succ k), from
+      calc
+        (m + n) + succ k = succ ((m + n) + k) : rfl
+                     ... = succ (m + (n + k)) : by rw ih
+                     ... = m + succ (n + k) : rfl
+                     ... = m + (n + succ k) : rfl)
+
+  -- once again, there is a one-line proof
+  theorem add_assoc' (m n k : ℕ) : m + n + k = m + (n + k) := nat.rec_on k
+  rfl (λ k ih, by simp only [add_succ, ih])
+
+
+  theorem succ_add (m n : ℕ) : succ m + n = succ (m + n) := 
+    nat.rec_on n
+    (show succ m + 0 = succ (m + 0), from rfl)
+     (assume n,
+       assume ih : succ m + n = succ (m + n),
+       show succ m + succ n = succ (m + succ n), from
+         calc 
+           succ m + succ n = succ (succ m + n) : rfl
+                       ... = succ (succ (m + n)) : by rw ih
+                       ... = succ (m + succ n) : rfl)
+
+  -- Commutativity of addition:
+  theorem add_comm (m n : ℕ) : m + n = n + m := nat.rec_on n
+   (show m + 0 = 0 + m, by rw [nat.zero_add, nat.add_zero])
+   (assume n,
+     assume ih : m + n = n + m,
+     show m + succ n = succ n + m, from
+       calc 
+         m + succ n = succ (m + n) : rfl
+                ... = succ (n + m) : by rw ih
+                ... = succ n + m : by simp only [succ_add])
+
+  -- Here are the shorter versions of the last two theorems:
+  theorem succ_add' (m n : ℕ) : succ m + n = succ (m + n) := 
+  nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
+
+  theorem add_comm' (m n : ℕ) : m + n = n + m := nat.rec_on n 
+    (by simp only [zero_add, add_zero])
+    (λ n ih, by simp only [add_succ, ih, succ_add])
+
+  end hide_7_4_2
 
 end Sec_7_4
 
@@ -346,8 +474,96 @@ end Sec_7_4
 #print "Section 7.5. Other Recursive Data Types"
 #print " "
 
+-- Here are some more examples of inductively defined types.
 namespace Sec_7_5
+  -- For any type, α, the type list α of lists of elements of α is defined in the library.
+  universe u
+  inductive list (α : Type u)
+  | nil {} : list
+  | cons : α → list → list
 
+  namespace list
+  
+  variable {α : Type}
+  
+  notation h :: t := cons h t
+
+  def append (s t : list α) : list α := list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
+  /- Dissection of append: 
+     The first arg to `list.rec` is `t`, meaning return `t` when `s` is `null`.
+     The second arg is `(λ x l u, x :: u) s`.  I *think* this means the following:
+     assuming `u` is the result of `append l t`, then `append (x :: l) t` results
+     in `x :: u`.  
+
+     ==========> UNRESOLVED QUESTION:  What about `s` ....?   <==========
+  -/
+
+  /- To give some support for the claim that the foregoing interpretation is (roughtly) 
+     correct, let's make the types explicit and verify that the definition still type-checks: -/
+  def append' (s t : list α) : list α := 
+  list.rec (t: list α) (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
+
+  #check nil                       -- nil : list ?M_1
+  #check (nil : list ℕ)           -- nil : list ℕ
+  #check cons 0 nil                -- 0 :: nil : list ℕ
+  #check cons "a" nil              -- 0 :: nil : list string
+  #check cons "a" (cons "b" nil)   -- a :: b :: nil : list string
+
+  notation s ++ t := append s t
+
+  theorem nil_append (t : list α) : nil ++ t = t := rfl
+
+  theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
+
+  
+  -- Lean allows us to define iterative notation for lists:
+
+  notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
+
+  section
+    open nat
+    #check [1,2,3,4,5]               -- Lean assumes this is a list of nats
+    #check ([1,2,3,4,5] : list int)  -- Forces Lean to take this as a list of ints.
+  end 
+
+  -- As an exercise, prove the following:
+  theorem append_nil (t : list α) : t ++ nil = t := list.rec_on t 
+    (show (append nil nil) = nil, from rfl)
+    (assume (x : α), assume (t : list α),
+     assume ih : (append t nil) = t,
+     show append (x :: t) nil = (x :: t), from
+       calc
+         append (x :: t) nil = x :: append t nil  : cons_append x t nil
+                         ... = x :: t             : by rw ih)
+
+  -- As an exercise, prove the following:
+  theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
+    rfl  -- (base)
+    (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
+
+  --theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+
+  -- binary trees
+  inductive binary_tree
+  | leaf : binary_tree
+  | node : binary_tree → binary_tree → binary_tree
+
+  -- countably branching trees
+  inductive cbtree
+  | leaf : cbtree
+  | sup : (ℕ → cbtree) → cbtree
+
+  namespace cbtree
+  
+  def succ (t : cbtree) : cbtree := sup (λ n, t)  -- Note: (λ n, t) is a thunk; i.e., a way to
+                                                  -- view t as a function of type ℕ → cbtree.
+
+  /- Note the similarity to nat's successor.  The third cbtree after t would be 
+     `sup (λ n, sup (λ n, sup (λ n, t))` -/
+
+  def omega : cbtree := sup (λ n, nat.rec_on n leaf (λ n t, succ t))
+  end list
+           
 end Sec_7_5
 
 
