@@ -10,6 +10,7 @@
 #print "==========================================="
 #print "Section 7.1. Enumerated Types"
 #print " "
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#enumerated-types
 
 namespace Sec_7_1
   -- The simplest kind of inductive type is a type with a finite, enumerated list of elements.
@@ -135,6 +136,7 @@ end Sec_7_1
 #print "==========================================="
 #print "Section 7.2. Constructors with Arguments"
 #print " "
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#constructors-with-arguments
 
 namespace Sec_7_2
   /- Enumerated types are a special case of inductive types, in which constructors take 
@@ -260,6 +262,7 @@ end Sec_7_2
 #print "==========================================="
 #print "Section 7.3. Inductively Defined Propositions"
 #print " "
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#inductively-defined-propositions
 
 /- Inductively defined types can live in any type universe, including the bottom-most one, 
    `Prop`. In fact, this is exactly how the logical connectives are defined. -/
@@ -327,15 +330,19 @@ namespace Sec_7_3
  namespace confusing_example
    universe u
    variables {α : Type u} (p : α → Prop)
+   --  ==========> UNRESOLVED QUESTIONS:     <==========
    #check subtype p        -- why is the result `subtype p : Type u` ??
    #check {x : α // p x }  -- why is the result `{x // p x } : Type u` ??
  end confusing_example
+ -- The notation `{x : α // p x}` is syntactic sugar for subtype `(λ x : α, p x)`. 
+
 
 end Sec_7_3
 
 #print "==========================================="
 #print "Section 7.4. Defining the Natural Numbers"
 #print " "
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#defining-the-natural-numbers
 
 namespace Sec_7_4
   /- The inductively defined types we have seen so far are "flat": constructors wrap data and
@@ -473,22 +480,24 @@ end Sec_7_4
 #print "==========================================="
 #print "Section 7.5. Other Recursive Data Types"
 #print " "
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#other-recursive-data-types
 
 -- Here are some more examples of inductively defined types.
 namespace Sec_7_5
   -- For any type, α, the type list α of lists of elements of α is defined in the library.
   universe u
-  inductive list (α : Type u)
-  | nil {} : list
-  | cons : α → list → list
+  inductive my_list (α : Type u)
+  | nil {} : my_list
+  | cons : α → my_list → my_list
 
-  namespace list
+  namespace my_list
   
   variable {α : Type}
   
   notation h :: t := cons h t
 
-  def append (s t : list α) : list α := list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
+  def append (s t : my_list α) : my_list α := 
+  my_list.rec t (λ (x: α) (l: my_list α) (u: my_list α), x :: u) s
   /- Dissection of append: 
      The first arg to `list.rec` is `t`, meaning return `t` when `s` is `null`.
      The second arg is `(λ x l u, x :: u) s`.  I *think* this means the following:
@@ -500,36 +509,36 @@ namespace Sec_7_5
 
   /- To give some support for the claim that the foregoing interpretation is (roughtly) 
      correct, let's make the types explicit and verify that the definition still type-checks: -/
-  def append' (s t : list α) : list α := 
-  list.rec (t: list α) (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
+  def append' (s t : my_list α) : my_list α := 
+  my_list.rec (t: my_list α) (λ (x : α) (l : my_list α) (u: my_list α), x :: u) (s : my_list α)
 
   #check nil                       -- nil : list ?M_1
-  #check (nil : list ℕ)           -- nil : list ℕ
+  #check (nil : my_list ℕ)           -- nil : list ℕ
   #check cons 0 nil                -- 0 :: nil : list ℕ
   #check cons "a" nil              -- 0 :: nil : list string
   #check cons "a" (cons "b" nil)   -- a :: b :: nil : list string
 
   notation s ++ t := append s t
 
-  theorem nil_append (t : list α) : nil ++ t = t := rfl
+  theorem nil_append (t : my_list α) : nil ++ t = t := rfl
 
-  theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
+  theorem cons_append (x : α) (s t : my_list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
   
   -- Lean allows us to define iterative notation for lists:
 
-  notation `[` l:(foldr `,` (h t, cons h t) nil) `]` := l
+  notation `{` l:(foldr `,` (h t, cons h t) nil) `}` := l
 
   section
     open nat
-    #check [1,2,3,4,5]               -- Lean assumes this is a list of nats
-    #check ([1,2,3,4,5] : list int)  -- Forces Lean to take this as a list of ints.
+    #check {1,2,3,4,5}               -- Lean assumes this is a list of nats
+    #check ({1,2,3,4,5} : my_list int)  -- Forces Lean to take this as a list of ints.
   end 
 
   -- As an exercise, prove the following:
-  theorem append_nil (t : list α) : t ++ nil = t := list.rec_on t 
+  theorem append_nil (t : my_list α) : t ++ nil = t := my_list.rec_on t 
     (show (append nil nil) = nil, from rfl)
-    (assume (x : α), assume (t : list α),
+    (assume (x : α), assume (t : my_list α),
      assume ih : (append t nil) = t,
      show append (x :: t) nil = (x :: t), from
        calc
@@ -537,11 +546,11 @@ namespace Sec_7_5
                          ... = x :: t             : by rw ih)
 
   -- As an exercise, prove the following:
-  theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
+  theorem append_nil' (t : my_list α) : t ++ nil = t := my_list.rec_on t 
     rfl  -- (base)
-    (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
+    (λ (x : α) (t : my_list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
 
-  --theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+  --theorem append_assoc (r s t : my_list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
 
   -- binary trees
   inductive binary_tree
@@ -562,16 +571,135 @@ namespace Sec_7_5
      `sup (λ n, sup (λ n, sup (λ n, t))` -/
 
   def omega : cbtree := sup (λ n, nat.rec_on n leaf (λ n t, succ t))
-  end list
+  end cbtree
+  end my_list
            
 end Sec_7_5
 
 
 #print "==========================================="
 #print "Section 7.6. Tactics for Inductive Types"
-#print " "
+#print " " 
+-- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#tactics-for-inductive-types
 
 namespace Sec_7_6
+  /- There are a number of tactics designed to work with inductive types effectively. 
+     The `cases` tactic works on elements of an inductively defined type by decomposing 
+     the element into the ways it could be constructed. -/
+
+  namespace example₁
+  variable p : ℕ → Prop
+  open nat
+  example (hz : p 0) (hs : ∀ n, p (succ n)) : ∀ n, p n :=
+  begin
+    intro n,
+    cases n,
+      exact hz,
+      apply hs
+  end
+  
+  /- `cases` lets you choose names for arguments to the constructors using `with`. 
+     For example, we can choose the name `m` for the argument to `succ`, so the second 
+     case refers to `succ m`. More importantly, `cases` detects items in the local context 
+     that depend on the target variable. It reverts these elements, does the split, and 
+     reintroduces them. In the example below, notice that `h : n ≠ 0` becomes `h : 0 ≠ 0` 
+     in the first branch, and `h : succ m ≠ 0` in the second.-/
+
+  example (n : ℕ) (h : n ≠ 0) : succ (pred n) = n :=
+  begin
+    cases n with m,  -- name cases using variable m
+      -- goal: h : 0 ≠ 0 ⊢ succ (pred 0) = 0
+      { apply (absurd rfl h) },
+      -- goal: h : succ m ≠ 0 ⊢ succ (pred (succ m)) = succ m
+      reflexivity
+  end
+
+  -- `cases` can be also be used to produce data and define functions.
+  def f (n : ℕ) : ℕ := 
+  begin cases n, exact 3, exact 7 end
+
+  example : f 0 = 3 := rfl
+  example : f 5 = 7 := rfl
+  example : f 1000 = 7 := rfl
+  -- in fact, we can prove that f n is constantly 7, except when n = 0.
+  example  (n : ℕ) (h : n ≠ 0) : (f n) = 7 := begin
+    cases n,
+    { apply (absurd rfl h) },  -- goal: 0 ≠ 0 ⊢ f 0 = 7
+    reflexivity                -- goal: (succ a ≠ 0) ⊢ f (succ a) = 7
+  end
+  end example₁
+  -- Let's define a function that takes an single argument of type `tuple`.
+
+  -- First define the type `tuple`.
+
+
+  namespace functionals
+  universe u
+  open list
+
+  -- Recall, we define a type that satisfies a predicate like this:
+
+  def tuple (α : Type u) (n : ℕ) := subtype (λ (l : list α), (list.length l = n)) 
+    -- { l : list α // list.length l = n }  -- (this didn't work for me) 
+
+  variables {α : Type u} {n : ℕ}
+
+  def f {n : ℕ} (t : tuple α n) : ℕ := begin cases n, exact 3, exact 7 end
+
+  def my_tuple : tuple ℕ 3 := ⟨[0, 1, 2], rfl⟩
+
+  example : f my_tuple = 7 := rfl
+
+  -- As above, we prove that f t is constantly 7, except when t.length=0.
+  example  (n : ℕ) (t : tuple α n) (h : n ≠ 0) : f t = 7 := 
+  begin
+    cases n,
+    apply (absurd rfl h),  -- goal: 0 ≠ 0 ⊢ f 0 = 7
+    reflexivity            -- goal: (a : ℕ) (succ a ≠ 0) (t : tuple α (succ a)) ⊢ f t = 7
+  end
+
+  end functionals
+
+  namespace induction_tactic
+
+  /- Just as `cases` is used to carry out proof by cases, the `induction` tactic is used 
+     for proofs by induction. In contrast to `cases`, the argument to `induction` can only 
+     come from the local context. -/
+
+  open nat
+  theorem zero_add (n : ℕ) : 0 + n = n :=
+  begin
+    induction n with n ih,
+      refl,
+      rw [add_succ, ih]
+  end
+
+  
+  -- The `case` tactic identifies each case with named arguments, making the proof clearer:
+  theorem zero_add' (n : ℕ) : 0 + n = n :=
+  begin
+    induction n,
+    case zero { refl },
+    case succ n ih { rw [add_succ, ih] }
+  end
+
+  theorem succ_add' (m n : ℕ) : (succ m) + n = succ (m + n) :=
+  begin
+    induction n,
+    case zero { refl },
+    case succ n ih { rw [add_succ, ih] }
+  end
+
+  theorem add_comm' (m n : ℕ) : m + n = n + m :=
+  begin
+    induction n,
+    case zero { rw zero_add, refl },
+    case succ n ih { rw [add_succ, ih, succ_add] }
+  end
+
+  -- Here are terse versions of the last three proofs.
+  
+  end induction_tactic
 
 end Sec_7_6
 
