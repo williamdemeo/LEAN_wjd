@@ -698,8 +698,25 @@ namespace Sec_7_6
   end
 
   -- Here are terse versions of the last three proofs.
-  
+  theorem zero_add'' (n : ℕ) : 0 + n = n := by induction n; simp only [*, add_zero, add_succ]
+
+  theorem succ_add'' (m n : ℕ) : (succ m) + n = succ (m+n) := 
+  by induction n; simp only [*, add_zero, add_succ]
+
+  theorem add_comm'' (m n : ℕ) : m + n = n + m :=
+  by induction n; simp only [*, zero_add, add_zero, add_succ, succ_add]
+
+  theorem add_assoc'' (m n k : ℕ) : m + n + k = m + (n + k) :=
+  by induction k; simp only [*, add_zero, add_succ]
+
   end induction_tactic
+
+  namespace injection_tactic
+  /-We close this section with one last tactic that is designed to facilitate working with 
+    inductive types, namely, the injection tactic. By design, the elements of an inductive 
+    type are freely generated, which is to say, the constructors are injective and have 
+    disjoint ranges. The injection tactic is designed to make use of this fact:  -/
+  end injection_tactic
 
 end Sec_7_6
 
