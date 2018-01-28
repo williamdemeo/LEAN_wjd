@@ -32,7 +32,5 @@ To compile the introduction_to_lean.pdf, I did the following:
 To execute the commands in the file `overview.lean`, load the file into emacs and then run
 `C-c C-b` to see the results inline, or `C-c C-x` to execute the file in stand-alone mode.
 
-If you notice that hover-over is no longer working when you move the mouse over the `#check` 
+If you notice that hover-over is no longer working when you move the mouse over the `#check`
 command, then try `C-c C-r` to re-read (re-typecheck) the file.
-
-
