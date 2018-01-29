@@ -97,7 +97,7 @@ namespace Sec_7_1
   end weekday
 
   -- Some fundamental data types in the Lean library are instances of enumerated types.
-  namespace hide
+  namespace hide1
 
     -- use `hide` so they don't conflict with the stdlib.
 
@@ -128,7 +128,7 @@ namespace Sec_7_1
 
 -- Similarly, most identities can be proved by introducing suitable case splits, and then using rfl.
 
-  end hide
+  end hide1
 
 end Sec_7_1
 
@@ -145,10 +145,10 @@ namespace Sec_7_2
 
   universes u v
 
-  namespace hide
+  namespace hide1
     inductive prod (α : Type u) (β : Type v) | mk : α → β → prod
     inductive sum (α : Type u) (β : Type v) | inl {} : α → sum | inr {} : β → sum
-  end hide
+  end hide1
   
   /- To define a function on prod α β, we assume input of the form prod.mk a b, and specify
      the output in terms of a and b. For example, here is the definition of the two projections 
