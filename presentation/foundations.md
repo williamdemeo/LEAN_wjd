@@ -54,9 +54,7 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-**dependent function types**  
-
-$$ \prod_{x \colon \alpha} \beta_x$$
+Lean supports **dependent function types**, as in $$\Pi_{x : A} B_x$$
 
 ```
   Π x : α . β x
