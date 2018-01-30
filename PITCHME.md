@@ -104,7 +104,7 @@ kk+ an interactive theorem prover with powerful automation
 
 + written in C++, with **multi-core support**
 + **small trusted** kernel with independent type checkers
-+ based on a powerful **dependent type theory** but also supports **classical** foundations and deduction rules
++ based on **constructive** dependent type theory but also supports **classical** axioms and deduction rules
 + supports **type class inference**
 + compiles structural/nested/mutual/well-founded recursive definitions down to **primitives**
 + **bytecode interpreter** for evaluating computable
@@ -117,11 +117,11 @@ definitions
 
 ### People of Lean
 
-<span style="font-size:0.6em; color:blue">**Code base:**</span> Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
+<span style="font-size:0.8em; color:blue">**Code base:**</span> Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
 
-<span style="font-size:0.6em; color:blue">**Libraries:**</span> Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
+<span style="font-size:0.8em; color:blue">**Libraries:**</span> Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
 
-<span style="font-size:0.6em; color:blue">**Contributors:**</span>  Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
+<span style="font-size:0.8em; color:blue">**Contributors:**</span>  Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
 
 ---
 
