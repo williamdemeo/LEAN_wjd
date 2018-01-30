@@ -148,7 +148,8 @@ Finally, we can introduce classical axioms...
 ```
 axiom choice {α : Sort u} : nonempty α → α
 ```
-...if we're willing to be non-constructive and not guarantee
+...if we're willing to go non-constructive and forfeit
+guarantees of termination/computability.
 
 <div class="fragment">
 <p>
