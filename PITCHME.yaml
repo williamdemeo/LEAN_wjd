@@ -5,6 +5,7 @@
 # https://github.com/gitpitch/gitpitch/wiki/Slideshow-Settings
 #
 theme : night
+theme-override : assets/css/PITCHME.css
 highlight : monokai
 vertical-center : false
 transition : none
