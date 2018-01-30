@@ -30,8 +30,6 @@ Why develop another?
 
 ### Motivation
 
-Why does the world need another proof assistant or functional programming language?
-
 **Lean provides** 
 
 1. a fresh start   
@@ -70,15 +68,15 @@ Why does the world need another proof assistant or functional programming langua
 
 ### History of Lean
 
-+ project began in 2013  
++ **2013** Project Started
  
-+ Lean 2 "announced" in summer 2015  
++ **2015** Lean 2 announced
  
-+ major rewrite, Lean 3, is now available  
++ **2017** Lean 3 now available  
  
-+ standard library and automation under development  
++ **2018** standard library and automation still under development  
  
-+ HoTT development is ongoing in Lean 2
+(HoTT development is ongoing *in Lean 2 only*)
 
 ---
 
