@@ -19,3 +19,9 @@
     max-height: 50vh !important;
     border-radius: 10px;
 }
+
+.reveal .slides section {
+    text-align: left;
+    font-size: 0.8em;
+    margin: 20px;
+}

@@ -15,7 +15,7 @@ leanprover.github.io/introduction_to_lean
 + [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/)  
 leanprover.github.io/theorem_proving_in_lean
 
-![Introduction to Lean](https://sms.cam.ac.uk/media/2521061/embed)
++ [Jeremy Avigad's Lean Lecture](https://sms.cam.ac.uk/media/2521061/embed) June 2017 at INI
 
 ---
 

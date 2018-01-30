@@ -24,11 +24,9 @@ libraries:
 + **Coq** (constructive dependent type theory)
 + **Adga** (constructive dependent type theory)
 
-Why develop another?
-
 ---
 
-### Motivation
+### Why develop another proof assistant?
 
 **Lean provides** 
 
@@ -84,7 +82,7 @@ Why develop another?
 
 + written in C++, with **multi-core support**
 + **small trusted** kernel with independent type checkers
-+ based on **constructive** dependent type theory but also supports **classical** axioms and deduction rules
++ based on **constructive type theory** but supports **classical logic**
 + supports **type class inference**
 + compiles structural/nested/mutual/well-founded recursive definitions down to **primitives**
 + **bytecode interpreter** for evaluating computable
