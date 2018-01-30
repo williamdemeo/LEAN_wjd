@@ -4,7 +4,7 @@
 # For details, visit Wiki:
 # https://github.com/gitpitch/gitpitch/wiki/Slideshow-Settings
 #
-theme : night
+theme : simple
 theme-override : assets/css/PITCHME.css
 highlight : atom-one-light
 logo :
