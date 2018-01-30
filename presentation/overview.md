@@ -1,17 +1,17 @@
 ### Lean Overview 
 
 #### What is it?
-
 + a new, open source, interactive theorem prover 
 
+<p class="fragment">
 #### Where did it come from?
-
 + Principle Developer: **Leonardo de Moura**, Microsoft Research
+</p>
 
+<p class="fragment">
 #### Where can one get it?
-
 <center>http://leanprover.github.io</center>
-
+</p>
 ---
 
 ### Perspective
@@ -26,12 +26,15 @@ Some popular software with substantial mathematical libraries:
 + **Coq** (constructive dependent type theory)
 + **Adga** (constructive dependent type theory)    
 
-Why develop (or learn) another proof assistant?
+<p class="fragment">
+Why develop (or adopt) another proof assistant?
+</p>
 
 ---
 
-### Motivation 
-#### Lean is...
+### Why Lean?
+
+It is...
 
 + a **fresh start** incorporating the best ideas from existing systems
    
@@ -49,7 +52,8 @@ Why develop (or learn) another proof assistant?
 ---
 
 ### Motivation
-#### Lean can...
+
+Lean can...
 
 + verify mathematics  
 
