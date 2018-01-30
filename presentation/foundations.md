@@ -40,13 +40,13 @@
   ```
 
 + These can also be written:
-  ```coq
+  ```
   Prop, Type 0, Type 1, Type 2, . . .
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
   The latter means, if 
-  ```coq
+  ```
   p : Prop, s : p, t : p
   ```
   then `s` and `t` are definitionally equal.
@@ -63,7 +63,7 @@ Lean supports **dependent function types** like $\Pi_{x : A} B(x)$
 
 with the usual *β-reduction rule*:   
 
-```coq
+```
   (λx.t) s = [s / x] t
 ```
 #### Example
