@@ -6,7 +6,7 @@
  */
 
 .reveal pre code {
-    font-size: 0.8em;
+    font-size: 1em;
     max-height: 50vh !important;
     border-radius: 10px;
 }
@@ -24,5 +24,4 @@
     text-align: left;
     font-size: 0.8em;
     margin: 20px;
-    line-height: 1.2;
 }
