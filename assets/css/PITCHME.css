@@ -6,10 +6,10 @@
  */
 
 .reveal pre code {
-  font-size: 1.2em;
-  line-height: 1.2;
-  max-height: 50vh !important;
-  border-radius: 10px;
+    font-size: 0.8em;
+    line-height: 1.2;
+    max-height: 50vh !important;
+    border-radius: 10px;
 }
 
 
@@ -17,8 +17,7 @@
     text-align: left;
     font-size: 0.8em;
     margin: 20px;
-}
-
-.reveal .slides section {
-    margin: 20px;
+    line-height: 1.2;
+    max-height: 50vh !important;
+    border-radius: 10px;
 }
