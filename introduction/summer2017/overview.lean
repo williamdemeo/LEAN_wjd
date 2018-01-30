@@ -33,6 +33,72 @@ section
   #check g₁⁻¹ * g₁
 end
 
+
+-- page 8
+/- An important feature of dependent type theory is that every expression
+  has a computational interpretation, which is to say, there are rules
+  that specify how they can be /reduced/ to a normal form. 
+  Moreover, expressions in a computationally pure fragment of the language
+  evaluate to /values/ in the way you would expect. 
+  For example, assuming the definition does not depend on nonconstructive 
+  components in an essential way, every closed term of type =ℕ= evaluates 
+  to a numeral. Lean's kernel can carry out this evaluation: -/
+
+#eval (27 + 9) * 33
+
+/- As part of the kernel, the results of this evaluation can be highly trusted. 
+  The evaluator is not very efficient, however, and is not intended to be used 
+  for substantial computational tasks. For that purpose, Lean also generates 
+  bytecode for every definition of a computable object, and can evaluate it on 
+  demand. To process the bytecode quickly, it uses an efficient /virtual machine/, 
+  similar to the ones used to interpret OCaml and Python. -/
+
+def double (n : ℕ) : ℕ := n + n
+
+#eval (27 + 9) * 33
+#eval (2227 + 9999) * 33
+#eval double 9999
+#eval [(1, 2), (3, 4), (5, 6)] ++ [(7, 8), (9, 10)]
+
+/- Relying on results from the bytecode evaluator requires a higher level
+  of trust than relying on the kernel. For example, for efficiency, the
+  bytecode evaluator uses the GNU multiple precision library to carry out
+  numerical computations involving the natural numbers and integers, so
+  the correctness of those computations are no longer underwritten by
+  the axiomatic foundation. -/
+
+/- This points to a second intended use of Lean, namely, as a
+  /programming language/. Because dependent type theory is so
+  expressive, we can make use of all the usual methods and techniques of
+  functional programming, including higher types, type classes, records,
+  monads, and other abstractions. 
+
+  For example, we can write a generic sort procedure that sorts elements 
+  of a list according to a specified binary relation =r= on an arbitrary 
+  type =α=, assuming only that we can determine computationally when =r= holds. -/
+
+section sort
+  universe u
+  parameters {α : Type u} (r : α → α → Prop) [decidable_rel r]
+  local infix `≼` : 50 := r
+
+  def ordered_insert (a : α) : list α → list α
+  | []       := [a]
+  | (b :: l) := if a ≼ b then a :: (b :: l) else b :: ordered_insert l
+
+  def insertion_sort : list α → list α
+  | []       := []
+  | (b :: l) := ordered_insert b (insertion_sort l)
+
+
+-- We can run the procedure above on a list of natural numbers, using the usual ordering:
+
+#eval insertion_sort (λ m n : ℕ, m ≤ n) [5, 27, 221, 95, 17, 43, 7, 2, 98, 567, 23, 12]
+
+end sort
+
+-- Substantial programs can be written in Lean and run by the bytecode interpreter. 
+
 -- page 9
 section 
 def even (n : ℕ) : Prop := ∃ m, n = 2 * m
@@ -62,5 +128,4 @@ show even (m + n),
 
 
 end
-
 
