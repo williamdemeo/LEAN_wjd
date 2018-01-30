@@ -54,12 +54,32 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-Lean has
-+ **dependent function types**  
-  Π x : α . β x, with the usual "β-reduction" rule:   
-  ```coq
+Lean has **dependent function types**  
+```coq
+  Π x : α . β x
+```
+with the usual "β-reduction" rule:   
+```coq
   (λx.t) s = [s / x] t
-  ```
+```
+**Example:** 
+
+```coq
+universe u
+constant vec : Type u → ℕ → Type u
+
+namespace vec
+  constant empty : Π α : Type u, vec α 0
+  constant cons :
+    Π (α : Type u) (n : ℕ), α → vec α n → vec α (n + 1)
+  constant append :
+    Π (α : Type u) (n m : ℕ),  vec α m → vec α n → vec α (n + m)
+end vec
+```
+
+---  
+
+### Logical Foundations
 
 + **eta equivalence** for functions  
   `t` and `(λx.t)x` are definitionally equal
@@ -81,6 +101,9 @@ expected computation rules.
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
+
+-- this inductive defintion produces the following
+
 #check (vector : Type u → N → Type u)
 #check (vector.nil : Π α : Type u, vector α 0)
 #check (@vector.cons : Π {α : Type u} {n : N},
