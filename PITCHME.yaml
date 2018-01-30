@@ -4,9 +4,8 @@
 # For details, visit Wiki:
 # https://github.com/gitpitch/gitpitch/wiki/Slideshow-Settings
 #
-theme : simple
-theme-override : assets/css/PITCHME.css
-highlight : moon
+theme : moon
+highlight : atom-one-light
 logo :
 vertical-center : false
 transition : none
