@@ -163,8 +163,10 @@ axiom choice {α : Sort u} : nonempty α → α
 ```
 ...if we're willing to be non-constructive and not guarantee
 
-(Here, nonempty α is equivalent to ∃ x : α, true.)
+<div class="fragment">
+Here, nonempty α is equivalent to ∃ x : α, true.
 
 Diaconescu's trick gives us the law of the excluded middle as a consequence.
 
 <font color="red">Warning!</font> Definitions that use choice to produce data are noncomputable.
+</div>
