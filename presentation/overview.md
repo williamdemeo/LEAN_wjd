@@ -38,7 +38,7 @@ Why does the world need another proof assistant or functional programming langua
 
 + Lean attempts to bring interactive and automated reasoning together by offering:
 
-kk+ an interactive theorem prover with powerful automation
++ an interactive theorem prover with powerful automation
 + an automated reasoning tool that
   - produces (detailed) proofs
   - can be used interactively
@@ -97,9 +97,8 @@ definitions
 ---
 
 ### People of Lean
+<span style="color:#e49436">**Code base:**</span> Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
 
-<span style="font-size:1em; color:orange">**Code base:**</span> Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
+<span style="color:#e49436">**Libraries:**</span> Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
 
-<span style="font-size:1em; color:orange">**Libraries:**</span> Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
-
-<span style="font-size:1em; color:blue">**Contributors:**</span>  Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
+<span style="color:#e49436">**Contributors:**</span>  Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
