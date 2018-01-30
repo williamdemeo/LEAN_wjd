@@ -80,7 +80,7 @@ libraries:
 
 ---
 
-### Notable Features
+### Notable Features of Lean
 
 + written in C++, with **multi-core support**  
  
@@ -97,7 +97,7 @@ definitions
 
 + supports **metaprogramming** via monadic interface to Lean internals
 
-+ **profiler**, **debugger**, **simplifier** with conditional rewriting, arithmetic simplification
++ **profiler**, **debugger**, **simplifier** with conditional rewriting
 
 + enthusiastic, talented **people** involved
 
