@@ -123,7 +123,7 @@ Lean is an attempt to bring interactive and automated reasoning together with
 + supports constructive reasoning, quotients and extensionality, and classical reasoning
 + elegant syntax and a powerful elaborator
 + well-integrated type class inference
-+ a function definition system compiles structural / nested / mutual / well-founded recursive definitions down to primitives
++ a function definition system compiles structural/nested/mutual / well-founded recursive definitions down to primitives
 + flexible means of writing declarative proofs and tactic-style proofs
 + server support for editors, with proof-checking and live information
 
