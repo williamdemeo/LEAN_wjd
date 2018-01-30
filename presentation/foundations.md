@@ -54,13 +54,19 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-Lean supports **dependent function types**, as in $\Pi\limits{x : A} B_x$
+Lean supports **dependent function types**, as in $\Pi_{x : A} B_x$
 
-```
+```Coq
   Π x : α . β x
 ```
-with the usual "β-reduction" rule:   
+```coq
+  Π x : α . β x
 ```
+```java
+  Π x : α . β x
+```
+with the usual *β-reduction rule*:   
+```coq
   (λx.t) s = [s / x] t
 ```
 **Example:** 
