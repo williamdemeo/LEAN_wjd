@@ -56,18 +56,18 @@ assertion, a proof, etc).
 
 Lean supports **dependent function types**, as in $\Pi_{x : A} B(x)$
 
-```
+```sml
   Π x : α . β x
 ```
 
 with the usual *β-reduction rule*:   
 
-```
+```sml
   (λx.t) s = [s / x] t
 ```
 **Example:** 
 
-```coq
+```sml
 universe u
 constant vec : Type u → ℕ → Type u
 
