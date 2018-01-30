@@ -22,32 +22,31 @@ libraries:
 + **HOL light** (simple type theory)
 + **PVS** classical dependent type theory)
 + **Coq** (constructive dependent type theory)
-+ **Adga** (constructive dependent type theory)
++ **Adga** (constructive dependent type theory)  
+Why develop (or learn) another proof assistant?
 
 ---
 
-### Why develop another proof assistant?
+### Motivation 
+#### Lean is...
 
-**Lean** is a...
-
-+ **fresh start** incorporating the best ideas from existing systems
++ a **fresh start** incorporating the best ideas from existing systems
    
-+ hybrid **interactive/automated** system, being both
++ a **hybrid interactive/automated** system, being both
   - an interactive theorem prover with powerful automation
   - an automated reasoning tool capable of producing detailed proofs
     
-+  **verified mathematical library**
++ a **verified mathematical library**
  
-+ **programming environment** for
++ a **programming environment** for
   - *computing* with objects using a precise formal semantics
   - *reasoning* about the results of computation
   - *creating* proof-producing automations
 
 ---
 
-### Goals
-
-**Lean** may be used to 
+### Motivation
+#### Lean can...
 
 + verify mathematics  
 
@@ -56,8 +55,6 @@ libraries:
 + support reasoning and exploration  
 
 + support formal methods in education  
-
-+ create an eminently powerful, usable system  
 
 + bring formal methods to the masses
 
