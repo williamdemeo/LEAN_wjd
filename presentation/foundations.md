@@ -21,7 +21,7 @@
 
 #### Calculus of Inductive Constructions
 
-+ Every expression has a **type** indicating the sort of object that expression denotes (eg, a natural number, a data type, an assertion, a proof, etc)  
++ Every expression has a **type** indicating the sort of object it denotes (eg, a natural number, a data type, an assertion, a proof, etc)  
 
 + Lean implements the logical foundation called **dependent type theory**   
 

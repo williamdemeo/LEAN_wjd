@@ -76,7 +76,7 @@ Why develop (or learn) another proof assistant?
 
 ### Notable Features of Lean
 
-+ written in C++, with **multi-core support**  
++ written in C++ with **multi-core support**  
  
 + **small trusted** kernel with independent type checkers  
 
