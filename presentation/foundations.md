@@ -57,15 +57,15 @@ assertion, a proof, etc).
 Lean has
 + **dependent function types**  
   Π x : α . β x, with the usual "β-reduction" rule:   
-  ```
+  ```coq
   (λx.t) s = [s / x] t
   ```
 
-+ **eta equivalence for functions**  
-  <code>t</code> and <code>λx.t x</code> are definitionally equal
++ **eta equivalence** for functions  
+  `t` and `(λx.t)x` are definitionally equal
 
 + **let definitions**  
-  ```
+  ```coq
   let x := s in t
   ```
   with the expected reduction rule
@@ -74,7 +74,7 @@ Lean has
 
 ### Logical Foundations
 
-Lean implements **inductive families** with **primitive recursors**, with the
+Lean implements **inductive families** with **primitive recursors** with the
 expected computation rules.
 
 ```coq
