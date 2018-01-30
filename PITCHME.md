@@ -21,10 +21,11 @@ leanprover.github.io/theorem_proving_in_lean
 
 ### What is Lean?
 
-+ **Lean** is a new, open source, interactive theorem prover 
-+ developed principally by **Leonardo de Moura** at Microsoft Research.
++ a new, open source, interactive theorem prover 
 
-<center><font color=blue size="5">http://leanprover.github.io</font></center>
++ developed principally by **Leonardo de Moura** at Microsoft Research
+
+<center>http://leanprover.github.io</center>
 
 
 ---
@@ -76,21 +77,30 @@ Lean is an attempt to bring interactive and automated reasoning together with
 
 ### Goals of Lean
 
-+ verify mathematics
-+ verify hardware, software, and hybrid systems
-+ support reasoning and exploration
-+ support formal methods in education
-+ create an eminently powerful, usable system
++ verify mathematics  
+
++ verify hardware, software, and hybrid systems  
+
++ support reasoning and exploration  
+
++ support formal methods in education  
+
++ create an eminently powerful, usable system  
+
 + bring formal methods to the masses
 
 ---
 
 ### History of Lean
 
-+ project began in 2013
-+ Lean 2 "announced" in summer 2015
-+ major rewrite, Lean 3, is now available
-+ standard library and automation under development
++ project began in 2013  
+ 
++ Lean 2 "announced" in summer 2015  
+ 
++ major rewrite, Lean 3, is now available  
+ 
++ standard library and automation under development  
+ 
 + HoTT development is ongoing in Lean 2
 
 ---
@@ -113,7 +123,7 @@ Lean is an attempt to bring interactive and automated reasoning together with
 + supports constructive reasoning, quotients and extensionality, and classical reasoning
 + elegant syntax and a powerful elaborator
 + well-integrated type class inference
-+ a function definition system compiles structural / nested / mutual / well-founded recursive definitions down to primitives
++ a function definition system compiles structural/nested/mutual / well-founded recursive definitions down to primitives
 + flexible means of writing declarative proofs and tactic-style proofs
 + server support for editors, with proof-checking and live information
 
@@ -138,7 +148,7 @@ e-matching
 
 ### Logical Foundations of Lean
 
-Based on a version of the *Calculus of Inductive Constructions*, with:
+Based on the *Calculus of Inductive Constructions*, with:
 
 + a hierarchy of (non-cumulative) universes, with a type Prop of
 propositions at the bottom
@@ -158,8 +168,8 @@ A single classical axiom:
 #### Calculus of Inductive Constructions
 
 + every expression has a **type** indicating what sort of object the expression denotes (eg a mathematical object like a natural number, a data type, an
-assertion, a proof, etc). |
-+ Lean implements the logical foundation called **dependent type theory** |
+assertion, a proof, etc). 
++ Lean implements the logical foundation called **dependent type theory** 
 + Specifically, the **Calculus of Inductive Constructions** a formal language with a small and precise set of rules that governs the formation of expressions. 
 
 
@@ -180,7 +190,10 @@ assertion, a proof, etc). |
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
-  That is, if `p : Prop`, `s : p` , and `t : p`, 
+  That is, if 
+  ```
+  p : Prop, s : p, t : p
+  ```
   then `s` and `t` are definitionally equal.
 
 ---
@@ -204,7 +217,7 @@ Lean has
 Lean implements **inductive families** with **primitive recursors**, with the
 expected computation rules.
 
-```lean
+```
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
