@@ -77,21 +77,30 @@ Lean is an attempt to bring interactive and automated reasoning together with
 
 ### Goals of Lean
 
-+ verify mathematics
-+ verify hardware, software, and hybrid systems
-+ support reasoning and exploration
-+ support formal methods in education
-+ create an eminently powerful, usable system
++ verify mathematics  
+
++ verify hardware, software, and hybrid systems  
+
++ support reasoning and exploration  
+
++ support formal methods in education  
+
++ create an eminently powerful, usable system  
+
 + bring formal methods to the masses
 
 ---
 
 ### History of Lean
 
-+ project began in 2013
-+ Lean 2 "announced" in summer 2015
-+ major rewrite, Lean 3, is now available
-+ standard library and automation under development
++ project began in 2013  
+ 
++ Lean 2 "announced" in summer 2015  
+ 
++ major rewrite, Lean 3, is now available  
+ 
++ standard library and automation under development  
+ 
 + HoTT development is ongoing in Lean 2
 
 ---
