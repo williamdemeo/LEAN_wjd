@@ -20,7 +20,8 @@ https://sms.cam.ac.uk/media/2521061/embed
 
 #### Other References
 
-+ [Avigad, et al. Intro to Proofs textbook]https://leanprover.github.io/logic_and_proof/
++ [Intro to Proofs textbook](https://leanprover.github.io/logic_and_proof/), Avigad, et al     
+https://leanprover.github.io/logic_and_proof/
 
 
 ---?include=presentation/overview.md
