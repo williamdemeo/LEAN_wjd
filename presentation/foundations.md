@@ -67,7 +67,7 @@ with the usual *β-reduction rule*:
 ```
 **Example:** 
 
-```
+```javascript
 universe u
 constant vec : Type u → ℕ → Type u
 
