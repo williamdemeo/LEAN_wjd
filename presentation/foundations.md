@@ -54,12 +54,15 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-Lean has **dependent function types**  
-```coq
+**dependent function types**  
+
+$$ \prod_{x \colon \alpha} \beta_x$$
+
+```
   Π x : α . β x
 ```
 with the usual "β-reduction" rule:   
-```coq
+```
   (λx.t) s = [s / x] t
 ```
 **Example:** 
