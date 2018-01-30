@@ -5,26 +5,6 @@
  * https://github.com/gitpitch/gitpitch/wiki/Slideshow-Custom-CSS
  */
 
-body {
-  background: #fff;
-  background-color: #fff;
-}
-
-html:-webkit-full-screen-ancestor {
-  background: #fff;
-  background-color: #fff;
-}
-
-html:-moz-full-screen-ancestor {
-  background: #fff;
-  background-color: #fff;
-}
-
-.reveal pre {
-  width: 100%;
-  box-shadow : none;
-}
-
 .reveal pre code {
   font-size: 1.2em;
   line-height: 1.2;
@@ -32,21 +12,6 @@ html:-moz-full-screen-ancestor {
   border-radius: 10px;
 }
 
-.reveal .slides section .code-presenting-annotation {
-  color: white;
-  background: #1f1c18;
-  padding: 1px 15px;
-  border-radius: 15px;
-  opacity: 0.75 !important;
-  font-size: 50% !important;
-}
-
-.reveal p span.slide-title {
-  color: black;
-  padding: 4px 15px;
-  opacity: 0.75 !important;
-  border-radius: 15px;
-}
 
 .reveal .slides {
     text-align: left;
@@ -57,33 +22,3 @@ html:-moz-full-screen-ancestor {
 .reveal .slides section {
     margin: 20px;
 }
-
-.reveal a {
-    color: #e7ad52;
-}
-
-.reveal a:hover {
-    color: #f3d7ac;
-}
-
-.hljs {
-  background : none;
-}
-
-/* Enable List Bullet Icons */
-.reveal ul { list-style: none; }
-
-.white {
-  color: white;
-}
-
-#gp-logo img {
-  max-height: 4em;
-  max-width: none;
-}
-
-.gp-tip { font-size : 1.5em; }
-
-.gp-contact { font-size : 1.4em; }
-
-.gp-download { margin-left: 10px; }
