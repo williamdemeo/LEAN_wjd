@@ -22,9 +22,11 @@
 #### Calculus of Inductive Constructions
 
 + every expression has a **type** indicating what sort of object the expression denotes (eg a mathematical object like a natural number, a data type, an
-assertion, a proof, etc). 
-+ Lean implements the logical foundation called **dependent type theory** 
-+ Specifically, the **Calculus of Inductive Constructions** a formal language with a small and precise set of rules that governs the formation of expressions. 
+assertion, a proof, etc).   
+
++ Lean implements the logical foundation called **dependent type theory**   
+
++ Specifically, **CIC** is a formal language with a small, precise set of rules governing formation of expressions
 
 
 ---
