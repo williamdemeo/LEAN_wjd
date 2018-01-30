@@ -35,18 +35,18 @@
 #### Type Universes
 
 + Lean has a hierarchy of *type universes*:
-  ```
+  ```coq
   Sort 0, Sort 1, Sort 2, Sort 3, . . .
   ```
 
 + These can also be written:
-  ```
+  ```coq
   Prop, Type 0, Type 1, Type 2, . . .
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
   The latter means, if 
-  ```
+  ```coq
   p : Prop, s : p, t : p
   ```
   then `s` and `t` are definitionally equal.
@@ -57,18 +57,18 @@
 
 Lean supports **dependent function types** like $\Pi_{x : A} B(x)$
 
-```
+```coq
   Π x : α . β x
 ```
 
 with the usual *β-reduction rule*:   
 
-```
+```coq
   (λx.t) s = [s / x] t
 ```
 #### Example
 
-```
+```coq
 universe u
 constant vec : Type u → ℕ → Type u
 
@@ -89,7 +89,7 @@ end vec
   `t` and `(λx.t)x` are definitionally equal
 
 + **let definitions**  
-  ```
+  ```coq
   let x := s in t
   ```
   with the expected reduction rule
@@ -101,7 +101,7 @@ end vec
 Lean implements **inductive families** with **primitive recursors** with the
 expected computation rules.
 
-```
+```coq
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
