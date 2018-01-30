@@ -54,7 +54,7 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-Lean supports **dependent function types**, as in $\Pi\limits_{x : A} B_x$
+Lean supports **dependent function types**, as in $\Pi\limits{x : A} B_x$
 
 ```
   Π x : α . β x
