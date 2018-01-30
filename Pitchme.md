@@ -148,7 +148,7 @@ e-matching
 
 ### Logical Foundations of Lean
 
-Based on a version of the *Calculus of Inductive Constructions*, with:
+Based on the *Calculus of Inductive Constructions*, with:
 
 + a hierarchy of (non-cumulative) universes, with a type Prop of
 propositions at the bottom
@@ -168,8 +168,8 @@ A single classical axiom:
 #### Calculus of Inductive Constructions
 
 + every expression has a **type** indicating what sort of object the expression denotes (eg a mathematical object like a natural number, a data type, an
-assertion, a proof, etc). |
-+ Lean implements the logical foundation called **dependent type theory** |
+assertion, a proof, etc). 
++ Lean implements the logical foundation called **dependent type theory** 
 + Specifically, the **Calculus of Inductive Constructions** a formal language with a small and precise set of rules that governs the formation of expressions. 
 
 
@@ -190,7 +190,10 @@ assertion, a proof, etc). |
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
-  That is, if `p : Prop`, `s : p` , and `t : p`, 
+  That is, if 
+  ```
+  p : Prop, s : p, t : p
+  ```
   then `s` and `t` are definitionally equal.
 
 ---
