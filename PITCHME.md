@@ -27,7 +27,3 @@ leanprover.github.io/theorem_proving_in_lean
 ---?include=presentation/overview.md
 
 ---?include=presentation/foundations.md
-
-<!-- ---?include=presentation/tips.md
-
----?include=presentation/LeanExamples.md -->
