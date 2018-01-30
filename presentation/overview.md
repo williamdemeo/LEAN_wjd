@@ -32,19 +32,20 @@ Why develop another?
 
 Why does the world need another proof assistant or functional programming language?
 
-+ Lean provides a fresh start   
+**Lean provides** 
 
-+ incorporates the best ideas from existing systems, while trying to avoid the shortcomings, and incorporates some novel solutions to design problems.
+1. a fresh start   
 
-+ Lean attempts to bring interactive and automated reasoning together by offering:
-
-+ an interactive theorem prover with powerful automation
-+ an automated reasoning tool that
-  - produces (detailed) proofs
-  - can be used interactively
-  - is built on a verified mathematical library
+2. a system that incorporates best ideas from existing systems, and some
+   novel solutions to common design problems
+   
+3. a hybrid interactive-automated system, being both
+  - an interactive theorem prover with powerful automation
+  - an automated reasoning tool capable of producing detailed proofs
+    
+4. a verified mathematical library
  
-+ a programming environment in which one can
+5. a programming environment in which one can
   - compute with objects using a precise formal semantics
   - reason about the results of computation
   - create proof-producing automations
