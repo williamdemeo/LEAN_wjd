@@ -28,20 +28,20 @@ libraries:
 
 ### Why develop another proof assistant?
 
-**Lean** is...
+**Lean** is a...
 
-+ a fresh start, incorporating the best ideas from existing systems, and novel solutions to design problems
++ **fresh start** incorporating the best ideas from existing systems
    
-+ a hybrid interactive-automated system, being both
++ hybrid **interactive/automated** system, being both
   - an interactive theorem prover with powerful automation
   - an automated reasoning tool capable of producing detailed proofs
     
-+  a verified mathematical library
++  **verified mathematical library**
  
-+ a programming environment in which one can
-  - compute with objects using a precise formal semantics
-  - reason about the results of computation
-  - create proof-producing automations
++ **programming environment** for
+  - *computing* with objects using a precise formal semantics
+  - *reasoning* about the results of computation
+  - *creating* proof-producing automations
 
 ---
 
