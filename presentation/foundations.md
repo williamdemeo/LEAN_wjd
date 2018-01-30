@@ -68,7 +68,7 @@ with the usual *β-reduction rule*:
 ```
 #### Example
 
-```coq
+```
 universe u
 constant vec : Type u → ℕ → Type u
 
@@ -89,7 +89,7 @@ end vec
   `t` and `(λx.t)x` are definitionally equal
 
 + **let definitions**  
-  ```coq
+  ```
   let x := s in t
   ```
   with the expected reduction rule
@@ -101,7 +101,7 @@ end vec
 Lean implements **inductive families** with **primitive recursors** with the
 expected computation rules.
 
-```coq
+```
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
