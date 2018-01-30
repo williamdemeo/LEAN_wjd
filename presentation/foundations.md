@@ -98,12 +98,15 @@ end vec
 
 ### Logical Foundations
 
+Lean implements these **inductive families** with **primitive recursors** having the expected computation rules:
+
 ```scala
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
 ```
-Lean implements these **inductive families** with **primitive recursors** having the expected computation rules:
+
+... from which Lean generates ...
 
 ```scala
 #check (vector : Type u → N → Type u)
