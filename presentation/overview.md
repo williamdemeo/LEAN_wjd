@@ -42,9 +42,9 @@ Why develop (or adopt) another proof assistant?
 
 ---
 
-### Why Lean?
+### Motivation
 
-It is...
+Lean is...
 
 + a **fresh start** incorporating the best ideas from existing systems
    
@@ -63,7 +63,7 @@ It is...
 
 ### Motivation
 
-Lean can...
+Lean can
 
 + verify mathematics  
 
