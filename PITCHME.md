@@ -104,12 +104,11 @@ kk+ an interactive theorem prover with powerful automation
 
 + written in C++, with **multi-core support**
 + **small trusted** kernel with independent type checkers
-+ based on a powerful **dependent type theory** but supports classical logic and deduction systems
++ based on a powerful **dependent type theory** but also supports **classical** foundations and deduction rules
 + supports **type class inference**
 + compiles structural/nested/mutual/well-founded recursive definitions down to **primitives**
 + **bytecode interpreter** for evaluating computable
 definitions
-+ editor modes for **Emacs** and **VSCode**
 + supports **metaprogramming** via monadic interface to Lean internals
 + **profiler**, **debugger**, **simplifier** with conditional rewriting, arithmetic simplification
 + enthusiastic, talented **people** involved
