@@ -34,14 +34,14 @@ leanprover.github.io/theorem_proving_in_lean
 
 Some systems currently in use with substantial mathematical
 libraries:
-+ Mizar (set theory)
-+ ACL2 (primitive recursive arithmetic)
-+ HOL4 (simple type theory)
-  - Isabelle (simple type theory)
-+ HOL light (simple type theory)
-+ PVS (classical dependent type theory)
-+ Coq (constructive dependent type theory)
-+ Adga (constructive dependent type theory)
++ **Mizar** (set theory)
++ **ACL2** (primitive recursive arithmetic)
++ **HOL4** (simple type theory)
++ **Isabelle** (simple type theory)
++ **HOL light** (simple type theory)
++ **PVS** classical dependent type theory)
++ **Coq** (constructive dependent type theory)
++ **Adga** (constructive dependent type theory)
 
 Why develop another?
 
