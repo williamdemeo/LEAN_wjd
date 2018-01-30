@@ -4,14 +4,20 @@
 
 <li class="fragment">**What is it?**  
 a new, open source, interactive theorem prover 
+<p>
+</p>
 </li>
 
 <li class="fragment">**Where did it come from?**  
 Principle Developer: **Leonardo de Moura**, Microsoft Research
+<p>
+</p>
 </li>
 
 <li class="fragment">**Where can one get it?**  
 <center>http://leanprover.github.io</center>
+<p>
+</p>
 </li>
 
 </ul>
