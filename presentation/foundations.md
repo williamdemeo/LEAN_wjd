@@ -44,8 +44,8 @@
   Prop, Type 0, Type 1, Type 2, . . .
   ```
 
-+ `Prop` is *impredicative* and definitionally *proof irrelevant*.   
-  The latter means, if 
++ `Prop` is definitionally *proof irrelevant*:  
+  if
   ```scala
   p : Prop, s : p, t : p
   ```
@@ -58,7 +58,7 @@
 Lean supports **dependent function types** like $\Pi_{x : A} B(x)$
 
 ```scala
-  Π x : α . β x
+  Π (x : A) , B x
 ```
 
 with the usual *β-reduction rule*:   
