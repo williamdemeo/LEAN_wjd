@@ -1,17 +1,18 @@
-
+  
 ### Logical Foundations of Lean
 
-+ Based on the <span style="color:#e49436">Calculus of Inductive 
-  Constructions</span> with:    
-  - a hierarchy of **universes** with a type `Prop` at bottom
-  - **dependent function types** (Pi types)
-  - **inductive types** (à la Dybjer)
+1. based on the 
+   <span style="color:#e49436">Calculus of Inductive Constructions</span>
+   with:    
+   - a hierarchy of **universes** with a type `Prop` at bottom
+   - **dependent function types** (Pi types)
+   - **inductive types** (à la Dybjer)
 
-+ Semi-constructive axioms and constructions:  
+2. Semi-constructive axioms and constructions:  
   - **quotient types** (implies function extensionality)  
   - **propositional extensionality**
 
-+ A single classical axiom:  
+3. A single classical axiom:  
   - **choice**
 
 ---
