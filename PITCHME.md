@@ -57,7 +57,7 @@ Why does the world need another proof assistant or functional programming langua
 
 + Lean attempts to bring interactive and automated reasoning together by offering:
 
-+ an interactive theorem prover with powerful automation
+kk+ an interactive theorem prover with powerful automation
 + an automated reasoning tool that
   - produces (detailed) proofs
   - can be used interactively
@@ -102,28 +102,18 @@ Why does the world need another proof assistant or functional programming langua
 
 ### Notable Features
 
-+ based on a powerful dependent type theory
-+ written in C++, with multi-core support
++ based on a powerful *dependent type theory*
++ written in C++, with **multi-core support**
 + small trusted kernel with independent type checkers
-+ supports constructive reasoning, quotients and extensionality, and classical reasoning
-+ well-integrated type class inference
-+ compiles structural/nested/mutual/ well-founded recursive definitions down to primitives
-+ flexible means of writing both declarative and tactic-based proof styles
-
----
-
-### Notable Features (cont)
-
++ supports multiple axiomatic and logical reasoning paradigms
++ supports type class inference
++ compiles structural/nested/mutual/well-founded recursive definitions down to **primitives**
 + editor modes for **Emacs** and **VSCode**
 + fast bytecode interpreter for evaluating computable
 definitions
-+ powerful framework for metaprogramming via a monadic
++ powerful framework for *metaprogramming* via a monadic
 interface to Lean internals
-+ profiler and roll-your-own debugger
-+ simplifier with conditional rewriting, arithmetic simplification
-+ SMT-state extends tactics state with congruence closure,
-e-matching
-+ online documentation and courseware
++ profiler, debugger, simplifier with conditional rewriting, arithmetic simplification
 + enthusiastic, talented people involved
 
 ---
