@@ -48,7 +48,9 @@ libraries:
 
 ---
 
-### Goals of Lean
+### Goals
+
+**Lean** may be used to 
 
 + verify mathematics  
 
@@ -80,15 +82,23 @@ libraries:
 
 ### Notable Features
 
-+ written in C++, with **multi-core support**
-+ **small trusted** kernel with independent type checkers
-+ based on **constructive type theory** but supports **classical logic**
++ written in C++, with **multi-core support**  
+ 
++ **small trusted** kernel with independent type checkers  
+
++ based on **constructive type theory** but supports **classical logic**  
+
 + supports **type class inference**
+
 + compiles structural/nested/mutual/well-founded recursive definitions down to **primitives**
+
 + **bytecode interpreter** for evaluating computable
 definitions
+
 + supports **metaprogramming** via monadic interface to Lean internals
+
 + **profiler**, **debugger**, **simplifier** with conditional rewriting, arithmetic simplification
+
 + enthusiastic, talented **people** involved
 
 ---
