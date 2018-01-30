@@ -4,9 +4,9 @@
 # For details, visit Wiki:
 # https://github.com/gitpitch/gitpitch/wiki/Slideshow-Settings
 #
-theme : night
+theme : white
 theme-override : assets/css/PITCHME.css
-highlight : monokai
+highlight : gruvbox
 vertical-center : false
 transition : none
 published : true

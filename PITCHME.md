@@ -37,7 +37,7 @@ libraries:
 + Mizar (set theory)
 + ACL2 (primitive recursive arithmetic)
 + HOL4 (simple type theory)
-+ Isabelle (simple type theory)
+  - Isabelle (simple type theory)
 + HOL light (simple type theory)
 + PVS (classical dependent type theory)
 + Coq (constructive dependent type theory)
@@ -115,27 +115,24 @@ Lean is an attempt to bring interactive and automated reasoning together with
 
 ---
 
-### Notable Features of Lean
+### Notable Features
 
 + based on a powerful dependent type theory
 + written in C++, with multi-core support
 + small trusted kernel with independent type checkers
 + supports constructive reasoning, quotients and extensionality, and classical reasoning
-+ elegant syntax and a powerful elaborator
 + well-integrated type class inference
-+ a function definition system compiles structural/nested/mutual / well-founded recursive definitions down to primitives
-+ flexible means of writing declarative proofs and tactic-style proofs
-+ server support for editors, with proof-checking and live information
++ compiles structural/nested/mutual/ well-founded recursive definitions down to primitives
++ flexible means of writing both declarative and tactic-based proof styles
 
 ---
 
 ### Notable Features (cont)
 
 + editor modes for Emacs and VSCode
-+ a javascript version runs in a browser
-+ a fast bytecode interpreter for evaluating computable
++ fast bytecode interpreter for evaluating computable
 definitions
-+ a powerful framework for metaprogramming via a monadic
++ powerful framework for metaprogramming via a monadic
 interface to Lean internals
 + profiler and roll-your-own debugger
 + simplifier with conditional rewriting, arithmetic simplification
@@ -185,13 +182,13 @@ assertion, a proof, etc).
   ```
 
 + These can also be written:
-  ```
+  ```coq
   Prop, Type 0, Type 1, Type 2, . . .
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
   That is, if 
-  ```
+  ```coq
   p : Prop, s : p, t : p
   ```
   then `s` and `t` are definitionally equal.
@@ -217,7 +214,7 @@ Lean has
 Lean implements **inductive families** with **primitive recursors**, with the
 expected computation rules.
 
-```
+```coq
 inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
