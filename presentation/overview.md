@@ -1,17 +1,21 @@
 ### Lean Overview 
 
-#### What is it?
-+ a new, open source, interactive theorem prover 
+<ul>
 
-<p class="fragment">
-#### Where did it come from?
-+ Principle Developer: **Leonardo de Moura**, Microsoft Research
-</p>
+<li class="fragment">**What is it?**  
+a new, open source, interactive theorem prover 
+</li>
 
-<p class="fragment">
-#### Where can one get it?
+<li class="fragment">**Where did it come from?**  
+Principle Developer: **Leonardo de Moura**, Microsoft Research
+</li>
+
+<li class="fragment">**Where can one get it?**  
 <center>http://leanprover.github.io</center>
-</p>
+</li>
+
+</ul>
+
 ---
 
 ### Perspective
