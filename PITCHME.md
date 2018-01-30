@@ -23,14 +23,14 @@ leanprover.github.io/theorem_proving_in_lean
 
 + a new, open source, interactive theorem prover 
 
-+ developed principally by **Leonardo de Moura** at Microsoft Research
++ principle developer: **Leonardo de Moura**, Microsoft Research
 
 <center>http://leanprover.github.io</center>
 
 
 ---
 
-#### Perspective
+### Perspective
 
 Some systems currently in use with substantial mathematical
 libraries:
@@ -49,28 +49,23 @@ Why develop another?
 
 ### Motivation
 
-#### Why develop another?
+Why does the world need another proof assistant or functional programming language?
 
-+ It provides a fresh start.
-+ Incorporates the best ideas/practices from existing provers, while avoiding shortcomings.
-+ Incorporates some novel solutions to design problems.
++ Lean provides a fresh start   
 
++ incorporates the best ideas from existing systems, while trying to avoid the shortcomings, and incorporates some novel solutions to design problems.
 
----
-
-### Motivation
-
-Lean is an attempt to bring interactive and automated reasoning together with
++ Lean attempts to bring interactive and automated reasoning together by offering:
 
 + an interactive theorem prover with powerful automation
 + an automated reasoning tool that
-  - produces (detailed) proofs,
-  - has a rich language,
-  - can be used interactively,
+  - produces (detailed) proofs
+  - can be used interactively
   - is built on a verified mathematical library
+ 
 + a programming environment in which one can
-  - compute with objects using a precise formal semantics,
-  - reason about the results of computation,
+  - compute with objects using a precise formal semantics
+  - reason about the results of computation
   - create proof-producing automations
 
 ---
