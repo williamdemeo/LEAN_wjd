@@ -119,3 +119,51 @@ inductive vector (α : Type u) : N → Type u
                           C (n + 1) (vector.cons a v)) →
     Π {n : N} (v : vector α n), C n v)
 ```
+
+---
+
+### Logical Foundations
+
+We can quotient by an arbitrary binary relation:
+
+```scala
+constant quot :
+  Π {α : Sort u}, (α → α → Prop) → Sort u
+constant quot.mk :
+  Π {α : Sort u} (r : α → α → Prop), α → quot r
+axiom quot.ind :
+  ∀ {α : Sort u} {r : α → α → Prop} {β : quot r → Prop},
+    (∀ a, β (quot.mk r a)) → ∀ (q : quot r), β q
+constant quot.lift :
+  Π {α : Sort u} {r : α → α → Prop}
+    {β : Sort u} (f : α → β),
+    (∀ a b, r a b → f a = f b) → quot r → β
+axiom quot.sound :
+  ∀ {α : Type u} {r : α → α → Prop} {a b : α},
+    r a b → quot.mk r a = quot.mk r b
+```
+These (with eta) imply function extensionality.
+
+
+---
+
+### Logical Foundations
+
+Propositional extensionality:
+
+```scala
+axiom propext {a b : Prop} : (a ↔ b) → a = b
+```
+
+Finally, we can introduce classical axioms...
+
+```
+axiom choice {α : Sort u} : nonempty α → α
+```
+...if we're willing to be non-constructive and not guarantee
+
+(Here, nonempty α is equivalent to ∃ x : α, true.)
+
+Diaconescu's trick gives us the law of the excluded middle as a consequence of choice.
+
+<span color=red>Warning!</span> Definitions that use choice to produce data are noncomputable.
