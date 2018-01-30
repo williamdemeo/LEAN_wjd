@@ -58,11 +58,11 @@ Lean has
 + **dependent function types**  
   Π x : α . β x, with the usual "β-reduction" rule:   
   ```
-  (λ x, t) s = [s / x] t
+  (λx.t) s = [s / x] t
   ```
 
 + **eta equivalence for functions**  
-  `t` and `λx.t x` are definitionally equal
+  <code>t</code> and <code>λx.t x</code> are definitionally equal
 
 + **let definitions**  
   ```
