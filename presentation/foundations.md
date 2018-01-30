@@ -98,7 +98,7 @@ end vec
 
 ### Logical Foundations
 
-Lean implements these **inductive families** with **primitive recursors** having the expected computation rules:
+Lean implements **inductive families** with **primitive recursors** having the expected computation rules.
 
 ```scala
 inductive vector (α : Type u) : N → Type u
