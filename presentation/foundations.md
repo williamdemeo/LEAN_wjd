@@ -21,8 +21,7 @@
 
 #### Calculus of Inductive Constructions
 
-+ every expression has a **type** indicating what sort of object the expression denotes (eg a mathematical object like a natural number, a data type, an
-assertion, a proof, etc).   
++ Every expression has a **type** indicating the sort of object that expression denotes (eg, a natural number, a data type, an assertion, a proof, etc)  
 
 + Lean implements the logical foundation called **dependent type theory**   
 
@@ -35,7 +34,7 @@ assertion, a proof, etc).
 
 #### Type Universes
 
-+ Lean has a hierarchy of non-cumulative type universes:
++ Lean has a hierarchy of *type universes*:
   ```
   Sort 0, Sort 1, Sort 2, Sort 3, . . .
   ```
@@ -46,7 +45,7 @@ assertion, a proof, etc).
   ```
 
 + `Prop` is *impredicative* and definitionally *proof irrelevant*.   
-  That is, if 
+  The latter means, if 
   ```coq
   p : Prop, s : p, t : p
   ```
@@ -56,20 +55,20 @@ assertion, a proof, etc).
 
 ### Logical Foundations
 
-Lean supports **dependent function types**, as in $\Pi_{x : A} B(x)$
+Lean supports **dependent function types** like $\Pi_{x : A} B(x)$
 
-```lean
+```sml
   Π x : α . β x
 ```
 
 with the usual *β-reduction rule*:   
 
-```lean
+```sml
   (λx.t) s = [s / x] t
 ```
-**Example:** 
+#### Example
 
-```lean
+```sml
 universe u
 constant vec : Type u → ℕ → Type u
 
