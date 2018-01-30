@@ -8,7 +8,7 @@
    - **dependent function types** (Pi types)
    - **inductive types** (à la Dybjer)
 
-2. Semi-constructive axioms and constructions:  
+2. semi-constructive axioms and constructions:
   - **quotient types** (implies function extensionality)  
   - **propositional extensionality**
 
@@ -56,13 +56,14 @@ assertion, a proof, etc).
 
 Lean has
 + **dependent function types**  
-  Π x : α, β x, with the usual reduction rule (λ x, t) s = t [s / x]
+  Π x : α . β x, with the usual "β-reduction" rule:   
+  `(λ x, t) s = [s / x] t`
 
 + **eta equivalence for functions**  
-  t and λ x, t x are definitionally equal
+  `t` and `λ x . t x` are definitionally equal
 
 + **let definitions**  
-  let x := s in t, with the expected reduction rule
+  `let x := s in t` with the expected reduction rule
 
 ---
 
