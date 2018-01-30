@@ -83,7 +83,7 @@ end vec
 
 ---  
 
-### Logical Foundations
+<!-- ### Logical Foundations
 
 + **eta equivalence** for functions  
   `t` and `(λx.t)x` are definitionally equal
@@ -92,9 +92,9 @@ end vec
   ```scala
   let x := s in t
   ```
-  with the expected reduction rule
-
----
+  with the expected reduction rule -->
+<!-- 
+--- -->
 
 ### Logical Foundations
 
@@ -106,7 +106,7 @@ inductive vector (α : Type u) : N → Type u
 | nil : vector 0
 | cons {n : N} (a : α) (v : vector n) : vector (n+1)
 
--- this inductive defintion produces the following
+-- from which Lean generates four objects
 
 #check (vector : Type u → N → Type u)
 #check (vector.nil : Π α : Type u, vector α 0)
