@@ -165,6 +165,6 @@ axiom choice {α : Sort u} : nonempty α → α
 
 (Here, nonempty α is equivalent to ∃ x : α, true.)
 
-Diaconescu's trick gives us the law of the excluded middle as a consequence of choice.
+Diaconescu's trick gives us the law of the excluded middle as a consequence.
 
-<span color=red>Warning!</span> Definitions that use choice to produce data are noncomputable.
+<font color="red">Warning!</font> Definitions that use choice to produce data are noncomputable.
