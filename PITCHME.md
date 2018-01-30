@@ -1,4 +1,4 @@
-## Introduction to the Lean Prover
+## Intro to the Lean Prover
 
 #### William DeMeo
 [&lt;williamdemeo@gmail.com&gt;](mailto:williamdemeo@gmail.com)
@@ -17,9 +17,9 @@ leanprover.github.io/theorem_proving_in_lean
 
 ---
 
-## Lean Overview 
+### Lean Overview 
 
-### What is Lean?
+#### What is Lean?
 
 + a new, open source, interactive theorem prover 
 
@@ -30,7 +30,7 @@ leanprover.github.io/theorem_proving_in_lean
 
 ---
 
-### Perspective
+#### Perspective
 
 Some systems currently in use with substantial mathematical
 libraries:
@@ -105,16 +105,6 @@ Lean is an attempt to bring interactive and automated reasoning together with
 
 ---
 
-### People of Lean
-
-**Code base:** Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
-
-**Libraries:** Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
-
-**Contributors:** Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
-
----
-
 ### Notable Features
 
 + based on a powerful dependent type theory
@@ -129,7 +119,7 @@ Lean is an attempt to bring interactive and automated reasoning together with
 
 ### Notable Features (cont)
 
-+ editor modes for Emacs and VSCode
++ editor modes for **Emacs** and **VSCode**
 + fast bytecode interpreter for evaluating computable
 definitions
 + powerful framework for metaprogramming via a monadic
@@ -140,6 +130,16 @@ interface to Lean internals
 e-matching
 + online documentation and courseware
 + enthusiastic, talented people involved
+
+---
+
+### People of Lean
+
+<span style="font-size:0.6em; color:blue">**Code base:**</span> Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich, Jared Roesch, Daniel Selsam
+
+<span style="font-size:0.6em; color:blue">**Libraries:**</span> Jeremy Avigad, Floris van Doorn, Leonardo de Moura, Robert Lewis, Gabriel Ebner, Johannes Hölzl, Mario Carneiro
+
+<span style="font-size:0.6em; color:blue">**Contributors:**</span>  Soonho Kong, Jakob von Raumer, Assia Mahboubi, Cody Roux, Parikshit Khanna, Ulrik Buchholtz, Favonia (Kuen-Bang Hou), Haitao Zhang, Jacob Gross, Andrew Zipperer, Joe Hurd
 
 ---
 
