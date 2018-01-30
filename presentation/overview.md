@@ -1,20 +1,22 @@
 ### Lean Overview 
 
-#### What is Lean?
+#### What is it?
 
 + a new, open source, interactive theorem prover 
 
-+ principle developer: **Leonardo de Moura**, Microsoft Research
+#### Where did it come from?
+
++ Principle Developer: **Leonardo de Moura**, Microsoft Research
+
+#### Where can one get it?
 
 <center>http://leanprover.github.io</center>
-
 
 ---
 
 ### Perspective
 
-Some systems currently in use with substantial mathematical
-libraries:
+Some popular software with substantial mathematical libraries:
 + **Mizar** (set theory)
 + **ACL2** (primitive recursive arithmetic)
 + **HOL4** (simple type theory)
@@ -22,7 +24,8 @@ libraries:
 + **HOL light** (simple type theory)
 + **PVS** classical dependent type theory)
 + **Coq** (constructive dependent type theory)
-+ **Adga** (constructive dependent type theory)  
++ **Adga** (constructive dependent type theory)    
+
 Why develop (or learn) another proof assistant?
 
 ---
