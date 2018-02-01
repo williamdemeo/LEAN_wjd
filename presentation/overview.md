@@ -63,7 +63,7 @@ Lean is...
 
 ### Motivation
 
-Lean can
+Lean can...
 
 + verify mathematics  
 
@@ -79,13 +79,13 @@ Lean can
 
 ### History of Lean
 
-+ **2013** Project Started
++ **2013.** project started
  
-+ **2015** Lean 2 announced
++ **2015.** Lean 2 announced
  
-+ **2017** Lean 3 now available  
++ **2017.** Lean 3 now available  
  
-+ **2018** standard library and automation still under development  
++ **2018.** standard library and automation still under development  
  
 (HoTT development is ongoing *in Lean 2 only*)
 
