@@ -3,46 +3,19 @@
 This directory collects notes that I took while working through the online book 
 [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf).
 
-
-First, to compile the theorem_proving_in_lean.pdf, I did the following:
-
-```bash
-## CLONE MY FORK OF THE REPO:
-git clone git@github.com:williamdemeo/theorem_proving_in_lean.git
-cd  theorem_proving_in_lean/
-
-## MAKE SURE IT'S UP-TO-DATE:
-git remote add upstream git@github.com:leanprover/theorem_proving_in_lean.git
-git fetch upstream
-git checkout master
-git merge upstream/master
-git push origin master
-
-## INSTALL THE FOLLOWING REQUIRED PACKAGES:
-sudo apt-get install python3-venv latexmk texlive-xetex
-
-## MAKE THE DOCS, ETC
-make install-deps
-sudo pip install --upgrade pip  # (upgrade pip)
-make install-deps
-make html
-make latexpdf
-./deploy.sh williamdemeo theorem_proving_in_lean
-
-## NOW YOU CAN VIEW THE PDF:
-evince _build/latex/theorem_proving_in_lean.pdf &
-```
-
----	
-
 ### Useful commands
-`C-c C-b`, `C-c C-x`, `C-c C-r`
+
+ `C-c C-b`, `C-c C-x`, `C-c C-r`
 
 To execute the commands in the file `overview.lean`, load the file into emacs and then run
-`C-c C-b` to see the results inline, or `C-c C-x` to execute the file in stand-alone mode.
 
-If you notice that hover-over is no longer working when you move the mouse over the `#check`
-command, then try `C-c C-r` to re-read (re-typecheck) the file.
++ `C-c C-b` to see the results inline, or 
+
++ `C-c C-x` to execute the whole file
+
++ when hovering over a `#check` statement, the type of the expression appears in a pop-up or in the comman buffer.
+
++ If the `hover-over` feature is not working , then try `C-c C-r` to re-read (re-typecheck) the file.
 
 ---
 	
@@ -68,7 +41,7 @@ The remainder of this file is a collection of notes and excerpts from the tutori
 
 ### Function Abstraction and Evaluation
 
-+ Lean recognizes $$\alpha$$-equivalence. (This addresses one of the more annoying aspects of Coq---namely, in Coq, I often found it necessary to rename variables in order to convince the type checker that two expressions could indeed be "unified.")
++ Lean recognizes $\alpha$-equivalence. (This addresses one of the more annoying aspects of Coq---namely, in Coq, I often found it necessary to rename variables in order to convince the type checker that two expressions could indeed be "unified.")
 + The `#reduce` command tells Lean to evaluate an expression by reducing it to normal form---i.e., carry out all computational reductions sanctioned by the underlying logic. In dependent type theory, every term has a computational behavior and admits a notion of reduction or normalization.  In principle, two terms that reduce to the same value are called *definitionally equal*.  They are considered the same by the underlying logical framework.  (It seems this is one feature that distinguishes Lean from other proof systems, like Coq or Agda.)
 + The `#eval` command extracts bytecode from terms of a "computationally pure" fragment of the logical framework, and can evaluate it quite efficiently.  This contrasts with `#reduce` which relies on Lean's trusted kernel.  As such `#reduce` is more trustworthy, but far less efficient.
 
