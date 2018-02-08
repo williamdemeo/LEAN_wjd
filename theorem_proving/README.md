@@ -32,6 +32,7 @@ make latexpdf
 ## NOW YOU CAN VIEW THE PDF:
 evince _build/latex/theorem_proving_in_lean.pdf &
 ```
+
 ---	
 
 ### Useful commands
@@ -42,6 +43,7 @@ To execute the commands in the file `overview.lean`, load the file into emacs an
 
 If you notice that hover-over is no longer working when you move the mouse over the `#check`
 command, then try `C-c C-r` to re-read (re-typecheck) the file.
+
 ---
 	
 ## Theorem Proving In Lean
@@ -94,6 +96,7 @@ The types of arguments of functions can themselves be passed as arguments, as in
 ```scala
 definition compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f x)
 ```
+
 ---
 
 ### Local Definitions
@@ -106,6 +109,7 @@ def t (x : ℕ) : ℕ :=
 	
 #reduce t 2         -- result: 16
 ```
+
 ---
 
 Notice that the meaning of `let a := t1 in t2` is similar to the meaning of `(λ a, t2) t1`, but the two are not the same. 
@@ -122,6 +126,7 @@ def foo := let a := nat  in λ x : a, x + 2
 def bar := (λ a, λ x : a, x + 2) nat
 -/
 ```
+
 ---
 
 ### Variables and Sections
@@ -163,6 +168,7 @@ def do_thrice := h (h (h x))
 #print do_twice
 #print do_thrice
 ```
+
 ---
 
 The ``variable(s)`` commands look like the ``constant(s)`` commands we used above, but there is an important difference. Rather than creating permanent entities, the former commands instruct Lean to insert the declared variables as bound variables in definitions that refer to them. Lean is smart enough to figure out which variables are used explicitly or implicitly in a definition. We can therefore proceed as though ``α``, ``β``, ``γ``, ``g``, ``f``, ``h``, and ``x`` are fixed objects when we write our definitions, and let Lean abstract the definitions for us automatically.
@@ -219,6 +225,7 @@ open foo
 #check fa
 #check foo.fa
 ```
+
 ---
 
 ``open`` brings the shorter names into the current context. Often, when we import a theory file, we want to open some of the namespaces it contains, to have access to short identifiers. But sometimes we want to leave this info hidden, for example, when they conflict with identifiers in another namespace we want to use. Thus namespaces give us a way to manage our working environment.
@@ -364,7 +371,7 @@ variable b : β a
 ``sigma.fst (sigma.mk a b)`` and ``sigma.snd (sigma.mk a b)`` (resp.), and these reduce to ``a`` and ``b`` (resp.).
 
 #### Implicit Arguments
-------------------
+
 
 Suppose we have an implementation of lists as described above.
 
