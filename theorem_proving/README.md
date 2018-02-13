@@ -183,7 +183,7 @@ We see that each one of the expressions above is an object of type ``Type``.
 
 ---
 
-We can also declare new constants and constructors for types: 
+We can also declare new constants and constructors for types. 
 
 ```scala
     constants α β : Type
@@ -200,12 +200,11 @@ We can also declare new constants and constructors for types:
 
 ---
 
-Indeed, we have already seen an example of a function of type 
+We have already seen an example of a function of type 
 ``Type → Type → Type``, namely, the Cartesian product. 
 
 ```scala
     constants α β : Type
-
     #check prod α β       -- Type
     #check prod nat nat   -- Type
 ```
@@ -215,15 +214,16 @@ type of lists of elements of type ``α``.
 
 ```scala
     constant α : Type
-
     #check list α    -- Type
     #check list nat  -- Type
 ```
 
 ---
+
 #### The Type of Type?
 
-Given that every expression in Lean has a type, it is natural to ask what type does ``Type`` itself have.
+Given that every expression in Lean has a type, it is natural to ask what type
+does ``Type`` itself have. 
 
 ```scala
     #check Type      -- Type 1
@@ -246,9 +246,9 @@ This reveals the first level of Lean's infinite hierarchy of types.
 + ``Type 1`` is a larger universe of types, which contains ``Type 0`` as an element; 
 + ``Type 2`` is a larger still universe of types, which contains ``Type 1`` as an element;
  
-and so on... there is a ``Type n`` for every natural number``n``.
+and so on... There is a ``Type n`` for every natural number``n``.
 
-``Type`` is an abbreviation for ``Type 0``: 
+``Type`` is an abbreviation for ``Type 0``. 
 
 ```scala
     #check Type
@@ -351,8 +351,7 @@ The expression `let a := 2 in t` is *definitionally equal* to the result of
 replacing every occurrence of `a` in `t` by `2`.  For example,
 
 ```scala
-def t (x : ℕ) : ℕ := 
-  let y := x + x in y * y
+def t (x : ℕ) : ℕ := let y := x + x in y * y
 	
 #reduce t 2      -- result: 16
 ```
@@ -444,8 +443,6 @@ figure out which variables are used explicitly or implicitly in a definition. We
 can therefore proceed as though ``α``, ``β``, ``γ``, ``g``, ``f``, ``h``, and
 ``x`` are fixed objects when we write our definitions, and let Lean abstract the
 definitions for us automatically. 
-
----
 
 Thus, a variable stays in scope until the eof, and we can't declare another
 variable with the same name. Sometimes, however, it is useful to limit the scope
