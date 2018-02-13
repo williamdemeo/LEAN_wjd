@@ -53,7 +53,7 @@ end
   demand. To process the bytecode quickly, it uses an efficient /virtual machine/, 
   similar to the ones used to interpret OCaml and Python. -/
 
-def double (n : ℕ) : ℕ := n + n
+--def double (n : ℕ) : ℕ := n + n
 
 #eval (27 + 9) * 33
 #eval (2227 + 9999) * 33

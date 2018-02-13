@@ -54,7 +54,7 @@ constant F : (nat -> nat) -> nat  -- a "functional"
 #check F (n, f).2   -- (output)  F((n, f).snd) : ℕ
 
 
-/- Section 2.1 output of type-check results
+/- Section 2.1 output of type-check results (produced with C-c C-x in emacs)
                 m : ℕ
                 n : ℕ
                 n + 0 : ℕ
@@ -363,7 +363,7 @@ namespace page19
   def do_twice (f : ℕ → ℕ) (x : ℕ) := f (f x)
   #reduce do_twice double 2                            -- 8
 
-  -- we could have defined the last three terms thus:
+  -- N.B. we could have defined the last three terms thus:
   def double_alt : ℕ → ℕ := λ x, x + x
   def square_alt : ℕ → ℕ := λ x, x*x
   def do_twice_alt : (ℕ → ℕ) → ℕ → ℕ := λ (f: ℕ → ℕ) (x: ℕ), f (f x)

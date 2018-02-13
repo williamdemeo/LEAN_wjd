@@ -39,6 +39,18 @@ The remainder of this file is a collection of notes and excerpts from the tutori
 
 ---
 
+## 2. Dependent Type Theory
+
+---
+
+### Simple Type Theory
+
+---
+
+### Types as Objects
+
+---
+
 ### Function Abstraction and Evaluation
 
 + Lean recognizes $\alpha$-equivalence. (This addresses one of the more annoying aspects of Coq---namely, in Coq, I often found it necessary to rename variables in order to convince the type checker that two expressions could indeed be "unified.")
@@ -52,11 +64,11 @@ The remainder of this file is a collection of notes and excerpts from the tutori
 There are a number of different ways to define functions in Lean.  You can use 
 + λ-abstraction,
   ```scala
-  definition double: ℕ → ℕ := λ x, x + x
+  def double: ℕ → ℕ := λ x, x + x
   ```
 + λ-abstraction with some type inference,
   ```scala
-  definition double := λ (x : ℕ), x + x
+  def double := λ (x : ℕ), x + x
   ```
 + or (a syntax that will look very familiar if you have experience with Scala),
   ```scala
@@ -67,7 +79,7 @@ In the last version above, we specified the input argument and its type `(x: ℕ
 
 The types of arguments of functions can themselves be passed as arguments, as in
 ```scala
-definition compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f x)
+def compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f x)
 ```
 
 ---
@@ -343,8 +355,7 @@ variable b : β a
 ``(sigma.mk a b).1`` and ``(sigma.mk a b).2`` are short for 
 ``sigma.fst (sigma.mk a b)`` and ``sigma.snd (sigma.mk a b)`` (resp.), and these reduce to ``a`` and ``b`` (resp.).
 
-#### Implicit Arguments
-
+### Implicit Arguments
 
 Suppose we have an implementation of lists as described above.
 
@@ -518,3 +529,377 @@ Notice that now the first ``#check`` command gives the type of the identifier, `
 3. Above, we used the example ``vec α n`` for vectors of elements of type ``α`` of length ``n``. Declare a constant ``vec_add`` that could represent a function that adds two vectors of natural numbers of the same length, and a constant ``vec_reverse`` that can represent a function that reverses its argument. Use implicit arguments for parameters that can be inferred. Declare some variables and check some expressions involving the constants that you have declared.
 
 4. Similarly, declare a constant ``matrix`` so that ``matrix α m n`` could represent the type of ``m`` by ``n`` matrices. Declare some constants to represent functions on this type, such as matrix addition and multiplication, and (using ``vec``) multiplication of a matrix by a vector. Once again, declare some variables and check some expressions involving the constants that you have declared.
+
+
+
+
+--------------------------------------------------
+
+## 3. Propositions and Proofs
+
+### Propositions as Types
+
+---
+
+### Working with Propositions as Types
+
+---
+
+### Propositional Logic
+
+---
+
+#### Conjunction
+
+---
+
+#### Disjunction
+
+---
+
+#### Negation and Falsity
+
+---
+
+#### Logical Equivalence
+
+---
+
+### Introducing Auxiliary Subgoals
+
+---
+
+### Classical Logic
+
+---
+
+### Examples of Propositional Validities
+
+---
+
+### Exercises
+
+---
+
+---
+
+## 4. Quantifiers and Equality
+
+---
+
+### The Universal Quantifier
+
+---
+
+### Equality
+
+---
+
+### Calculational Proofs
+
+---
+
+### The Existential Quantifier
+
+---
+
+### More on the Proof Language
+
+---
+
+### Exercises
+
+---
+
+---
+
+## 5. Tactics
+
+---
+
+### Entering Tactic Mode
+
+---
+
+### Basic Tactics
+
+---
+
+### More Tactics
+
+---
+
+### Structuring Tactic Proofs
+
+---
+
+### Tactic Combinators
+
+---
+
+### Rewriting
+
+---
+
+### Using the Simplifier
+
+---
+
+### Exercises
+
+---
+
+## 6. Interacting with Lean
+
+---
+
+### Importing Files
+
+---
+
+### More on Sections
+
+---
+
+### More on Namespaces
+
+---
+
+### Attributes
+
+---
+
+### More on Implicit Arguments
+
+---
+
+### Notation
+
+---
+
+### Coercions
+
+---
+
+### Displaying Information
+
+---
+
+### Setting Options
+
+---
+
+### Elaboration Hints
+
+---
+
+### Using the Library
+
+---
+
+
+---
+
+## 7. Inductive Types
+
+---
+
+### Enumerated Types
+
+---
+
+### Constructors with Arguments
+
+---
+
+### Inductively Defined Propositions
+
+---
+
+### Defining the Natural Numbers
+
+---
+
+### Other Recursive Data Types
+
+---
+
+### Tactics for Inductive Types
+
+---
+
+### Inductive Families
+
+---
+
+### Axiomatic Details
+
+---
+
+### Mutual and Nested Inductive Types
+
+---
+
+### Exercises
+
+---
+
+
+---
+
+## 8. Induction and Recursion
+
+---
+
+### Pattern Matching
+
+---
+
+### Wildcards and Overlapping Patterns
+
+---
+
+### Structural Recursion and Induction
+
+---
+
+### Well-Founded Recursion and Induction
+
+---
+
+### Mutual Recursion
+
+---
+
+### Dependent Pattern Matching
+
+---
+
+### Inaccessible Terms
+
+---
+
+### Match Expressions
+
+---
+
+### Exercises
+
+---
+
+---
+
+## 9. Structures and Records
+
+---
+
+### Declaring Structures
+
+---
+
+### Objects
+
+---
+
+### Inheritance
+
+---
+
+## 10. Type Classes
+
+---
+
+### Type Classes and Instances
+
+---
+
+### Chaining Instances
+
+---
+
+### Decidable Propositions
+
+---
+
+### Overloading with Type Classes
+
+---
+
+### Managing Type Class Inference
+
+---
+
+### Coercions using Type Classes
+
+---
+
+
+---
+
+## 11. Axioms and Computation
+
+---
+
+### Historical and Philosophical Context
+
+---
+
+### Propositional Extensionality
+
+---
+
+### Function Extensionality
+
+---
+
+### Quotients
+
+---
+
+### Choice
+
+---
+
+### The Law of the Excluded Middle
+
+
+--------------------------------------------------
+Sorry I wasn't prepared to demonstrate a simple inductive proof today.  As I mentioned, I'm *very* rusty.
+
+
+
+In this post, I'll show a couple of ways to do simple proofs-by-induction over nat, but this requires that we know how to "unify" two terms that we believe are "obviously" the same.  We do that with "equality reflection," so I'll explain that first.  (Below TPL stands for the "Theorem Proving in Lean" tutorial.)
+
+
+
+Lean defines, for all primitive types, the equality relation `eq` (we'll see *how* `eq` is defined later in Ch 7 of TPL). There are three built-in definitions associated with `eq` which correspond to the three properties that make `eq` an equivalence relation over the given type.  Specifically we have (Sec 4.2 of TPL) 
+
+
+
+
+
+
+
+
+
+In Lean, reflexivity, `eq.refl` is actually more powerful than in other proof systems. This is because equality in Lean is extensional.  Recall that terms in Lean's logical framework has a computational interpretation that considers two terms that reduce to a common normal form are definitionally equal. As a result, some nontrivial identities can be proved very simply by reflexivity (relying on Lean to handle the reductions to the common normal form). Here are a few examples.
+
+
+
+
+
+
+
+Each line beginning with the keyword `example` is a full-fledged formal proof (by reflexivity of extensional equality) of the given equality. The first case proves that $$(\lambda x, f x) a$$ is definitionally equal to $$f a$$
+
+
+
+Since the expression `eq.refl _` is so common, Lean has a special abbreviation for it.  Spcifically, `rfl` is an alias for `eq.refl _`.
+
+
+
+Now, we can prove the fact that Matt wrote on the board today, which we will need when proving `add_assoc.`  This happens to be another example where we need nothing more that `rfl` :
+
+
+
+`theorem add_succ (m n : nat) :  m + succ n = succ (m + n) := rfl`
