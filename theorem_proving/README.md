@@ -118,26 +118,26 @@ Here are some examples of how we can declare objects in Lean and check their typ
 
 ```scala
     constants m n : nat
-    constant f : nat → nat           -- type the arrow as "\to" or "\r"
-    constant f' : nat -> nat         -- alternative ASCII notation
-    constant f'' : ℕ → ℕ             -- alternative notation for nat
+    constant f1 : nat → nat           -- type the arrow as "\to" or "\r"
+    constant f2 : nat -> nat         -- alternative ASCII notation
+    constant f3 : ℕ → ℕ             -- alternative notation for nat
     constant p : nat × nat           -- type the product as "\times"
     constant q : prod nat nat        -- alternative notation
-    constant g : nat → nat → nat
-    constant g' : nat → (nat → nat)  -- has the same type as g!
+    constant g1 : nat → nat → nat
+    constant g2 : nat → (nat → nat)  -- has the same type as g!
     constant h : nat × nat → nat
     constant F : (nat → nat) → nat   -- a "functional"
 
-    #check f               -- ℕ → ℕ
-    #check f n             -- ℕ
-    #check g m n           -- ℕ
-    #check g m             -- ℕ → ℕ
+    #check f1               -- ℕ → ℕ
+    #check f1 n             -- ℕ
+    #check g1 m n           -- ℕ
+    #check g1 m             -- ℕ → ℕ
     #check (m, n)          -- ℕ × ℕ
     #check p.1             -- ℕ
     #check p.2             -- ℕ
     #check (m, n).1        -- ℕ
     #check (p.1, n)        -- ℕ × ℕ
-    #check F f             -- ℕ
+    #check F f1             -- ℕ
 ```
 
 ---
@@ -151,14 +151,10 @@ Here are some examples of how we can declare objects in Lean and check their typ
 + The symbol ``×`` for is obtained from ``\times``. 
 + Lower-case greek letters, like ``α``, ``β``, and ``γ``, are typically used to 
   range over types; enter them with, e.g., ``\a``, ``\b``, and ``\g``.
-
----
-
 + When writing type expressions, arrows associate to the *right*; for example, the
   type of ``g`` is ``nat → (nat → nat)``. Thus ``g`` is a function that takes
   natural numbers and returns another function that takes a natural number and returns a
   natural number.  This  allows us to "partially apply" the function ``g``. 
-  
 + In Lean, ``(m, n)`` denotes the ordered pair of ``m`` and ``n``, and if ``p``
   is a pair, ``p.1`` and ``p.2`` denote the two projections.
 
