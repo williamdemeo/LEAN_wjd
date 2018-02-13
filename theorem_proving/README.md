@@ -501,6 +501,8 @@ open foo
 
 ---
 
+#### The open directive
+
 ``open`` brings the shorter names into the current context. Often, when we
 import a theory file, we want to open some of the namespaces it contains, to
 have access to short identifiers. But sometimes we want to leave this info
@@ -524,7 +526,37 @@ open list
 #check append
 ```
 
-Like sections, namespaces can be nested.
+---
+
+Namespaces that have been closed can later be reopened, even in another file.
+
+
+```scala
+namespace foo
+  def a : ℕ := 5
+  def f (x : ℕ) : ℕ := x + 7
+
+  def fa : ℕ := f a
+end foo
+
+#check foo.a
+#check foo.f
+
+namespace foo
+  def ffa : ℕ := f (f a)
+end foo
+```
+
+---
+
+#### Namespace vs. Section: similarities
+
+In many respects, a ``namespace ... end`` block behaves like a ``section ... end`` block.
+
++ The scope of the ``variable`` command is limited to the current namespace.
++ The effect of the ``open`` command disappears when the current namespace is closed. 
++ Nested namespaces and sections must be closed in the order they are opened. 
++ Namespaces and sections can be nested.
 
 ```scala
 namespace foo
@@ -550,39 +582,15 @@ open foo
 #check bar.ffa
 ```
 
-Namespaces that have been closed can later be reopened, even in another file.
+---
 
 
-```scala
-namespace foo
-  def a : ℕ := 5
-  def f (x : ℕ) : ℕ := x + 7
+#### Namespace vs. Section: differences
 
-  def fa : ℕ := f a
-end foo
++ **Namespaces** cannot be opened within a section; they live on the *outer levels*; 
++ **Namespaces** organize data;
++ **Sections** declare variables for insertion in theorems. 
 
-#check foo.a
-#check foo.f
-
-namespace foo
-  def ffa : ℕ := f (f a)
-end foo
-```
-
-Like sections, nested namespaces have to be closed in the order they are
-opened. Also, *a namespace cannot be opened within a section*; namespaces have to
-live on the outer levels. 
-
-*Namespaces and sections serve different purposes.*
-
-+ **Namespaces** *organize data*;
-+ **Sections** *declare variables for insertion in theorems*. 
-
-In many respects, however, a ``namespace ... end`` block behaves like a 
-``section ... end`` block. In particular, if you use the ``variable`` 
-command within a namespace, its scope is limited to the namespace. 
-Similarly, if you use an ``open`` command within a namespace, its effects
-disappear when the namespace is closed.
 
 ---
 
@@ -934,7 +942,7 @@ same way, whereas the third ``#check`` command interprets ``2`` as an integer.
 
 ```scala
 #check 2            -- ℕ
-#check (2 : ℕ)      -- ℕ
+#check (2 : ℕ)     -- ℕ
 #check (2 : ℤ)      -- ℤ
 ```
 ---
@@ -1312,46 +1320,8 @@ the first argument is implicit.
 
 ---
 
-### The Law of the Excluded Middle
+### The Law of Excluded Middle
 
 
 --------------------------------------------------
-Sorry I wasn't prepared to demonstrate a simple inductive proof today.  As I mentioned, I'm *very* rusty.
 
-
-
-In this post, I'll show a couple of ways to do simple proofs-by-induction over nat, but this requires that we know how to "unify" two terms that we believe are "obviously" the same.  We do that with "equality reflection," so I'll explain that first.  (Below TPL stands for the "Theorem Proving in Lean" tutorial.)
-
-
-
-Lean defines, for all primitive types, the equality relation `eq` (we'll see *how* `eq` is defined later in Ch 7 of TPL). There are three built-in definitions associated with `eq` which correspond to the three properties that make `eq` an equivalence relation over the given type.  Specifically we have (Sec 4.2 of TPL) 
-
-
-
-
-
-
-
-
-
-In Lean, reflexivity, `eq.refl` is actually more powerful than in other proof systems. This is because equality in Lean is extensional.  Recall that terms in Lean's logical framework has a computational interpretation that considers two terms that reduce to a common normal form are definitionally equal. As a result, some nontrivial identities can be proved very simply by reflexivity (relying on Lean to handle the reductions to the common normal form). Here are a few examples.
-
-
-
-
-
-
-
-Each line beginning with the keyword `example` is a full-fledged formal proof (by reflexivity of extensional equality) of the given equality. The first case proves that $$(\lambda x, f x) a$$ is definitionally equal to $$f a$$
-
-
-
-Since the expression `eq.refl _` is so common, Lean has a special abbreviation for it.  Spcifically, `rfl` is an alias for `eq.refl _`.
-
-
-
-Now, we can prove the fact that Matt wrote on the board today, which we will need when proving `add_assoc.`  This happens to be another example where we need nothing more that `rfl` :
-
-
-
-`theorem add_succ (m n : nat) :  m + succ n = succ (m + n) := rfl`
