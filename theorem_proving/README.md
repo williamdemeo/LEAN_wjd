@@ -570,7 +570,7 @@ end foo
 ```
 
 Like sections, nested namespaces have to be closed in the order they are
-opened. Also, a namespace cannot be opened within a section; namespaces have to
+opened. Also, *a namespace cannot be opened within a section*; namespaces have to
 live on the outer levels. 
 
 *Namespaces and sections serve different purposes.*
@@ -578,38 +578,40 @@ live on the outer levels.
 + **Namespaces** *organize data*;
 + **Sections** *declare variables for insertion in theorems*. 
 
-In many respects, however, a ``namespace ... end`` block behaves like a ``section ... end``
-block. In particular, if you use the ``variable`` command within a namespace,
-its scope is limited to the namespace. Similarly, if you use an ``open`` command
-within a namespace, its effects disappear when the namespace is closed. 
+In many respects, however, a ``namespace ... end`` block behaves like a 
+``section ... end`` block. In particular, if you use the ``variable`` 
+command within a namespace, its scope is limited to the namespace. 
+Similarly, if you use an ``open`` command within a namespace, its effects
+disappear when the namespace is closed.
 
 ---
 
 ### Dependent Types
 
 An important goal in Lean is to *prove* things about the objects we define, and
-the next chapter will introduce you to Lean's mechanisms for stating theorems
-and constructing proofs. Meanwhile, let us remain on the topic of defining
-objects in dependent type theory for just a moment longer. In this section, we
-will explain what makes dependent type theory *dependent*, and why dependent
-types are useful.
+below we see Lean's mechanisms for stating theorems and constructing proofs. 
 
-The short explanation is that what makes dependent type theory dependent is that
-*types can depend on parameters*. You have already seen a nice example of this:
-the type ``list α`` depends on the argument ``α``, and this dependence is what
-distinguishes ``list ℕ`` and ``list bool``. For another example, consider the
-type ``vec α n``, the type of vectors of elements of ``α`` of length ``n``. 
-This type depends on *two* parameters: the type ``α : Type`` of the elements in
-the vector and the length ``n : ℕ``. 
+For now, let us dwell on the topic of defining objects in dependent type theory. 
+In this section, we see what makes dependent type theory *dependent*, and why
+dependent types are useful.
+
+What makes dependent type theory dependent is that *types can depend on parameters*. 
+
+Here's an example of this: the type ``list α`` depends on the argument ``α``,
+and this dependence is what distinguishes ``list ℕ`` and ``list bool``. 
+
+For another example, consider the type ``vec α n``, the type of vectors of
+elements of ``α`` of length ``n``.  This type depends on *two* parameters---the 
+type ``α : Type`` of the elements in the vector, and the length ``n : ℕ``. 
+
+---
 
 Suppose we wish to write a function ``cons`` that inserts a new element at the
 head of a list. What type should ``cons`` have? Such a function is
 *polymorphic*: we expect the ``cons`` function for ``ℕ``, ``bool``, or an
 arbitrary type ``α`` to behave the same way. So it makes sense to take the type
 to be the first argument to ``cons``, so that for any type, ``α``, ``cons α`` is
-the insertion function for lists of type ``α``. In other words, for every ``α``,
-``cons α`` is the function that takes an element ``a : α`` and a list 
-``l : list α``, and returns a new list, so we have ``cons α a l : list α``. 
+the insertion function for lists of type ``α``. 
 
 It's clear that ``cons α`` has type ``α → list α → list α``. But what type 
 should ``cons`` have? A first guess might be 
@@ -622,7 +624,15 @@ does not refer to anything, whereas it should refer to the argument of type
 function, the type of the next two elements are ``α`` and ``list α``. These
 types vary depending on the first argument, ``α``. 
 
+---
+
+#### Pi types (aka dependent function type)
+
+```scala
+Type → α → list α → list α``
+```
 This is an instance of a **Pi type**, or **dependent function type**. 
+
 If ``α : Type`` and ``β : α → Type``, then ``β`` is a family of types over ``α``, 
 that is, a type ``β a`` for each ``a : α``. In that case, the type ``Π x : α, β x``
 denotes the type of functions ``f`` such that, if ``a : α``, then ``f a`` is an element
@@ -635,34 +645,38 @@ denotes a dependent function type. If ``β`` does not depend on ``x``, then
 type theory (and in Lean), the Pi construction is fundamental, and ``α → β`` is 
 just notation for ``Π x : α, β`` when ``β`` does not depend on ``α``.
 
+---
+
 Returning to the example of lists, we can model some basic list operations as
-follows. We use ``namespace hide`` to avoid a naming conflict with the ``list``
-type defined in the standard library. 
+follows (where we use ``namespace hide`` to avoid a naming conflict with the 
+``list`` type defined in the standard library.) 
 
 ```scala
 namespace hide
-universe u
-constant list   : Type u → Type u
-constant cons   : Π α : Type u, α → list α → list α
-constant nil    : Π α : Type u, list α
-constant head   : Π α : Type u, list α → α
-constant tail   : Π α : Type u, list α → list α
-constant append : Π α : Type u, list α → list α → list α
+	universe u
+	constant list   : Type u → Type u
+	constant cons   : Π α : Type u, α → list α → list α
+	constant nil    : Π α : Type u, list α
+	constant head   : Π α : Type u, list α → α
+	constant tail   : Π α : Type u, list α → list α
+	constant append : Π α : Type u, list α → list α → list α
 end hide
 ```
 
-You can enter the symbol ``Π`` by typing ``\Pi``. Here, ``nil`` is intended to
+The symbol ``Π`` can be entered by typing ``\Pi``. Here, ``nil`` is intended to
 denote the empty list, ``head`` and ``tail`` return the first element of a list
 and the remainder, respectively. The constant ``append`` is intended to denote
 the function that concatenates two lists. 
 
 We emphasize that these constant declarations are only for the purposes of
 illustration. The ``list`` type and all these operations are, in fact, *defined*
-in Lean's standard library, and are proved to have the expected
-properties. Moreover, as the next example shows, the types indicated above are
-essentially the types of the objects that are defined in the library. (We will
-explain the ``@`` symbol and the difference between the round and curly brackets
-momentarily.) 
+in Lean's standard library, and are proved to have the expected properties. 
+
+---
+
+As the next example shows, the types described above are essentially
+the types of the objects that are defined in the library. 
+(The ``@`` symbol and the curly brackets will be explained momentarily.) 
 
 ```scala
 open list
@@ -675,10 +689,11 @@ open list
 ```
 There is a subtlety in the definition of ``head``: the type ``α`` is required to
 have at least one element, and when passed the empty list, the function must
-determine a default element of the relevant type. We will explain how this is
-done later. 
+determine a default element of the relevant type, and we see how later.
 
-Vector operations are handled similarly:
+---
+
+Vector operations are handled similarly.
 
 ```scala
 universe u
@@ -690,11 +705,21 @@ namespace vec
 end vec
 ```
 
-#### Sigma Types (aka dependent products)
+---
 
-One more important example is the concept of *Sigma types*, denoted ``Σ x : α, β x``, which are known as *dependent products*. This is the type of pairs ``sigma.mk a b`` where ``a : α`` and ``b : β a``.
+#### Sigma types (aka dependent products)
 
-Just as Pi types ``Π x : α, β x`` generalize the notion of a function type ``α → β`` by allowing ``β`` to depend on ``α``, Sigma types ``Σ x : α, β x`` generalize the cartesian product ``α × β`` in the same way: in the expression ``sigma.mk a b``, the type of the second element of the pair, ``b : β a``, depends on the first element of the pair, ``a : α``.
++ A *Sigma type*, denoted ``Σ x : α, β x``, is known as a *dependent product*.
+  This is the type of pairs ``sigma.mk a b`` where ``a : α`` and ``b : β a``.
+
++ Recall, the Pi type ``Π x : α, β x`` generalizes the notion of a function type 
+  ``α → β`` by allowing ``β`` to depend on ``x : α``.
+
++ Sigma types ``Σ x : α, β x`` generalize the cartesian product ``α × β`` in the 
+  same way. In the expression ``sigma.mk a b``, the type of the second element
+  of the pair, ``b : β a``, depends on the first element of the pair, ``a : α``. 
+
+---
 
 ```scala
 variable α : Type
@@ -710,8 +735,11 @@ variable b : β a
 #reduce  (sigma.mk a b).2  -- b
 ```
 
-``(sigma.mk a b).1`` and ``(sigma.mk a b).2`` are short for 
-``sigma.fst (sigma.mk a b)`` and ``sigma.snd (sigma.mk a b)`` (resp.), and these reduce to ``a`` and ``b`` (resp.).
++ ``(sigma.mk a b).1`` and ``(sigma.mk a b).2`` are short for 
+  ``sigma.fst (sigma.mk a b)`` and ``sigma.snd (sigma.mk a b)`` (resp.), 
+and these reduce to ``a`` and ``b`` (resp.).
+
+---
 
 ### Implicit Arguments
 
@@ -731,7 +759,10 @@ constant list : Type u → Type u
 end hide
 ```
 
-Then, given a type ``α``, some elements of ``α``, and some lists of elements of ``α``, we can construct new lists using the constructors.
+Then, given a type ``α``, some elements of ``α``, and some lists of elements of
+``α``, we can construct new lists using the constructors. 
+
+---
 
 ```scala
 namespace hide
@@ -756,9 +787,23 @@ variables l1 l2 : list α
 end hide
 ```
 
-Because the constructors are polymorphic over types, we have to insert the type ``α`` as an argument repeatedly. But this information is redundant: one can infer the argument ``α`` in ``cons α a (nil α)`` from the fact that the second argument, ``a``, has type ``α``. One can similarly infer the argument in ``nil α``, not from anything else in that expression, but from the fact that it is sent as an argument to the function ``cons``, which expects an element of type ``list α`` in that position.
++ Because the constructors are polymorphic over types, we have to insert the type
+  ``α`` as an argument repeatedly. But this information is redundant: one can
+  infer the argument ``α`` in ``cons α a (nil α)`` from the fact that the second
+  argument, ``a``, has type ``α``. 
 
-This is a central feature of dependent type theory: terms carry a lot of information, and often some of that information can be inferred from the context. In Lean, one uses an underscore, ``_``, to specify that the system should fill in the information automatically. This is known as an "implicit argument."
++ One can similarly infer the argument in ``nil α``, not from anything else in
+  that expression, but from the fact that it is sent as an argument to the
+  function ``cons``, which expects an element of type ``list α`` in that position. 
+
++ This is a central feature of dependent type theory. Terms carry a lot of
+  information, and often some of that information can be inferred from the context. 
+
+---
+
++ In Lean, one uses an underscore, ``_``, to specify that the system
+  should fill in the information automatically. This is known as an "implicit
+  argument." 
 
 ```scala
 namespace hide
@@ -782,7 +827,13 @@ namespace hide
   #check append _ (append _ (cons _ a (nil _)) l1) l2
 end hide
 ```
-It is still tedious, however, to type all these underscores. When a function takes an argument that can generally be inferred from context, Lean allows us to specify that this argument should, by default, be left implicit. This is done by putting the arguments in curly braces, as follows:
+
+---
+
+It is still tedious, however, to type all these underscores. 
+When a function takes an argument that can generally be inferred from context, 
+Lean allows us to specify that this argument should, by default, be left
+implicit. This is done by putting the arguments in curly braces.
 
 ```scala
 namespace hide
@@ -807,7 +858,10 @@ namespace hide
 end hide
 ```
 
-All that has changed are the braces around ``α : Type u`` in the declaration of the variables. We can also use this device in function definitions:
+---
+
+All that has changed are the braces around ``α : Type u`` in the declaration of
+the variables. We can also use this device in function definitions.
 
 ```scala
 
@@ -842,9 +896,28 @@ variables (a : α) (b : β)
 ```
 This definition of ``ident`` here has the same effect as the one above.
 
-Lean has very complex mechanisms for instantiating implicit arguments, and we will see that they can be used to infer function types, predicates, and even proofs. The process of instantiating these "holes," or "placeholders," in a term is often known as *elaboration*. The presence of implicit arguments means that at times there may be insufficient information to fix the meaning of an expression precisely. An expression like ``id`` or ``list.nil`` is said to be *polymorphic*, because it can take on different meanings in different contexts.
+---
 
-One can always specify the type ``T`` of an expression ``e`` by writing ``(e : T)``. This instructs Lean's elaborator to use the value ``T`` as the type of ``e`` when trying to resolve implicit arguments. In the second pair of examples below, this mechanism is used to specify the desired types of the expressions ``id`` and ``list.nil``:
++ Lean has complex mechanisms for instantiating implicit arguments, and they can
+  be used to infer function types, predicates, and even proofs. 
+
++ The process of instantiating these "holes," or "placeholders," in a term
+  is often known as *elaboration*. 
+  
++ The presence of implicit arguments means that at times there may be
+  insufficient information to fix the meaning of an expression precisely. 
+  
++ An expression like ``id`` or ``list.nil`` is said to be *polymorphic*, because 
+  it can take on different meanings in different contexts. 
+
++ One can always specify the type ``T`` of an expression ``e`` by writing ``(e : T)``, 
+  thereby instructing Lean's elaborator to use the value ``T`` as the type of ``e`` 
+  when trying to resolve implicit arguments. 
+  
+---
+
+In the second pair of examples below, the mechanism described above is used to
+specify the desired types of the expressions ``id`` and ``list.nil``. 
 
 ```scala
 #check list.nil             -- list ?M1
@@ -854,15 +927,22 @@ One can always specify the type ``T`` of an expression ``e`` by writing ``(e : T
 #check (id : ℕ → ℕ)         -- ℕ → ℕ
 ```
 
-Numerals are overloaded in Lean, but when the type of a numeral cannot be inferred, Lean assumes, by default, that it is a natural number. So the expressions in the first two ``#check`` commands below are elaborated in the same way, whereas the third ``#check`` command interprets ``2`` as an integer.
+Numerals are overloaded in Lean, but when the type of a numeral cannot be
+inferred, Lean assumes, by default, that it is a natural number. So the
+expressions in the first two ``#check`` commands below are elaborated in the
+same way, whereas the third ``#check`` command interprets ``2`` as an integer. 
 
 ```scala
 #check 2            -- ℕ
 #check (2 : ℕ)      -- ℕ
 #check (2 : ℤ)      -- ℤ
---
+```
+---
 
-Sometimes, however, we may find ourselves in a situation where we have declared an argument to a function to be implicit, but now want to provide the argument explicitly. If ``foo`` is such a function, the notation ``@foo`` denotes the same function with all the arguments made explicit.
+Sometimes, however, we may find ourselves in a situation where we have declared
+an argument to a function to be implicit, but now want to provide the argument
+explicitly. If ``foo`` is such a function, the notation ``@foo`` denotes the
+same function with all the arguments made explicit. 
 
 ```scala
 variables α β : Type
@@ -875,20 +955,34 @@ variables (a : α) (b : β)
 #check @id β b    -- β
   
 ```
+Notice that now the first ``#check`` command gives the type of the identifier,
+``id``, without inserting any placeholders. Moreover, the output indicates that
+the first argument is implicit. 
 
-Notice that now the first ``#check`` command gives the type of the identifier, ``id``, without inserting any placeholders. Moreover, the output indicates that the first argument is implicit.
+---
 
 ### Exercises
 
-1. Define the function ``Do_Twice``, as described in [Introducing Definitions](#introducing-definitions).
+1. Define the function ``Do_Twice``, as described
+   in [Introducing Definitions](#introducing-definitions). 
 
-2. Define the functions ``curry`` and ``uncurry``, as described in [Introducing Definitions](#introducing-definitions).
+2. Define the functions ``curry`` and ``uncurry``, as described
+   in [Introducing Definitions](#introducing-definitions). 
 
-3. Above, we used the example ``vec α n`` for vectors of elements of type ``α`` of length ``n``. Declare a constant ``vec_add`` that could represent a function that adds two vectors of natural numbers of the same length, and a constant ``vec_reverse`` that can represent a function that reverses its argument. Use implicit arguments for parameters that can be inferred. Declare some variables and check some expressions involving the constants that you have declared.
+3. Above, we used the example ``vec α n`` for vectors of elements of type ``α``
+   of length ``n``. Declare a constant ``vec_add`` that could represent a
+   function that adds two vectors of natural numbers of the same length, and a
+   constant ``vec_reverse`` that can represent a function that reverses its
+   argument. Use implicit arguments for parameters that can be inferred. Declare
+   some variables and check some expressions involving the constants that you
+   have declared. 
 
-4. Similarly, declare a constant ``matrix`` so that ``matrix α m n`` could represent the type of ``m`` by ``n`` matrices. Declare some constants to represent functions on this type, such as matrix addition and multiplication, and (using ``vec``) multiplication of a matrix by a vector. Once again, declare some variables and check some expressions involving the constants that you have declared.
-
-
+4. Similarly, declare a constant ``matrix`` so that ``matrix α m n`` could
+   represent the type of ``m`` by ``n`` matrices. Declare some constants to
+   represent functions on this type, such as matrix addition and multiplication,
+   and (using ``vec``) multiplication of a matrix by a vector. Once again,
+   declare some variables and check some expressions involving the constants
+   that you have declared. 
 
 
 --------------------------------------------------
