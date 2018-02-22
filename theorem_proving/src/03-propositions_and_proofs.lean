@@ -742,6 +742,51 @@ end Section_3_6
 #print "  "
 namespace Section_3_7
 
+variables p q r s : Prop
+
+  -- other properties
+  example : (p → (q → r)) ↔ (p ∧ q → r) := iff.intro
+    (assume h₁ : p → (q → r), show p ∧ q → r, from
+        λ (h₂ : p ∧ q), h₁ h₂.left h₂.right)
+    (assume h₃ : p ∧ q → r, show p → (q → r), from
+        λ (h₄ : p) (h₅ : q), h₃ ⟨h₄, h₅⟩)
+
+  example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := iff.intro
+    (assume h₁ : (p ∨ q) → r, show (p → r) ∧ (q → r), from 
+      and.intro (λ (hp : p), h₁ (or.intro_left q hp))
+                (λ (hq : q), h₁ (or.intro_right p hq))
+    )
+    (assume h₂ : (p → r) ∧ (q → r), show (p ∨ q) → r, from 
+      λ (hpq: p ∨ q), 
+        hpq.elim (λ (hp : p), h₂.left hp) (λ (hq : q), h₂.right hq)
+    )
+
+  example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := iff.intro
+    (assume h₁ : ¬(p ∨ q), show ¬p ∧ ¬q, from 
+    (and.intro_left (_))                          -- LEFT OFF HERE --
+    (assume h₂ : ¬p ∧ ¬q, show ¬(p ∨ q), from _)
+
+  example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
+  example : ¬(p ∧ ¬ p) := sorry
+  example : p ∧ ¬q → ¬(p → q) := sorry
+  example : ¬p → (p → q) := sorry
+  example : (¬p ∨ q) → (p → q) := sorry
+  example : p ∨ false ↔ p := sorry
+  example : p ∧ false ↔ false := sorry
+  example : ¬(p ↔ ¬p) := sorry
+  example : (p → q) → (¬q → ¬p) := sorry
+
+  -- these require classical reasoning
+  open classical
+  example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := sorry
+  example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
+  example : ¬(p → q) → p ∧ ¬q := sorry
+  example : (p → q) → (¬p ∨ q) := sorry
+  example : (¬q → ¬p) → (p → q) := sorry
+  example : p ∨ ¬p := sorry
+  example : (((p → q) → p) → p) := sorry
+
+
 end Section_3_7
 
 
