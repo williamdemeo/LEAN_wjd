@@ -5,32 +5,32 @@
 
 ---
 
-## Dependent Type Theory
-### Simple Type Theory
-### Types as Objects
-### Function Abstraction and Evaluation
-### Introducing Definitions
-### Local Definitions
-### Variables and Sections
-### Namespaces
-### Dependent Types
-### Implicit Arguments
-### Exercises
+## 2. Dependent Type Theory
+### 2.1. Simple Type Theory
+### 2.2. Types as Objects
+### 2.3. Function Abstraction and Evaluation
+### 2.4. Introducing Definitions
+### 2.5. Local Definitions
+### 2.6. Variables and Sections
+### 2.7. Namespaces
+### 2.8. Dependent Types
+### 2.9. Implicit Arguments
+### 2.10. Exercises
 
 ---
 
-## Propositions and Proofs
-### Propositions as Types
-### Working with Propositions as Types
-### Propositional Logic
-#### Conjunction
-#### Disjunction
-#### Negation and Falsity
-#### Logical Equivalence
-### Introducing Auxiliary Subgoals
-### Classical Logic
-### Examples of Propositional Validities
-### Exercises
+## 3. Propositions and Proofs
+### 3.1. Propositions as Types
+### 3.2. Working with Propositions as Types
+### 3.3. Propositional Logic
+#### 3.3.1. Conjunction
+#### 3.3.2. Disjunction
+#### 3.3.3. Negation and Falsity
+#### 3.3.4. Logical Equivalence
+### 3.4. Introducing Auxiliary Subgoals
+### 3.5. Classical Logic
+### 3.6. Examples of Propositional Validities
+### 3.7. Exercises
 
 ---
 
@@ -122,4 +122,3 @@
 ### Quotients
 ### Choice
 ### The Law of the Excluded Middle
-

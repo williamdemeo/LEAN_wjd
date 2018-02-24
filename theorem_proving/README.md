@@ -1,9 +1,9 @@
-## theorem_proving
+# theorem_proving
 
 This directory collects notes that I took while working through the online book 
 [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean/theorem_proving_in_lean.pdf).
 
-### Useful commands
+## Useful commands
 
  `C-c C-b`, `C-c C-x`, `C-c C-r`
 
@@ -19,23 +19,9 @@ To execute the commands in the file `overview.lean`, load the file into emacs an
 
 ---
 	
-## Theorem Proving In Lean
+# Theorem Proving In Lean
 
 The remainder of this file is a collection of notes and excerpts from the tutorial [Theorem Proving in Lean](https://leanprover.github.io/documentation/).
-
----
-
-**Contents of Sequel**
-
-- [Function Abstraction and Evaluation](#function-abstraction-and-evaluation)
-- [Introducing Definitions](#introducing-definitions)
-- [Local Definitions](#local-definitions)
-- [Variables and Sections](#variables-and-sections)
-- [Namespaces](#namespaces)
-- [Dependent Types](#dependent-types)
-  - [Sigma Types (aka dependent products)](#sigma-types-aka-dependent-products)
-  - [Implicit Arguments](#implicit-arguments)
-- [Exercises](#exercises)
 
 ---
 
@@ -49,7 +35,7 @@ inductive types. Much of what this means is described below.
 
 ---
 
-### Simple Type Theory
+### 2.1. Simple Type Theory
 
 As a foundation for mathematics, set theory has a simple ontology that is rather
 appealing. Everything is a set, including numbers, functions, triangles,
@@ -154,7 +140,7 @@ Here are some examples of how we can declare objects in Lean and check their typ
 
 ---
 
-### Types as Objects
+### 2.2. Types as Objects
 
 One way in which Lean's dependent type theory extends simple type theory is that
 types themselves --- entities like `nat` and `bool` --- are first-class
@@ -288,7 +274,7 @@ functions is a powerful feature of dependent type theory.*
 
 ---
 
-### Function Abstraction and Evaluation
+### 2.3. Function Abstraction and Evaluation
 
 + Lean recognizes $\alpha$-equivalence. (This addresses an annoying aspect 
   of Coq, where we often have to rename variables to convince the type-checker
@@ -309,7 +295,7 @@ functions is a powerful feature of dependent type theory.*
 
 ---
 
-### Introducing Definitions
+### 2.4. Introducing Definitions
 
 There are a number of ways to define functions in Lean.  You can use 
 1. λ-abstraction,
@@ -336,7 +322,7 @@ def compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f
 
 ---
 
-### Local Definitions
+### 2.5. Local Definitions
 
 The expression `let a := 2 in t` is *definitionally equal* to the result of 
 replacing every occurrence of `a` in `t` by `2`.  For example,
@@ -371,7 +357,7 @@ def bar := (λ a, λ x : a, x + 2) nat
 
 ---
 
-### Variables and Sections
+### 2.6. Variables and Sections
 
 The ``constant`` command allows us to declare new objects, which then 
 become part of the global context. 
@@ -452,17 +438,15 @@ When the section is closed, the variables go out of scope.
 
 ---
 
-### Namespaces
+### 2.7. Namespaces
 
 Lean provides the ability to group definitions into nested, hierarchical *namespaces*.
-
 ```scala
 namespace foo
   def a : ℕ := 5
   def f (x : ℕ) : ℕ := x + 7
   def fa : ℕ := f a
   def ffa : ℕ := f (f a)
-
   #print "inside foo"
   #check a
   #check f
@@ -478,7 +462,6 @@ end foo
 #check foo.f
 #check foo.fa
 #check foo.ffa
-
 open foo
 #print "opened foo"
 #check a
@@ -489,7 +472,7 @@ open foo
 
 ---
 
-#### The open directive
+#### 2.7.1. The open directive
 
 ``open`` brings the shorter names into the current context. Often, when we
 import a theory file, we want to open some of the namespaces it contains, to
@@ -498,15 +481,12 @@ hidden, for example, when they conflict with identifiers in another namespace we
 want to use. Thus namespaces give us a way to manage our working environment. 
 
 For example, Lean groups definitions and theorems involving lists into a namespace ``list``.
-
 ```scala
 #check list.nil
 #check list.cons
 #check list.append
 ```
-
 The command ``open list`` makes the shorter names available:
-
 ```scala
 open list
 #check nil
@@ -517,7 +497,6 @@ open list
 ---
 
 Namespaces that have been closed can later be reopened, even in another file.
-
 ```scala
 namespace foo
   def a : ℕ := 5
@@ -533,7 +512,7 @@ end foo
 
 ---
 
-#### Namespace vs. Section: similarities
+#### 2.7.2. Namespace vs. Section: similarities
 
 In many respects, a ``namespace ... end`` block behaves like a ``section ... end`` block.
 
@@ -541,26 +520,21 @@ In many respects, a ``namespace ... end`` block behaves like a ``section ... end
 + The effect of the ``open`` command disappears when the current namespace is closed. 
 + Nested namespaces and sections must be closed in the order they are opened. 
 + Namespaces and sections can be nested.
-
 ```scala
 namespace foo
   def a : ℕ := 5
   def f (x : ℕ) : ℕ := x + 7
   def fa : ℕ := f a
-
   namespace bar
    def ffa : ℕ := f (f a)
 	 #check fa
 	 #check ffa
   end bar
-
   #check fa
   #check bar.ffa
 end foo
-
 #check foo.fa
 #check foo.bar.ffa
-
 open foo
 #check fa
 #check bar.ffa
@@ -568,7 +542,7 @@ open foo
 
 ---
 
-#### Namespace vs. Section: differences
+#### 2.7.3 Namespace vs. Section: differences
 
 + **Namespaces** cannot be opened within a section; they live on the *outer levels*; 
 + **Namespaces** organize data;
@@ -576,7 +550,7 @@ open foo
 
 ---
 
-### Dependent Types
+### 2.8. Dependent Types
 
 An important goal in Lean is to *prove* things about the objects we define, and
 below we see Lean's mechanisms for stating theorems and constructing proofs. 
@@ -616,7 +590,7 @@ types vary depending on the first argument, `α`.
 
 ---
 
-#### Pi types (aka dependent function type)
+#### 2.8.1. Pi types (aka dependent function type)
 
 ```scala
 Type → α → list α → list α``
@@ -694,7 +668,7 @@ end vec
 
 ---
 
-#### Sigma types (aka dependent products)
+#### 2.8.2. Sigma types (aka dependent products)
 
 + A *Sigma type*, denoted `Σ x : α, β x`, is known as a *dependent product*.
   This is the type of pairs `sigma.mk a b` where `a : α` and `b : β a`.
@@ -727,7 +701,7 @@ and these reduce to `a` and `b` (resp.).
 
 ---
 
-### Implicit Arguments
+### 2.9. Implicit Arguments
 
 Suppose we have an implementation of lists as described above.
 ```scala
@@ -829,25 +803,19 @@ end hide
 
 All that has changed are the braces around `α : Type u` in the declaration of
 the variables. We can also use this device in function definitions.
-
 ```scala
-
     universe u
     def ident {α : Type u} (x : α) := x
-
     variables α β : Type u
     variables (a : α) (b : β)
-
     #check ident      -- ?M_1 → ?M_1
     #check ident a    -- α
     #check ident b    -- β
 ```
-
 This makes the first argument to `ident` implicit. Notationally, this hides the specification of the type, making it look as though `ident` simply takes an argument of any type. In fact, the function `id` is defined in the standard library in exactly this way. We have chosen a nontraditional name here only to avoid a clash of names.
 
 Variables can also be specified as implicit when they are declared with
 the `variables` command:
-
 ```scala
 universe u
 section
@@ -911,7 +879,6 @@ same function with all the arguments made explicit.
 ```scala
 variables α β : Type
 variables (a : α) (b : β)
-
 #check @id        -- Π {α : Type u_1}, α → α
 #check @id α      -- α → α
 #check @id β      -- β → β
@@ -924,7 +891,7 @@ the first argument is implicit.
 
 ---
 
-### Exercises
+### 2.10. Exercises
 
 1. Define the function `Do_Twice`, as described
    in [Introducing Definitions](#introducing-definitions). 
@@ -952,7 +919,7 @@ the first argument is implicit.
 
 ## 3. Propositions and Proofs
 
-### Propositions as Types
+### 3.1. Propositions as Types
 We could introduce a new type, `Prop`, to represent propositions, and then introduce constructors to build new propositions from others.
 ```scala
 constant and : Prop → Prop → Prop
@@ -1088,7 +1055,7 @@ interpretation above. It means that even though we can treat proofs
 
 ---
 
-### Working with Propositions as Types
+### 3.2. Working with Propositions as Types
 
 In the P-T paradigm, theorems involving only `→` can be proved using lambda 
 abstraction and application. 
@@ -1245,7 +1212,7 @@ As a theorem of propositional logic, what does `t2` say?
 
 ---
 
-### Propositional Logic
+### 3.3. Propositional Logic
 
 Lean defines all the standard logical connectives and notation.   
 The propositional connectives come with the following notation:
@@ -1294,33 +1261,35 @@ elimination rules.
 
 ---
 
-#### Conjunction
+#### 3.3.1. Conjunction
 
 ---
 
-#### Disjunction
+####  3.3.2. Disjunction
 
 ---
 
-#### Negation and Falsity
-
-Ogical Equivalenc
+####  3.3.3. Negation and Falsity
 
 ---
 
-### Introducing Auxiliary Subgoals
+#### 3.3.4. Logical Equivalence
 
 ---
 
-### Classical Logic
+### 3.4. Introducing Auxiliary Subgoals
 
 ---
 
-### Examples of Propositional Validities
+### 3.5. Classical Logic
 
 ---
 
-### Exercises
+### 3.6. Examples of Propositional Validities
+
+---
+
+### 3.7. Exercises
 
 ---
 
