@@ -71,58 +71,11 @@ namespace Sec_3_1
   /- =Prop= has some special features, but like the other type universes, it is closed 
      under the arrow constructor: if =p q : Prop=, then =p → q : Prop=. -/
 
-  /- There are at least two ways of thinking about propositions-as-types (pat).  
-
-     Constructive view: pat is a faithful rendering of what it means to be a proposition: 
-     a proposition `p` is a data type that represents a specification of the type of 
-     data that constitutes a proof.  A proof `t` of `p` is simply an object of type `p`,
-     denoted `t : p`. 
-
-     Non-constructive view: pat is a simple coding trick. To each proposition `p` we 
-     associate a type, which is empty if `p` is false and has a *single* element, 
-     say `*`, if `p` is true. In the latter case, we say (the type associated with)
-     `p` is *inhabited*. It just so happens that the rules for function application and 
-     abstraction can conveniently help us keep track of which elements of `Prop` are 
-     inhabited. So constructing an element =t : p= tells us that =p= is indeed true. 
-     You can think of the inhabitant of =p= as being "the fact that `p` has a proof." 
-     (Lean document says, "the fact that `p` is true" but they're conflating "truth" 
-     with "has a proof".)  -/
-
-  /- PROOF IRRELEVANCE: 
-
-     If `p : Prop` is any proposition, Lean's kernel treats any two elements `t1 t2 : p` 
-     as being definitionally equal.  This is known as "proof irrelevance," and is 
-     consistent with the non-constructive interpretation above. It means that even 
-     though we can treat proofs =t : p= as ordinary objects in the language of dependent
-     type theory, they carry no information beyond the fact that =p= is true. -/
-
-  /- IMPORTANT DISTINCTION: 
-
-     "proofs as if people matter" or "proof relevance"
-     From the constructive point of view, proofs are *abstract mathematical objects* that 
-     may be denoted (in various ways) by suitable expressions in dependent type theory. 
-
-     "proofs as if people don't matter" or "proof irrelevance"
-     From the non-constructive point of view, proofs are not abstract entities. 
-     A syntactic expression---that we formulate using type theory in order to prove 
-     a proposition---doesn't denote some abstract proof.  Rather, the expression itself
-     /is/ the proof. And such an expression does not denote anything beyond the fact that 
-     (assuming it type-checks) the proposition in question is "true" (i.e., has a proof). -/
-
-  /- We may slip back and forth between these two ways of talking, at times saying that 
-     an expression "constructs" or "represents" a proof of a proposition, and at other times
-     simply saying that it "is" such a proof. 
-
-     This is similar to the way that computer scientists occasionally blur the distinction 
-     between syntax and semantics by saying, at times, that a program "computes" a certain 
-     function, and at other times speaking as though the program "is" the function in question.
-  -/
-
-  /- In any case, all that really matters is that the bottom line is clear. To formally express
-     a mathematical assertion in the language of dependent type theory, we need to exhibit a 
-     term =p : Prop=. To /prove/ that assertion, we need to exhibit a term =t : p=. Lean's
-     task, as a proof assistant, is to help us to construct such a term, =t=, and to verify 
-     that it is well-formed and has the correct type.
+  /- To formally express a mathematical assertion in the language of dependent type 
+     theory, we need to exhibit a term =p : Prop=. To /prove/ that assertion, we need 
+     to exhibit a term =t : p=. Lean's task, as a proof assistant, is to help us to 
+     construct such a term, =t=, and to verify that it is well-formed and has the 
+     correct type.
   -/
 
 
@@ -583,14 +536,14 @@ namespace page43
 
   open classical 
 
-  #check λ (p : Prop), em p            -- p ∨ ¬p
+  #check λ (p : Prop), em p     -- ∀ (p: Prop), p ∨ ¬p
+  #check @em                    -- ∀ (p: Prop), p ∨ ¬p
 
-  /- One consequence of the law of the excluded middle is the principle of double-negation
-     elimination: -/
-  theorem dne {p : Prop} (h : ¬¬p) : p :=
-    or.elim (em p)
+  -- One consequence of LEM is the principle of double-negation elimination.
+  theorem dne {p : Prop} (h : ¬¬p) : p := or.elim (em p)
       (assume h₁ : p, h₁)
-      (assume h₂ : ¬p, false.elim (h h₂))  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
+      (assume h₂ : ¬p, false.elim (h h₂))  
+      -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
 
   #check @dne
   /- double-negation elimination allows one to carry out a proof by contradiction, 
@@ -601,21 +554,20 @@ end page43
 /- Exercise: prove the converse of dne, showing that em can be proved from dne. -/
 namespace exer
 
-  variables p q : Prop
+variables p q : Prop
 
-/- first try (didn't get this to work)
-  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
-    (λ (h₂ : ¬p), or.inr h₂)
-    (λ (h₃ : ¬¬p), or.inl (h h₃))
--/
+/- first try (didn't get this to work) -/
+  -- theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
+  --   (λ (h₃ : ¬¬p), or.inl (h h₃))
+  --   (λ (h₂ : ¬p), or.inr h₂)
+
 /- second try (still didn't get it done...but getting closer) -/
-  theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
-    show p ∨ ¬p, from  
-      suffices h₁ : ¬p ∨ ¬¬p, from or.elim h₁ 
-        (assume h₂ : ¬p, or.inr h₂)
-        (assume h₃ : ¬¬p, or.inl (h h₃)),
-      show ¬p ∨ ¬¬p, from sorry
-
+  -- theorem em (h : ¬¬p → p) : p ∨ ¬p :=  
+  --   show p ∨ ¬p, from  
+  --     suffices h₁ : ¬p ∨ ¬¬p, from or.elim h₁ 
+  --       (assume h₂ : ¬p, or.inr h₂)
+  --       (assume h₃ : ¬¬p, or.inl (h h₃)),
+  --     show ¬p ∨ ¬¬p, from _
 
 
 
@@ -711,28 +663,29 @@ variables p q r s : Prop
 
 
   -- other properties
-  example : (p → (q → r)) ↔ (p ∧ q → r) := sorry
-  example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
-  example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
-  example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
-  example : ¬(p ∧ ¬ p) := sorry
-  example : p ∧ ¬q → ¬(p → q) := sorry
-  example : ¬p → (p → q) := sorry
-  example : (¬p ∨ q) → (p → q) := sorry
-  example : p ∨ false ↔ p := sorry
-  example : p ∧ false ↔ false := sorry
-  example : ¬(p ↔ ¬p) := sorry
-  example : (p → q) → (¬q → ¬p) := sorry
+  -- example : (p → (q → r)) ↔ (p ∧ q → r) := sorry 
+        
+  -- example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
+  -- example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
+  -- example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
+  -- example : ¬(p ∧ ¬ p) := sorry
+  -- example : p ∧ ¬q → ¬(p → q) := sorry
+  -- example : ¬p → (p → q) := sorry
+  -- example : (¬p ∨ q) → (p → q) := sorry
+  -- example : p ∨ false ↔ p := sorry
+  -- example : p ∧ false ↔ false := sorry
+  -- example : ¬(p ↔ ¬p) := sorry
+  -- example : (p → q) → (¬q → ¬p) := sorry
 
   -- these require classical reasoning
-  open classical
-  example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := sorry
-  example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
-  example : ¬(p → q) → p ∧ ¬q := sorry
-  example : (p → q) → (¬p ∨ q) := sorry
-  example : (¬q → ¬p) → (p → q) := sorry
-  example : p ∨ ¬p := sorry
-  example : (((p → q) → p) → p) := sorry
+  -- open classical
+  -- example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := sorry
+  -- example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
+  -- example : ¬(p → q) → p ∧ ¬q := sorry
+  -- example : (p → q) → (¬p ∨ q) := sorry
+  -- example : (¬q → ¬p) → (p → q) := sorry
+  -- example : p ∨ ¬p := sorry
+  -- example : (((p → q) → p) → p) := sorry
 
 end Section_3_6
 
@@ -743,13 +696,33 @@ end Section_3_6
 namespace Section_3_7
 
 variables p q r s : Prop
+variables α : Type 1
 
   -- other properties
   example : (p → (q → r)) ↔ (p ∧ q → r) := iff.intro
-    (assume h₁ : p → (q → r), show p ∧ q → r, from
+    (assume h : p → (q → r), show (p ∧ q → r), from
+      (assume h₁ : p ∧ q, show r, from
+        h h₁.left h₁.right))
+    (assume h : p ∧ q → r, show p → (q → r), from
+      (assume (h₁ : p) (h₂ : q), show r, from
+        h ⟨h₁, h₂⟩))
+
+  -- same example again
+  example : (p → (q → r)) ↔ (p ∧ q → r) := iff.intro
+    ( assume h₁ : p → (q → r), show p ∧ q → r, from
         λ (h₂ : p ∧ q), h₁ h₂.left h₂.right)
     (assume h₃ : p ∧ q → r, show p → (q → r), from
         λ (h₄ : p) (h₅ : q), h₃ ⟨h₄, h₅⟩)
+
+  -- and again
+  example : (p → (q → r)) ↔ (p ∧ q → r) := iff.intro
+    (assume (h₁ : p → (q → r)),
+      assume (h₂ : p ∧ q),
+      (h₁ h₂.left) h₂.right)
+    (assume h₁ : (p ∧ q → r),
+      assume (h₂ : p),
+      assume h₃ : q,
+      h₁ (and.intro h₂ h₃))
 
   example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := iff.intro
     (assume h₁ : (p ∨ q) → r, show (p → r) ∧ (q → r), from 
@@ -763,18 +736,52 @@ variables p q r s : Prop
 
   example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := iff.intro
     (assume h₁ : ¬(p ∨ q), show ¬p ∧ ¬q, from 
-    (and.intro_left (_))                          -- LEFT OFF HERE --
-    (assume h₂ : ¬p ∧ ¬q, show ¬(p ∨ q), from _)
+    and.intro  
+      (assume hp : p, show false, from (h₁ (or.intro_left q hp)))
+      (assume hq : q, show false, from (h₁ (or.intro_right p hq))))
+      -- could also use modus tolens for this part:
+      -- (mt (λ(hp : p), or.intro_left q hp) h₁)
+      -- (mt (λ(hq : q), or.intro_right p hq) h₁))
+    (assume h₁ : ¬p ∧ ¬q, 
+      assume h₂ : p ∨ q, show false, from
+      or.elim h₂
+        (assume (hp : p), (h₁.left hp))
+        (assume (hq : q), (h₁.right hq))
+      )
 
-  example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
-  example : ¬(p ∧ ¬ p) := sorry
-  example : p ∧ ¬q → ¬(p → q) := sorry
-  example : ¬p → (p → q) := sorry
-  example : (¬p ∨ q) → (p → q) := sorry
-  example : p ∨ false ↔ p := sorry
-  example : p ∧ false ↔ false := sorry
-  example : ¬(p ↔ ¬p) := sorry
-  example : (p → q) → (¬q → ¬p) := sorry
+  example : ¬p ∨ ¬q → ¬(p ∧ q) := assume h : ¬p ∨ ¬q,
+     λ(hpq : p ∧ q), show false, from 
+       or.elim h (assume hnp : ¬p,  hnp hpq.left) (assume hnq : ¬q,  hnq hpq.right)
+    
+  example : ¬(p ∧ ¬ p) := assume (h : p ∧ ¬p), (absurd h.left h.right)
+
+  example : p ∧ ¬q → ¬(p → q) := 
+    assume (h₁: p ∧ ¬q) (h₃: p → q), show false, from  h₁.right (h₃ h₁.left)
+
+  example : ¬p → (p → q) := λ (h₁: ¬p) (h₂: p), false.elim (h₁ h₂) 
+
+  example : (¬p ∨ q) → (p → q) := 
+    λ (h: ¬p ∨ q) (hp: p), show q, from
+      or.elim h (assume hnp: ¬p, false.elim (hnp hp)) (assume hq: q, hq)
+
+  example : p ∨ false ↔ p := iff.intro
+    (assume h: p ∨ false, show p, from or.elim h
+      (assume hp: p, hp) (false.elim))
+    (assume hp: p, or.inl hp)
+
+  example : p ∧ false ↔ false := iff.intro
+    (assume h: p ∧ false, h.right)
+    (assume h: false, ⟨false.elim h, false.elim h⟩)
+
+  example : (p → q) → (¬q → ¬p) := 
+    λ (h: p → q) (hnq: ¬q), show ¬p, from 
+      λ (hp: p), hnq (h hp)
+
+  example : Π (a: Prop), ¬(a ↔ ¬a) := λ (a: Prop), 
+    assume (h: (a ↔ ¬a)), show false, from
+    have hlr: a → ¬a, from (iff.elim_left h), 
+    have hrl: ¬a → a, from (iff.elim_right h),
+    sorry
 
   -- these require classical reasoning
   open classical

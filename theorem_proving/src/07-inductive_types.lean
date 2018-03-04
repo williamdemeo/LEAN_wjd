@@ -158,6 +158,7 @@ namespace Sec_7_2
   def fst {α : Type u} {β : Type v} (p : α × β) : α := prod.rec_on p (λ a b, a)
   def snd {α : Type u} {β : Type v} (p : α × β) : β := prod.rec_on p (λ a b, b)
 
+  def func := λ (a : Prop), true
   /- `fst` takes pair `p`, applies recursor `prod.rec_on p (λ a b, a)`---which interprets 
      `p` as pair `prod.mk a b`---then uses the 2nd arg to determine what to do with a and b. -/
 
