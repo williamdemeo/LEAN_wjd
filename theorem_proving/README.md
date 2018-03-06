@@ -50,7 +50,7 @@ on the natural numbers.
 
 ---
 Here are some examples of how we can declare objects in Lean and check their types.
-```scala
+```lean
     /- declare some constants -/
     constant m : nat        -- m is a natural number
     constant n : nat
@@ -96,7 +96,7 @@ Here are some examples of how we can declare objects in Lean and check their typ
   that is, the type of ordered pairs consisting of an element of `α` paired
   with an element of `β`. 
 
-```scala
+```lean
     constants m n : nat
     constant f1 : nat → nat           -- type the arrow as "\to" or "\r"
     constant f2 : nat -> nat         -- alternative ASCII notation
@@ -147,7 +147,7 @@ types themselves --- entities like `nat` and `bool` --- are first-class
 citizens, which is to say that they themselves are objects of study. For that to
 be the case, each of them also has to have a type. 
 
-```scala
+```lean
     #check nat               -- Type
     #check bool              -- Type
     #check nat → bool        -- Type
@@ -165,7 +165,7 @@ We see that each one of the expressions above is an object of type `Type`.
 
 We can also declare new constants and constructors for types. 
 
-```scala
+```lean
     constants α β : Type
     constant F : Type → Type
     constant G : Type → Type → Type
@@ -182,14 +182,14 @@ We can also declare new constants and constructors for types.
 
 We have already seen an example of a function of type 
 `Type → Type → Type`, namely, the Cartesian product. 
-```scala
+```lean
     constants α β : Type
     #check prod α β       -- Type
     #check prod nat nat   -- Type
 ```
 Here is another example: given any type `α`, the type `list α` denotes the
 type of lists of elements of type `α`. 
-```scala
+```lean
     constant α : Type
     #check list α    -- Type
     #check list nat  -- Type
@@ -202,12 +202,12 @@ type of lists of elements of type `α`.
 Given that every expression in Lean has a type, it is natural to ask what type
 does `Type` itself have. 
 
-```scala
+```lean
     #check Type      -- Type 1
 ```
 This reveals the first level of Lean's infinite hierarchy of types.
 
-```scala
+```lean
     #check Type     -- Type 1
     #check Type 1   -- Type 2
     #check Type 2   -- Type 3
@@ -227,7 +227,7 @@ and so on... There is a `Type n` for every natural number `n`.
 
 ``Type`` is an abbreviation for `Type 0``. 
 
-```scala
+```lean
     #check Type
     #check Type 0
 ```
@@ -245,14 +245,14 @@ We want some operations to be *polymorphic* over type universes. For example,
 ``list α`` should make sense for any type `α``, no matter which type universe
 ``α`` lives in. This explains the type annotation of the function `list``.
 
-```scala
+```lean
     #check list    -- Type u_1 → Type u_1
 ```
 Here `u_1`` is a variable ranging over type levels. The output of the `#check`` 
 command means whenever `α`` has type `Type n``, `list α`` also has type `Type n``. 
 The function `prod`` is similarly polymorphic.
 
-```scala
+```lean
     #check prod    -- Type u_1 → Type u_2 → Type (max u_1 u_2)
 ```
 
@@ -262,7 +262,7 @@ The function `prod`` is similarly polymorphic.
 
 To define polymorphic constants and variables, Lean allows us to declare universe variables explicitly.
 
-```scala
+```lean
     universe u
     constant α : Type u
     #check α
@@ -299,15 +299,15 @@ functions is a powerful feature of dependent type theory.*
 
 There are a number of ways to define functions in Lean.  You can use 
 1. λ-abstraction,
-   ```scala
+   ```lean
    def double: ℕ → ℕ := λ x, x + x
    ```
 2. λ-abstraction with some type inference,
-   ```scala
+   ```lean
    def double := λ (x : ℕ), x + x
    ```
-3. or the syntax (that looks familiar to users of Scala),
-   ```scala
+3. or the syntax (familiar to Scala programmers),
+   ```lean
    def double (x: ℕ) : ℕ := x + x
    ```
   
@@ -316,7 +316,7 @@ type `(x: ℕ)` as well as the output type (ℕ).  The three functions
 defined above are definitionally equal.
 
 The types of the arguments of a function can also be passed as arguments.
-```scala
+```lean
 def compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f x)
 ```
 
@@ -326,7 +326,7 @@ def compose (α β γ : Type) (g: β → γ) (f: α → β) (x: α) : γ := g (f
 
 The expression `let a := 2 in t` is *definitionally equal* to the result of 
 replacing every occurrence of `a` in `t` by `2`.  For example,
-```scala
+```lean
 def t (x : ℕ) : ℕ := let y := x + x in y * y
 #reduce t 2      -- result: 16
 ```
@@ -348,7 +348,7 @@ as ``(λ a, t2) t1``.
 
 For example, the definition of ``foo`` below type-checks, but ``bar`` does not.
 	
-```scala
+```lean
 def foo := let a := nat  in λ x : a, x + 2
 /-
 def bar := (λ a, λ x : a, x + 2) nat
@@ -375,7 +375,7 @@ We used ``constant``to create objects to work with---e.g., the types
 This can be avoided, using implicit or explicit lambda abstraction in 
 our definitions to declare such objects "locally."
 
-```scala
+```lean
 def compose (α β γ : Type) (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
 def do_twice (α : Type) (h : α → α) (x : α) : α := h (h x)
 def do_thrice (α : Type) (h : α → α) (x : α) : α := h (h (h x))
@@ -384,7 +384,7 @@ def do_thrice (α : Type) (h : α → α) (x : α) : α := h (h (h x))
 This can be tedious, however, so Lean provides the ``variable`` and ``variables`` 
 commands to make such declarations look global.
 
-```scala
+```lean
 variables (α β γ : Type)
 def compose (g : β → γ) (f : α → β) (x : α) : γ := g (f x)
 def do_twice (h : α → α) (x : α) : α := h (h x)
@@ -395,7 +395,7 @@ def do_thrice (h : α → α) (x : α) : α := h (h (h x))
 
 We can declare variables of any type, not just ``Type`` itself.
 
-```scala
+```lean
 variables (α β γ : Type)
 variables (g : β → γ) (f : α → β) (h : α → α)
 variable x : α
@@ -423,7 +423,7 @@ Thus, a variable stays in scope until the eof, and we can't declare another
 variable with the same name. Sometimes, however, it is useful to limit the scope
 of a variable. For that purpose, Lean provides the notion of a ``section``.
 
-```scala
+```lean
 section useful
   variables (α β γ : Type)
   variables (g : β → γ) (f : α → β) (h : α → α)
@@ -441,7 +441,7 @@ When the section is closed, the variables go out of scope.
 ### 2.7. Namespaces
 
 Lean provides the ability to group definitions into nested, hierarchical *namespaces*.
-```scala
+```lean
 namespace foo
   def a : ℕ := 5
   def f (x : ℕ) : ℕ := x + 7
@@ -481,13 +481,13 @@ hidden, for example, when they conflict with identifiers in another namespace we
 want to use. Thus namespaces give us a way to manage our working environment. 
 
 For example, Lean groups definitions and theorems involving lists into a namespace ``list``.
-```scala
+```lean
 #check list.nil
 #check list.cons
 #check list.append
 ```
 The command ``open list`` makes the shorter names available:
-```scala
+```lean
 open list
 #check nil
 #check cons
@@ -497,7 +497,7 @@ open list
 ---
 
 Namespaces that have been closed can later be reopened, even in another file.
-```scala
+```lean
 namespace foo
   def a : ℕ := 5
   def f (x : ℕ) : ℕ := x + 7
@@ -520,7 +520,7 @@ In many respects, a ``namespace ... end`` block behaves like a ``section ... end
 + The effect of the ``open`` command disappears when the current namespace is closed. 
 + Nested namespaces and sections must be closed in the order they are opened. 
 + Namespaces and sections can be nested.
-```scala
+```lean
 namespace foo
   def a : ℕ := 5
   def f (x : ℕ) : ℕ := x + 7
@@ -579,7 +579,7 @@ the insertion function for lists of type `α`.
 
 It's clear that `cons α` has type `α → list α → list α`. But what type 
 should `cons` have? A first guess might be 
-```scala
+```lean
 Type → α → list α → list α
 ```
 but, on reflection, this does not make sense: the `α` in this expression
@@ -592,7 +592,7 @@ types vary depending on the first argument, `α`.
 
 #### 2.8.1. Pi types (aka dependent function type)
 
-```scala
+```lean
 Type → α → list α → list α``
 ```
 This is an instance of a **Pi type**, or **dependent function type**. 
@@ -614,7 +614,7 @@ just notation for `Π x : α, β` when `β` does not depend on `α`.
 Returning to the example of lists, we can model some basic list operations as
 follows (where we use `namespace hide` to avoid a naming conflict with the 
 `list` type defined in the standard library.) 
-```scala
+```lean
 namespace hide
 	universe u
 	constant list   : Type u → Type u
@@ -640,7 +640,7 @@ As the next example shows, the types described above are essentially
 the types of the objects that are defined in the library. 
 (The ``@`` symbol and the curly brackets will be explained momentarily.) 
 
-```scala
+```lean
 open list
 #check list     -- Type u_1 → Type u_1
 #check @cons    -- Π {α : Type u_1}, α → list α → list α
@@ -656,7 +656,7 @@ determine a default element of the relevant type, and we see how later.
 ---
 
 Vector operations are handled similarly.
-```scala
+```lean
 universe u
 constant vec : Type u → ℕ → Type u
 namespace vec
@@ -682,7 +682,7 @@ end vec
 
 ---
 
-```scala
+```lean
 variable α : Type
 variable β : α → Type
 variable a : α
@@ -704,7 +704,7 @@ and these reduce to `a` and `b` (resp.).
 ### 2.9. Implicit Arguments
 
 Suppose we have an implementation of lists as described above.
-```scala
+```lean
 namespace hide
 universe u
 constant list : Type u → Type u
@@ -720,7 +720,7 @@ Then, given a type `α`, some elements of `α`, and some lists of elements of
 
 ---
 
-```scala
+```lean
 namespace hide
 universe u
 constant list : Type u → Type u
@@ -755,7 +755,7 @@ end hide
 + In Lean, one uses an underscore, `_`, to specify that the system
   should fill in the information automatically. This is known as an "implicit
   argument." 
-```scala
+```lean
 namespace hide
   universe u
   constant list : Type u → Type u
@@ -780,7 +780,7 @@ It is still tedious, however, to type all these underscores.
 When a function takes an argument that can generally be inferred from context, 
 Lean allows us to specify that this argument should, by default, be left
 implicit. This is done by putting the arguments in curly braces.
-```scala
+```lean
 namespace hide
   universe u
   constant list : Type u → Type u
@@ -803,7 +803,7 @@ end hide
 
 All that has changed are the braces around `α : Type u` in the declaration of
 the variables. We can also use this device in function definitions.
-```scala
+```lean
     universe u
     def ident {α : Type u} (x : α) := x
     variables α β : Type u
@@ -816,7 +816,7 @@ This makes the first argument to `ident` implicit. Notationally, this hides the 
 
 Variables can also be specified as implicit when they are declared with
 the `variables` command:
-```scala
+```lean
 universe u
 section
   variable {α : Type u}
@@ -853,7 +853,7 @@ This definition of `ident` here has the same effect as the one above.
 
 In the second pair of examples below, the mechanism described above is used to
 specify the desired types of the expressions `id` and `list.nil`. 
-```scala
+```lean
 #check list.nil             -- list ?M1
 #check id                   -- ?M1 → ?M1
 #check (list.nil : list ℕ)  -- list ℕ
@@ -863,7 +863,7 @@ Numerals are overloaded in Lean, but when the type of a numeral cannot be
 inferred, Lean assumes, by default, that it is a natural number. So the
 expressions in the first two `#check` commands below are elaborated in the
 same way, whereas the third `#check` command interprets `2` as an integer. 
-```scala
+```lean
 #check 2            -- ℕ
 #check (2 : ℕ)     -- ℕ
 #check (2 : ℤ)      -- ℤ
@@ -876,7 +876,7 @@ an argument to a function to be implicit, but now want to provide the argument
 explicitly. If `foo` is such a function, the notation `@foo` denotes the
 same function with all the arguments made explicit. 
 
-```scala
+```lean
 variables α β : Type
 variables (a : α) (b : β)
 #check @id        -- Π {α : Type u_1}, α → α
@@ -921,7 +921,7 @@ the first argument is implicit.
 
 ### 3.1. Propositions as Types
 We could introduce a new type, `Prop`, to represent propositions, and then introduce constructors to build new propositions from others.
-```scala
+```lean
 constant and : Prop → Prop → Prop
 constant or : Prop → Prop → Prop
 constant not : Prop → Prop
@@ -936,11 +936,11 @@ variables p q r : Prop
 
 We could then introduce, for each `p : Prop`, another type `Proof p`, 
 for the type of proofs of `p`. 
-```scala
+```lean
 constant Proof : Prop → Type
 ```
 An "axiom" would be constant of such a type; for example,
-```scala
+```lean
 constant and_comm : Π (p q : Prop), Proof (implies (and p q) (and q p))
 #check and_comm p q      -- Proof (implies (and p q) (and q p))
 ```
@@ -949,15 +949,15 @@ constant and_comm : Π (p q : Prop), Proof (implies (and p q) (and q p))
 
 In addition to axioms, we would also need rules to build new proofs from 
 old ones. For example, in many proof systems for propositional logic, we have the modus ponens rule.
-```scala
+```lean
 constant modus_ponens (p q : Prop) : Proof (implies p q) →  Proof p → Proof q
-constant modus_ponens' : Π (p q : Prop), Proof (implies p q) → Proof p → Proof q
+constant modus_ponens₁ : Π (p q : Prop), Proof (implies p q) → Proof p → Proof q
 #check modus_ponens p q
-#check modus_ponens' p q
+#check modus_ponens₁ p q
 ```
 Systems of natural deduction for propositional logic also typically rely on 
 the following rule:
-```scala
+```lean
 constant implies_intro (p q : Prop) : (Proof p → Proof q) → Proof (implies p q).
 ```
 This approach would provide a reasonable way of building assertions and proofs. Determining that an expression `t` is a correct proof of assertion `p` would 
@@ -1061,7 +1061,7 @@ In the P-T paradigm, theorems involving only `→` can be proved using lambda
 abstraction and application. 
 
 The `theorem` command introduces a new theorem:
-```scala
+```lean
     constants p q : Prop
     theorem t1 : p → q → p := λ hp : p, λ hq : q, hp
 ```
@@ -1090,7 +1090,7 @@ Lean is generally able to process and check proofs in parallel, since assessing
 the correctness of one proof does not require knowing the details of another.
 
 The `#print` command will show you the proof of a theorem.
-```scala
+```lean
     constants p q : Prop
     theorem t1 : p → q → p := λ hp : p, λ hq : q, hp
     #print t1
@@ -1111,7 +1111,7 @@ we could write
 ---
 
 We can specify the type of the final term `hp` with a `show` statement:
-```scala
+```lean
     constants p q : Prop
     theorem t1 : p → q → p := assume hp : p, assume hq : q,
     show p, from hp
@@ -1124,7 +1124,7 @@ seen produce the same term.
 ---
 
 Lean also allows you to use the alternative syntax `lemma` instead of theorem:
-```scala
+```lean
     constants p q : Prop
     lemma t1 : p → q → p :=
     assume hp : p,
@@ -1136,7 +1136,7 @@ Lean also allows you to use the alternative syntax `lemma` instead of theorem:
 
 As with definitions, the lambda-abstracted variables may appear to the left 
 of the colon:
-```scala
+```lean
     constants p q : Prop
     theorem t1 (hp : p) (hq : q) : p := hp
     #check t1    -- p → q → p
@@ -1149,7 +1149,7 @@ as witnessed by `hp`.
 ---
 
 Notice, by the way, that the original theorem `t1` is true for *any* propositions `p` and `q`, not just the particular constants declared. So it would be more natural to define the theorem so that it quantifies over those, too:
-```scala
+```lean
     theorem t1 (p q : Prop) (hp : p) (hq : q) : p := hp
     #check t1
 ```
@@ -1157,18 +1157,18 @@ The type of `t1` is now `∀ p q : Prop, p → q → p`. We can read this as the
 
 ---
 
-```scala
+```lean
     theorem t1 : ∀ (p q : Prop), p → q → p := 
     λ (p q : Prop) (hp : p) (hq : q), hp
 ```
 If `p` and `q` have been declared as variables, Lean generalizes them for us.
-```scala
+```lean
     variables p q : Prop
     theorem t1 : p → q → p := λ (hp : p) (hq : q), hp
 ```
 In fact, by the P-T correspondence, we can declare the assumption `hp` that `p` 
 holds as another variable.
-```scala
+```lean
     variables p q : Prop
     variable  hp : p
     theorem t1 : q → p := λ (hq : q), hp
@@ -1184,7 +1184,7 @@ depend on the bound variable.
 
 When we generalize `t1` this way, we can apply it to different pairs of props 
 to obtain different instances of the general theorem.
-```scala
+```lean
     theorem t1 (p q : Prop) (hp : p) (hq : q) : p := hp
     variables p q r s : Prop
     #check t1 p q                -- p → q → p
@@ -1200,7 +1200,7 @@ be viewed as the hypothesis that `r → s` holds.
 
 Recall the composition function discussed in the last chapter,
 but with props instead of types.
-```scala
+```lean
     variables p q r s : Prop
     theorem t2 (h₁ : q → r) (h₂ : p → q) : p → r :=
     assume h₃ : p,
@@ -1230,7 +1230,7 @@ The propositional connectives come with the following notation:
 They all take values in `Prop`.
 
 ---
-```scala
+```lean
     variables p q : Prop
     #check p → q → p ∧ q
     #check ¬p → p ↔ false
