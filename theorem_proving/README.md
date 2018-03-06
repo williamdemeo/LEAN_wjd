@@ -1578,7 +1578,7 @@ elimination rules.
 
 ### Related or equivalent syntax
 
-| page| syntax | alt 1   | alt 2 | description/context/example |
+| pg| syntax | alternative 1   | alternative 2 | description/context/example |
 | --- | ---     | ---     | ---   | ---                         |
 | 8   | `assume h:p` | `λ h:p`| `fun h:p` | hypotheses in a proof |
 | 11  | `#reduce`      | `#eval`  |             | `#reduce` is trustworthy; `#eval` is fast |
