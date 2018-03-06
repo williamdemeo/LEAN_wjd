@@ -1576,14 +1576,31 @@ elimination rules.
 
 ---
 
-### Sugar
-+ `Prop` is alt syntax for `Sort 0`, the very bottom of the type hierarchy
-+ `Type u` is alt syntax for `Sort (u+1)`
-+ `axiom` is alt syntax for `constant`
-+ `theorem` is alt syntax for `definition`
-+ `lemma` is alt syntax for `theorem`
-+ `assume` is alt syntax for lambda abstractions that denote hypotheses in a proof
-+ `∀` is alt syntax for `Π`
+### Related or equivalent syntax
 
-
+| page| syntax | alt 1   | alt 2 | description/context/example |
+| --- | ---     | ---     | ---   | ---                         |
+| 8   | `assume h:p` | `λ h:p`| `fun h:p` | hypotheses in a proof |
+| 11  | `#reduce`      | `#eval`  |             | `#reduce` is trustworthy; `#eval` is fast |
+| 11  | `def f (x:ℕ):ℕ := x+x` | `def f:ℕ → ℕ := λ(x:ℕ), x+x` |  |  |        
+| 13  | `let a := t1 in t2`    | `(λ a, t2) t1` |   | WARNING: these are NOT the same (see p.13)  |
+| 16  | `namespace` | `section` |    | `namespace` organizes data, lives on outer level; `section` declares variables for insertion in theorems |
+| 18  | `sigma.fst(sigma.mk a b)` | `(sigma.mk a b).fst` | `(sigma.mk a b).1` | `variable a:α`; `variable b:βa`|
+| 18  | `sigma.snd (sigma.mk a b)` | `(sigma.mk a b).snd` | `(sigma.mk a b).2` | `variable a:α`; `variable b:βa`|
+| 24  | `Sort (u+1)`   | `Type u` |             |                       |  
+| 25, 26 | `definition`   | `theorem`| `lemma`     | but the elaborator treats these differently|
+| 26  | `constant`     | `axiom`  |             |                       | 
+| 26  | `∀`            | `Π`      |             | use ∀ for Props; use π for higher Types |
+| 28 | `and.elim_left h` | `and.left h` | `h.left` | proves `p` when `h: p ∧ q` |
+| 28 | `and.elim_right h`| `and.right h`| `h.right`| proves `q` when `h: p ∧ q` |
+| 28 | `and.intro hp hq` | `⟨hp, hq⟩` |     | proves `p ∧ q` when `hp:p` and `hq:q` |
+| 29 | `foo.bar e` | `e.bar` |  | `e` inhabits inductive type `foo`; `bar` a function taking `foo` args |
+| 30 | `or.intro_left _ hp` | `or.inl hp`     |   | proves `p ∨ q` when `hp:p`    |
+| 30 | `or.intro_right _ hq`| `or.inr hq`     |   | proves `p ∨ q` when `hq:q`    |
+| 30 | `false.elim ¬p ∧ p`  | `absurd p ∧ ¬p` |   | proves `false` from `¬p ∧ p`  |
+| 31 | `true.intro`         | `trivial`       |   | proves `true` from nothing    |
+| 31 | `iff.elim_left h`    | `iff.mp h` | `h.mp` | proves `p → q` from `h: p ↔ q`|
+| 31 | `iff.elim_right h`   | `iff.mpr h`| `h.mpr`| proves `p ← q` from `h: p ↔ q`|
+| 31 | `(λ (h:p), t) s`     | `have h:p, from s, t`  |   |   |
+|   |   |   |   |   |
 --------------------------------------------------
