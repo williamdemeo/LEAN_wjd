@@ -777,11 +777,21 @@ variables α : Type 1
     λ (h: p → q) (hnq: ¬q), show ¬p, from 
       λ (hp: p), hnq (h hp)
 
-  example : Π (a: Prop), ¬(a ↔ ¬a) := λ (a: Prop), 
-    assume (h: (a ↔ ¬a)), show false, from
-    have hlr: a → ¬a, from (iff.elim_left h), 
-    have hrl: ¬a → a, from (iff.elim_right h),
-    sorry
+  theorem lem_irrefutable (p: Prop) : ¬¬(p ∨ ¬p) := 
+    assume h: ¬(p ∨ ¬p), show false, from
+      suffices hnp : ¬p, from false.elim (h (or.intro_right _ hnp)),
+        assume hp : p, show false, from false.elim (h (or.intro_left _ hp))
+
+  #check lem_irrefutable
+
+  example : ¬(p ↔ ¬p) := assume h: p ↔ ¬p, show false, from
+    have hr : p → ¬p, from iff.elim_left h,
+    have hl : ¬p → p, from iff.elim_right h,
+    suffices hneg: ¬(p ∨ ¬p), from false.elim (lem_irrefutable p hneg),
+      assume hlem : p ∨ ¬p, show false, from
+        or.elim hlem 
+          (assume hp: p, false.elim ((hr hp) hp))
+          (assume hnp: ¬p, false.elim (hnp (hl hnp))
 
   -- these require classical reasoning
   open classical

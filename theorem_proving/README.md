@@ -1578,7 +1578,7 @@ elimination rules.
 
 ### Related or equivalent syntax
 
-| DescribedOnPages | PrimaryOrPrimitiveSyntaxForm | AlternativeSyntaxOne | AlternativeSyntaxTwo | description/context/example |
+| DescribedOnPages | PrimaryOrPrimitiveSyntax | AlternativeSyntaxOne | AlternativeSyntaxTwo | description/context/example |
 | --- | ---     | ---     | ---   | ---                         |
 | 8   | `assume h:p` | `λ h:p`| `fun h:p` | hypotheses in a proof |
 | 11  | `#reduce`      | `#eval`  |             | `#reduce` is trustworthy; `#eval` is fast |
@@ -1586,7 +1586,7 @@ elimination rules.
 | 13  | `let a := t1 in t2`    | `(λ a, t2) t1` |   | WARNING: these are NOT the same (see p.13)  |
 | 16  | `namespace` | `section` |    | `namespace` organizes data, lives on outer level; `section` declares variables for insertion in theorems |
 | 18  | `sigma.fst(sigma.mk a b)` | `(sigma.mk a b).fst` | `(sigma.mk a b).1` | `variable a:α`; `variable b:βa`|
-| 18  | `sigma.snd (sigma.mk a b)` | `(sigma.mk a b).snd` | `(sigma.mk a b).2` | `variable a:α`; `variable b:βa`|
+| 18  | `sigma.snd(sigma.mk a b)` | `(sigma.mk a b).snd` | `(sigma.mk a b).2` | `variable a:α`; `variable b:βa`|
 | 24  | `Sort (u+1)`   | `Type u` |             |                       |  
 | 25, 26 | `definition`   | `theorem`| `lemma`     | but the elaborator treats these differently|
 | 26  | `constant`     | `axiom`  |             |                       | 
