@@ -1578,7 +1578,7 @@ elimination rules.
 
 ### Related or equivalent syntax
 
-| DescribedOnPages | PrimaryOrPrimitiveSyntax | AlternativeSyntaxOne | AlternativeSyntaxTwo | description/context/example |
+| Page(s) | PrimaryOrPrimitiveSyntax | AlternativeSyntaxOne | AlternativeSyntaxTwo | description/context/example |
 | --- | ---     | ---     | ---   | ---                         |
 | 8   | `assume h:p` | `λ h:p`| `fun h:p` | hypotheses in a proof |
 | 11  | `#reduce`      | `#eval`  |             | `#reduce` is trustworthy; `#eval` is fast |
@@ -1590,7 +1590,6 @@ elimination rules.
 | 24  | `Sort (u+1)`   | `Type u` |             |                       |  
 | 25, 26 | `definition`   | `theorem`| `lemma`     | but the elaborator treats these differently|
 | 26  | `constant`     | `axiom`  |             |                       | 
-| 26  | `∀`            | `Π`      |             | use ∀ for Props; use π for higher Types |
 | 28 | `and.elim_left h` | `and.left h` | `h.left` | proves `p` when `h: p ∧ q` |
 | 28 | `and.elim_right h`| `and.right h`| `h.right`| proves `q` when `h: p ∧ q` |
 | 28 | `and.intro hp hq` | `⟨hp, hq⟩` |     | proves `p ∧ q` when `hp:p` and `hq:q` |
@@ -1602,5 +1601,10 @@ elimination rules.
 | 31 | `iff.elim_left h`    | `iff.mp h` | `h.mp` | proves `p → q` from `h: p ↔ q`|
 | 31 | `iff.elim_right h`   | `iff.mpr h`| `h.mpr`| proves `p ← q` from `h: p ↔ q`|
 | 31 | `(λ (h:p), t) s`     | `have h:p, from s, t`  |   |   |
+| 26, 37  | `∀ (x : α), p`  | `Π (x : α), p` |   | use ∀ for Props; use π for higher Types |
+| 40 | `eq.refl _`   | `rfl`   |   | proof by reflexivity of equality  |
+| 40 | `eq.subst h1 h2` | `h1 ▶ h2`  |   | proof by substitution  |
+| 41 | `mul_add a b c` | `left_distrib a b c` |  | proves `a * (b + c) = a * b + a * c`|
+| 41 | `add_mul a b c` | `right_distrib a b c` |  | proves `(a + b) * c = a * c + b * c`|
 |   |   |   |   |   |
 --------------------------------------------------

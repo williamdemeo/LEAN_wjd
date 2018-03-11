@@ -258,6 +258,34 @@ namespace Sec_4_2
         (x + y) * (x + y) = x * (x + y) + y * (x + y) : by rw h₁
                       ... = (x*x + x*y) + (y*x + y*y) : by rw [h₃, h₄]
                       ... = x*x + y*x + x*y + y*y   : by simp
+
+    -- the same example, proved in a different way:
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+      have h₁ : (x + y) * (x + y) = (x + y) * x + (x + y) * y, from mul_add (x + y) x y,
+      have h₂ : (x + y) * (x + y) = x * x + y * x + (x * y + y * y), 
+        from (add_mul x y x) ▸ (add_mul x y y) ▸ h₁,
+      h₂.trans (add_assoc (x * x + y * x) (x * y) (y * y)).symm
+
+    -- the same example, proved in yet another way:
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+      calc 
+        (x + y) * (x + y) = (x + y) * x + (x + y) * y       : by rw mul_add
+                      ... = x * x + y * x + (x + y) * y     : by rw add_mul
+                      ... = x * x + y * x + (x * y + y * y) : by rw add_mul
+                      ... = x * x + y * x + x * y + y * y   : by rw ←add_assoc
+                                         -- we need ← here since we're using 
+                                         --   x + (y + z) = (x + y) + z
+                                         -- and not (x + y) + z = x + (y + z)
+
+    -- the same example, proved in yet another way:
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+      calc (x + y) * (x + y) = (x + y) * x + (x + y) * y     : by rw mul_add
+                         ... = x * x + y * x + x * y + y * y : by rw [add_mul,add_mul,←add_assoc]
+
+    -- the same example, proved in still another way:
+    example (x y : ℕ) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+      calc (x + y) * (x + y) = x * x + y * x + x * y + y * y : by simp [add_mul,mul_add]
+
   end example6
 
 

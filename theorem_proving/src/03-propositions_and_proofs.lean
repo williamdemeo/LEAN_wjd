@@ -779,12 +779,13 @@ variables α : Type 1
 
   theorem lem_irrefutable (p: Prop) : ¬¬(p ∨ ¬p) := 
     assume h: ¬(p ∨ ¬p), show false, from
-      suffices hnp : ¬p, from false.elim (h (or.intro_right _ hnp)),
-        assume hp : p, show false, from false.elim (h (or.intro_left _ hp))
+      suffices hnp : ¬p, from false.elim (h (or.inr hnp)),
+        assume hp : p, show false, from false.elim (h (or.inl hp))
 
   #check lem_irrefutable
 
-  example : ¬(p ↔ ¬p) := assume h: p ↔ ¬p, show false, from
+  theorem annoying (p: Prop) : ¬(p ↔ ¬p) := 
+    assume h: p ↔ ¬p, show false, from
     have hr : p → ¬p, from iff.elim_left h,
     have hl : ¬p → p, from iff.elim_right h,
     suffices hneg: ¬(p ∨ ¬p), from false.elim (lem_irrefutable p hneg),
@@ -792,6 +793,8 @@ variables α : Type 1
         or.elim hlem 
           (assume hp: p, false.elim ((hr hp) hp))
           (assume hnp: ¬p, false.elim (hnp (hl hnp))
+
+ #print annoying
 
   -- these require classical reasoning
   open classical
