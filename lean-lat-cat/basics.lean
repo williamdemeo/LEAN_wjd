@@ -11,7 +11,7 @@ namespace llc_basics
 
     -- Expressing the fact that a relation is transitive
     universe u
-    variable (α : Type) 
+    variable (α : Type)
     variable (myrel : α → α → Prop) -- a binary relation
     variable trans_myrel : ∀ {x y z}, myrel x y → myrel y z → myrel x z
     variables a b c : α
@@ -27,11 +27,11 @@ namespace llc_basics
 
 
   section equivalence_relations -------------------------------------------------------
-    
+
     universe u
     variables (α β : Type u)
     variable e_rel : α → α → Prop
-    variable refl_e_rel : ∀ x, e_rel x x 
+    variable refl_e_rel : ∀ x, e_rel x x
     variable symm_e_rel : ∀ {x y}, e_rel x y → e_rel y x
     variable trans_e_rel : ∀ {x y z}, e_rel x y → e_rel y z → e_rel x z
 
@@ -45,12 +45,12 @@ namespace llc_basics
       #check @eq.symm.{u}
       #check @eq.trans.{u}
 
-      example (a b c d : α) (hab : a=b) (hcb : c=b) (hcd : c=d) : a = d := 
+      example (a b c d : α) (hab : a=b) (hcb : c=b) (hcd : c=d) : a = d :=
         eq.trans (eq.trans hab (eq.symm hcb)) hcd
 
 
       /- Reflexivity is more powerful than it looks. Recall that the Calculus of
-         Constructions treats terms with a common reduct as equal. As a result, some 
+         Constructions treats terms with a common reduct as equal. As a result, some
          nontrivial identities can be proved by reflexivity. -/
       example (f : α → β) (a : α) : (λx, f x) a = f a := eq.refl _
       example (a : α) (b : β) : (a,b).1 = a := eq.refl _
@@ -59,7 +59,7 @@ namespace llc_basics
       -- Equality is a congruence relation in that it is preserved by predicates.
       example (a b : α) (p : α → Prop) (h₁: a = b) (h₂ : p a) : p b := eq.subst h₁ h₂
 
-      example (a b : α) (p : α → Prop) (h₁: a = b) (h₂ : p a) : p b := h₁ ▸ h₂  
+      example (a b : α) (p : α → Prop) (h₁: a = b) (h₂ : p a) : p b := h₁ ▸ h₂
                                             -- notation `h₁ ▸ h₂` means `eq.subst h₁ h₂`
 
       -- auxiliary rules defined using eq.subst: congr_arg, congr_fun, congr
@@ -67,12 +67,12 @@ namespace llc_basics
       variables f g : α → ℕ
       variables (h₁: a = b) (h₂: f = g)
 
-      example: f a = f b := congr_arg f h₁ 
+      example: f a = f b := congr_arg f h₁
       example: f a = g a := congr_fun h₂ a
       example: f a = g b := congr h₂ h₁
 
 
-    
+
 
     end equality -----------------------------
 
