@@ -664,7 +664,6 @@ variables p q r s : Prop
 
   -- other properties
   -- example : (p → (q → r)) ↔ (p ∧ q → r) := sorry 
-        
   -- example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := sorry
   -- example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := sorry
   -- example : ¬p ∨ ¬q → ¬(p ∧ q) := sorry
@@ -784,7 +783,7 @@ variables α : Type 1
 
   #check lem_irrefutable
 
-  theorem annoying (p: Prop) : ¬(p ↔ ¬p) := 
+  example : ¬(p ↔ ¬p) := 
     assume h: p ↔ ¬p, show false, from
     have hr : p → ¬p, from iff.elim_left h,
     have hl : ¬p → p, from iff.elim_right h,
@@ -792,19 +791,61 @@ variables α : Type 1
       assume hlem : p ∨ ¬p, show false, from
         or.elim hlem 
           (assume hp: p, false.elim ((hr hp) hp))
-          (assume hnp: ¬p, false.elim (hnp (hl hnp))
+          (assume hnp: ¬p, false.elim (hnp (hl hnp)))
 
- #print annoying
 
   -- these require classical reasoning
   open classical
-  example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := sorry
-  example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
-  example : ¬(p → q) → p ∧ ¬q := sorry
-  example : (p → q) → (¬p ∨ q) := sorry
-  example : (¬q → ¬p) → (p → q) := sorry
-  example : p ∨ ¬p := sorry
-  example : (((p → q) → p) → p) := sorry
+
+  example : (p → r ∨ s) → ((p → r) ∨ (p → s)) := 
+    assume (h : p → r ∨ s), show ((p → r) ∨ (p → s)), from
+      or.elim (em r)
+      (assume hr : r, or.inl (λ (hp : p), hr))
+      (assume hnr : ¬r, or.inr (λ (hp: p), 
+        or.elim (h hp) 
+        (assume hr₂ : r, false.elim (hnr hr₂))
+        (assume hs : s, hs)))  
+
+  example : ¬(p ∧ q) → ¬p ∨ ¬q := 
+    assume h : ¬(p ∧ q), show ¬p ∨ ¬q, from 
+      or.elim (em p)
+      (assume (hp: p), or.inr 
+        (assume hq: q, false.elim (h ⟨hp, hq⟩)))
+      (assume (hnp: ¬p), or.inl hnp)
+
+  example : ¬(p → q) → p ∧ ¬q := 
+    assume h: ¬(p → q), show p ∧ ¬ q, from
+      or.elim (em p)
+        (assume hp: p, 
+          and.intro hp (assume hq: q, false.elim (h (λ hp: p, hq))) )
+        (assume hnp: ¬p, 
+          have nh: p → q, from λ (hp₂ : p), false.elim (hnp hp₂),
+          false.elim (h nh) )
+          
+  example : (p → q) → (¬p ∨ q) := 
+    assume h: p → q, show (¬p ∨ q), from
+      or.elim (em p)
+        (assume hp: p, or.inr (h hp))
+        (assume hnp: ¬p, or.inl hnp)
+
+
+  example : (¬q → ¬p) → (p → q) := 
+    assume h: ¬q → ¬p, show p → q, from
+      assume hp: p, 
+      or.elim (em q)
+        (assume hq: q, hq)
+        (assume hnq: ¬q, false.elim ((h hnq) hp))
+
+
+  example : p ∨ ¬p := em p
+
+  example : (((p → q) → p) → p) := 
+    assume hpqp : (p → q) → p, show p, from
+      or.elim (em p)
+      (assume hp: p, hp)
+      (assume hnp: ¬p, suffices h₁: ¬p → (p → q), from 
+        false.elim (hnp (hpqp (h₁ hnp))),
+        λ (h₁: ¬p) (h₂: p), false.elim (h₁ h₂) )
 
 
 end Section_3_7
