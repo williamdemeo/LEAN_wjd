@@ -2320,6 +2320,7 @@ namespace example2
 end example2
 ```
 ---
+
 #### Witnesses and information hiding
 We can view `exists.intro` as an information-hiding operation, since it hides 
 the witness to the body of the assertion. 
@@ -2333,6 +2334,7 @@ say, `w`. If `q` does not mention `w`, then showing that `q` follows from `p w` 
 to showing that `q` follows from the existence of any such `x`.  -/
 
 ---
+
 ```lean
 namespace example3
   variables (α : Type) (p q : α → Prop)
@@ -2340,12 +2342,13 @@ namespace example3
     exists.elim h
     (assume w,
       assume hw : p w ∧ q w,
-      show ∃ x, q x ∧ p x, from ⟨w, hw.right, hw.left⟩)
-  /- IMPORTANT NOTE: 
-     The anonymous constructor notation ⟨w, hw.right, hw.left⟩ abbreviates a nested application.
-     Equivalently, ⟨w, ⟨hw.right, hw.left⟩⟩. -/
+      show ∃ x, q x ∧ p x, from ⟨w, hw.right, hw.left⟩
+    )
 end example3
 ```
+**IMPORTANT.** 
+The anonymous constructor notation `⟨w, hw.right, hw.left⟩` abbreviates a nested application.
+Equivalently, `⟨w, ⟨hw.right, hw.left⟩⟩`.
 ---
 
 It may be helpful to compare the exists-elimination rule to the or-elimination rule: 
@@ -2387,17 +2390,16 @@ An existential proposition is very similar to a sigma type (Sec 2.8). The differ
   end example4
 ```
 ---
-```lean
 
-  /- Next, we define `even a` as `∃ b, a = 2*b`, and then show the sum of two even numbers is even. -/
-  namespace example5
-```
+  Next, we define `even a` as `∃ b, a = 2*b`, and then show the sum of two even numbers is even.
+
 ---
-```lean
-    def is_even (a : ℕ) := ∃ b, a = 2 * b
 
-    theorem even_plus_even_is_even {a b : ℕ}
-      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+```lean
+namespace example5
+  def is_even (a : ℕ) := ∃ b, a = 2 * b
+  theorem even_plus_even_is_even {a b : ℕ}
+    (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
       exists.elim h₁ 
         (assume w₁, assume hw1 : a = 2 * w₁,
           exists.elim h₂
@@ -2407,297 +2409,265 @@ An existential proposition is very similar to a sigma type (Sec 2.8). The differ
                   a + b = 2 * w₁ + 2 * w₂ : by rw [hw1, hw2]
                     ... = 2 * (w₁ + w₂)   : by rw mul_add)))
 
-    -- we can rewrite the last proof more concisely...
-    theorem even_plus_even {a b : ℕ}
-      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
-    match h₁, h₂ with
-      ⟨w₁, hw1⟩, ⟨w₂, hw2⟩ := ⟨w₁ + w₂, by rw [hw1, hw2, mul_add]⟩
-    end
+  -- we can rewrite the last proof more concisely...
+  theorem even_plus_even {a b : ℕ}
+    (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+      match h₁, h₂ with
+        ⟨w₁, hw1⟩, ⟨w₂, hw2⟩ := ⟨w₁ + w₂, by rw [hw1, hw2, mul_add]⟩
+      end
 
-    -- ...again, it's clearer to annotate the types.
-    theorem even_plus_even' {a b : ℕ}
-      (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
+  -- Again, it's clearer to annotate the types.
+  theorem even_plus_even' {a b : ℕ}
+    (h₁ : is_even a) (h₂ : is_even b) : is_even (a + b) :=
     match h₁, h₂ with
       ⟨(w₁ : ℕ), (hw1: a = 2 * w₁)⟩, ⟨(w₂ : ℕ), (hw2 : b = 2 * w₂)⟩ := 
       ⟨w₁ + w₂, by rw [hw1, hw2, mul_add]⟩
     end
-  end example5  
+end example5  
 ```
 ---
+
+Just as the constructive "or" is stronger than the classical "or," 
+so, too, is the constructive "exists" stronger than the classical "exists". 
+For example, the following implication requires classical reasoning because, 
+from a constructive standpoint, knowing that it is not the case that every x 
+satisfies `¬ p x` is not the same as having a particular `x` that satisfies `p x`.
+
 ```lean
+namespace example6
+  open classical
+  variables (α : Type) (p : α → Prop)
+  example (h : ¬ ∀ x, ¬ p x) : ∃ x, p x :=
+    by_contradiction
+      (assume h₁ : ¬ ∃ x, p x,
+        have h₂ : ∀ x, ¬ p x, from
+          assume x,
+          assume h₃ : p x,
+          have h₄ : ∃ x, p x, from ⟨x, h₃⟩,
+          show false, from h₁ h₄,
+        show false, from h h₂)
+end example6
+```
 
-  /- Just as the constructive "or" is stronger than the classical "or," 
-     so, too, is the constructive "exists" stronger than the classical "exists". 
-     For example, the following implication requires classical reasoning because, 
-     from a constructive standpoint, knowing that it is not the case that every x 
-     satisfies `¬ p x` is not the same as having a particular `x` that satisfies `p x`.
-  -/   
+---
 
-  namespace example6
-    open classical
-    variables (α : Type) (p : α → Prop)
-    example (h : ¬ ∀ x, ¬ p x) : ∃ x, p x :=
-      by_contradiction
-        (assume h₁ : ¬ ∃ x, p x,
-          have h₂ : ∀ x, ¬ p x, from
-            assume x,
-            assume h₃ : p x,
-            have h₄ : ∃ x, p x, from ⟨x, h₃⟩,
-            show false, from h₁ h₄,
-          show false, from h h₂)
-  end example6
+**Exercises.**
 
-  /- Here are some common identities involving the existential quantifier. (Prove as many as you can and
-     determine which are nonconstructive, and hence require some form of classical reasoning.) -/
+Here are some common identities involving the existential quantifier. 
+(Prove as many as you can and determine which are nonconstructive, 
+and hence require some form of classical reasoning.)
 
-  namespace constructive_examples
-
+```lean  
+namespace constructive_examples
   variables (α :Type) (p q : α → Prop)
   variable a : α
   variable r : Prop
-
   example : (∃ x : α, r) → r := assume ⟨(w : α), hr⟩, hr
   example : r → (∃ x : α, r) := exists.intro a
   example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := iff.intro
-    -- ⇒ 
-    (assume ⟨w, (h₁ : p w ∧ r)⟩, ⟨⟨w, h₁.left⟩, h₁.right⟩)   
-    -- ⇐
-    (assume (h : (∃ x, p x) ∧ r),
-      exists.elim h.left 
+  -- ⇒ 
+  (assume ⟨w, (h₁ : p w ∧ r)⟩, ⟨⟨w, h₁.left⟩, h₁.right⟩)   
+  -- ⇐
+  (assume (h : (∃ x, p x) ∧ r),
+    exists.elim h.left 
+    (assume w, assume hpw : p w,
+      show (∃ x, p x ∧ r), from ⟨w, hpw, h.right⟩
+    )        
+  )
+  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := iff.intro
+  -- ⇒ 
+  (assume ⟨w, (h₁ : p w ∨ q w)⟩, 
+    or.elim h₁
+      (assume hpw : p w, or.inl ⟨w, hpw⟩)
+      (assume hqw : q w, or.inr ⟨w, hqw⟩))
+  -- ⇐
+  (assume h : (∃ x, p x) ∨ (∃ x, q x),
+    or.elim h
+      (assume ⟨w, hpw⟩, ⟨w, or.inl hpw⟩)
+      (assume ⟨w, hpq⟩, ⟨w, or.inr hpq⟩)
+  )
+end constructive_examples
+```
+---
+```lean
+namespace example0
+--  (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
+--  NOTE: for this example, only one direction require classical axioms.
+--  We split the proof up in two in order to highlight this fact. -/
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+  -- Constructive direction:
+  theorem constructive₁ : (∀ x, p x) → ¬ (∃ x, ¬ p x) := 
+    assume h : ∀ x, p x,
+    assume h' : (∃ x, ¬ p x),  -- then reach a contradiction, to conclude `¬ (∃ x, ¬ p x)`
+      exists.elim h'
       (assume w, 
-        assume hpw : p w,
-         show (∃ x, p x ∧ r), from ⟨w, hpw, h.right⟩
-      )        
+        assume hw': ¬ p w, 
+        have hw : p w, from h w,
+        show false, from hw' hw)
+  -- Classical direction:
+  open classical    
+  lemma dne : Π {α : Type} {x : α} {p : α → Prop}, (¬ ¬ (p x)) → (p x) := 
+    λ (α : Type) (x : α) (p : α → Prop) (h : ¬ ¬ p x), 
+      or.elim (em (p x))
+      (assume h₂ : p x, h₂)  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
+      (assume h₃ : ¬ p x, false.elim (h h₃))
+  #check dne
+end example0
+```
+---
+```lean
+namespace example1
+  theorem classical₁ : ¬ (∃ x, ¬ p x) → (∀ x, p x) :=
+    assume h₁ : ¬ (∃ x, ¬ p x), 
+    by_contradiction
+    (assume hc : ¬ (∀ x, p x), -- (reach a contradiction to prove `∀ x, p x`)
+      have hcc : ∀ x, ¬ ¬ p x, from
+        assume w,
+        assume h₂ : ¬ p w, -- (reach a contradiction to prove hcc)
+        have h₃ : ∃ x, ¬ p x, from ⟨w, h₂⟩,
+        show false, from h₁ h₃, -- (done proving hcc)
+      have hz : ∀ x, p x, from
+        assume z, show p z, from dne (hcc z),
+        show false, from hc hz
+    )
+  #check classical₁
+end example1
+```
+---
+```lean
+namespace example2
+-- We are asked to prove the following equivalence:  
+--       (∃ x, p x) ↔ ¬ (∀ x, ¬ p x)
+-- As above, we split it up to show one direction can be done constructively. -/
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+  theorem constructive₂ : (∃ x, p x) → ¬ (∀ x, ¬ p x) := 
+    assume h : ∃ x, p x,
+    assume h' : ∀ x, ¬ p x,  -- reach a contradiction (this is how we prove a negation)
+    exists.elim h 
+      (assume w, assume hc : p w,
+        have hnc : ¬ p w, from h' w,
+        show false, from hnc hc
+      )
+  #check constructive₂
+```
+---
+```lean
+open classical
+
+theorem classical₂ : ¬ (∀ x, ¬ p x) → (∃ x, p x) := 
+  assume h : ¬ (∀ x, ¬ p x),
+  by_contradiction (
+    assume h₁ : ¬ (∃ x, p x),  -- (reach a contradiction to prove `∃ x, p x`) 
+    have hcc : ∀ x, ¬ p x, from
+      assume w, assume h₂ : p w, -- (reach a contradiction to prove hcc)
+      have h₃ : ∃ x, p x, from ⟨w, h₂⟩,
+        show false, from h₁ h₃, -- (done proving hcc)
+    show false, from h hcc
+  )
+end example2
+```
+---
+```lean
+namespace example3
+-- We are asked to prove the following equivalence:  
+--    (¬ ∃ x, p x) ↔ (∀ x, ¬ p x)
+-- Again, we split it up to show one direction can be done without classical axioms.
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+  theorem constructive₃ : (∀ x, ¬ p x) → (¬ ∃ x, p x) :=
+    assume h : ∀ x, ¬ p x,
+    assume hn : ∃ x, p x,
+    exists.elim hn (
+      assume w,
+      assume hw : p w,
+      have hwc : ¬ p w, from h w,
+      show false, from hwc hw
     )
 
-  example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := iff.intro
-    -- ⇒ 
-    (assume ⟨w, (h₁ : p w ∨ q w)⟩, 
-      or.elim h₁
-        (assume hpw : p w, or.inl ⟨w, hpw⟩)
-        (assume hqw : q w, or.inr ⟨w, hqw⟩))
-    -- ⇐
-    (assume h : (∃ x, p x) ∨ (∃ x, q x),
-      or.elim h
-        (assume ⟨w, hpw⟩, ⟨w, or.inl hpw⟩)
-        (assume ⟨w, hpq⟩, ⟨w, or.inr hpq⟩))
-
-  end constructive_examples
-
-
-
-  namespace example1
-  /-  (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
-
-      NOTE: for this example, only one direction require classical axioms.
-      We split the proof up in two in order to highlight this fact. -/
-
-    variables (α :Type) (p q : α → Prop)
-    variable a : α
-    variable r : Prop
-
-  -- Constructive direction:
-    theorem constructive₁ : (∀ x, p x) → ¬ (∃ x, ¬ p x) := 
-      assume h : ∀ x, p x,
-      assume h' : (∃ x, ¬ p x),  -- then reach a contradiction, to conclude `¬ (∃ x, ¬ p x)`
-        exists.elim h'
-          (assume w, 
-            assume hw': ¬ p w, 
-            have hw : p w, from h w,
-            show false, from hw' hw)
-
-  -- Classical direction:
-
-    open classical    
-
-    lemma dne : Π {α : Type} {x : α} {p : α → Prop}, (¬ ¬ (p x)) → (p x) := 
-      λ (α : Type) (x : α) (p : α → Prop) (h : ¬ ¬ p x), 
-        or.elim (em (p x))
-        (assume h₂ : p x, h₂)  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
-        (assume h₃ : ¬ p x, false.elim (h h₃))
-
-    #check dne
-
-    theorem classical₁ : ¬ (∃ x, ¬ p x) → (∀ x, p x) :=
-      assume h₁ : ¬ (∃ x, ¬ p x), 
-      by_contradiction
-        (assume hc : ¬ (∀ x, p x), -- (reach a contradiction to prove `∀ x, p x`)
-         have hcc : ∀ x, ¬ ¬ p x, from
-           assume w,
-           assume h₂ : ¬ p w, -- (reach a contradiction to prove hcc)
-           have h₃ : ∃ x, ¬ p x, from ⟨w, h₂⟩,
-           show false, from h₁ h₃, -- (done proving hcc)
-         have hz : ∀ x, p x, from
-           assume z,
-           show p z, from dne (hcc z),
-         show false, from hc hz)
-
-    #check classical₁
-
-  end example1
-
-
-
-  namespace example2
-  /- We are asked to prove the following equivalence:  
-       (∃ x, p x) ↔ ¬ (∀ x, ¬ p x)
-     As above, we split it up to show one direction can be done constructively. -/
-
-    variables (α :Type) (p q : α → Prop)
-    variable a : α
-    variable r : Prop
-
-    theorem constructive₂ : (∃ x, p x) → ¬ (∀ x, ¬ p x) := 
-      assume h : ∃ x, p x,
-      assume h' : ∀ x, ¬ p x,  -- reach a contradiction (this is how we prove a negation)
-      exists.elim h 
-        (assume w,
-        assume hc : p w,
-        have hnc : ¬ p w, from h' w,
-        show false, from hnc hc)
-
-    #check constructive₂
-
-
-    open classical
-
-    theorem classical₂ : ¬ (∀ x, ¬ p x) → (∃ x, p x) := 
-      assume h : ¬ (∀ x, ¬ p x),
-        by_contradiction (
-          assume h₁ : ¬ (∃ x, p x),  -- (reach a contradiction to prove `∃ x, p x`) 
-            have hcc : ∀ x, ¬ p x, from
-            assume w,
-            assume h₂ : p w, -- (reach a contradiction to prove hcc)
-            have h₃ : ∃ x, p x, from ⟨w, h₂⟩,
-            show false, from h₁ h₃, -- (done proving hcc)
-          show false, from h hcc)
-
-
-  end example2
-
-  namespace example3
-  /- We are asked to prove the following equivalence:  
-       (¬ ∃ x, p x) ↔ (∀ x, ¬ p x)
-     Again, we split it up to show one direction can be done without classical axioms. -/
-
-    variables (α :Type) (p q : α → Prop)
-    variable a : α
-    variable r : Prop
-
-    theorem constructive₃ : (∀ x, ¬ p x) → (¬ ∃ x, p x) :=
-      assume h : ∀ x, ¬ p x,
-      assume hn : ∃ x, p x,
-        exists.elim hn (
-          assume w,
-          assume hw : p w,
-          have hwc : ¬ p w, from h w,
-          show false, from hwc hw)
-      
-  
-    open classical
-    theorem classical₃ : (¬ ∃ x, p x) → (∀ x, ¬ p x) := 
-      assume h : ¬ ∃ x, p x,
-      by_contradiction (
-        assume hc : ¬ (∀ x, ¬ p x),
-        have hcc : ∃ x, p x, from 
-          example2.classical₂ α p hc,
-        show false, from h hcc)
-
-  end example3
-  
-
-  namespace example4
-  /- `(¬ ∀ x, p x) ↔ (∃ x, ¬ p x)` splits into constructive/classical directions -/
-    variables (α :Type) (p q : α → Prop)
-    variable a : α
-    variable r : Prop
-    theorem constructive₄ : (∃ x, ¬ p x) → (¬ ∀ x, p x) := 
-      assume h : ∃ x, ¬ p x,
-      assume hn : ∀ x, p x,
-        exists.elim h 
-          (assume w,
-            assume hnw : ¬ p w,
-            have hw : p w, from hn w,
-            show false, from hnw hw)
-
-    open classical
-    theorem classical₄ : (¬ ∀ x, p x) → (∃ x, ¬ p x) := 
-      assume h : ¬ ∀ x, p x,
-      by_contradiction (
-        assume hn : ¬ (∃ x, ¬ p x),
-        have hc : ∀ x, p x, from example1.classical₁ α p hn,        
-        show false, from h hc)
-
-   end example4
-    
-
-  namespace example5
-  /- (∀ x, p x → r) ↔ (∃ x, p x) → r
-     In this case, neither direction requires classical axioms. -/
-
-    variables (α :Type) (p q : α → Prop)
-    variable a : α
-    variable r : Prop
-
-    theorem constructive₅ : (∀ x, (p x → r)) ↔ (∃ x, p x) → r := iff.intro
-
-      (assume h₁ : ∀ x, (p x → r),
-        assume h₂ : ∃ x, p x,
-        exists.elim h₂
-          (assume w,
-            assume hw : p w,
-            show r, from h₁ w hw))
-
-      (assume h : ((∃ x, p x) → r),
-        assume w,
-        assume hw : p w,
-        show r, from h ⟨w, hw⟩)
-  end example5
-
-
-
-  namespace example6
-  /- (∃ x, p x → r) ↔ (∀ x, p x) → r := -/
-
-    theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
-      (assume h : ∃ x, p x → r,
-        assume h' : ∀ x, p x,
-        exists.elim h
-          ( assume w,
-            assume hw : p w → r,
-            show r, from hw (h' w) )
-      )
-
-   theorem classical₆ : (∀ x, p x) → r → (∃ x, p x → r) :=  sorry
-
-  end example6
-
-  namespace example7
-   example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
-  end example7  
-    
-
-end Sec_4_4
-
-#print "=================================="
-#print "Section 4.5 More on the Proof Language"
-#print " "
-
-namespace Sec_4_5
-end Sec_4_5
-
-#print "=================================="
-#print "Section 4.6 Exercises"
-#print " "
-
-namespace Sec_4_6
-end Sec_4_6
-
-## More on the Proof Language
-
+  open classical
+  theorem classical₃ : (¬ ∃ x, p x) → (∀ x, ¬ p x) := 
+    assume h : ¬ ∃ x, p x,
+    by_contradiction (
+      assume hc : ¬ (∀ x, ¬ p x),
+      have hcc : ∃ x, p x, from 
+        example2.classical₂ α p hc,
+      show false, from h hcc
+    )
+end example3
+```
 ---
+```lean
+namespace example4
+-- `(¬ ∀ x, p x) ↔ (∃ x, ¬ p x)` splits into constructive/classical directions
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+  theorem constructive₄ : (∃ x, ¬ p x) → (¬ ∀ x, p x) := 
+    assume h : ∃ x, ¬ p x,
+    assume hn : ∀ x, p x,
+      exists.elim h 
+      (assume w,
+        assume hnw : ¬ p w,
+        have hw : p w, from hn w,
+        show false, from hnw hw
+      )
+  open classical
+  theorem classical₄ : (¬ ∀ x, p x) → (∃ x, ¬ p x) := 
+    assume h : ¬ ∀ x, p x,
+    by_contradiction (
+      assume hn : ¬ (∃ x, ¬ p x),
+      have hc : ∀ x, p x, from example1.classical₁ α p hn,        
+      show false, from h hc
+    )
+end example4
+```
+---
+```lean
+namespace example5
+-- (∀ x, p x → r) ↔ (∃ x, p x) → r
+-- In this case, neither direction requires classical axioms.
+  variables (α :Type) (p q : α → Prop)
+  variable a : α
+  variable r : Prop
+  theorem constructive₅ : (∀ x, (p x → r)) ↔ (∃ x, p x) → r := iff.intro
+    (assume h₁ : ∀ x, (p x → r),
+      assume h₂ : ∃ x, p x,
+      exists.elim h₂
+      (assume w, assume hw : p w, show r, from h₁ w hw)
+    )
+    (assume h : (∃ x, p x) → r,
+      assume w,
+      assume hw : p w,
+      show r, from h ⟨w, hw⟩
+    )
+end example5
+```
+---
+```lean
+namespace example6
+-- (∃ x, p x → r) ↔ (∀ x, p x) → r
+  theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
+    (assume h : ∃ x, p x → r,
+      assume h' : ∀ x, p x,
+      exists.elim h
+      (assume w, assume hw : p w → r, show r, from hw (h' w))
+    )
+  theorem classical₆ : (∀ x, p x) → r → (∃ x, p x → r) :=  sorry
+end example6
+```
+---
+```lean
+example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+```    
 
-## Exercises
+## 4.5. More on the Proof Language
+
+## 4.6. Exercises
 
 (private solutions in `src` directory)
 
@@ -2964,12 +2934,12 @@ end Sec_4_6
 
 ## Related or equivalent syntax
 
-| Page(s) | PrimaryOrPrimitiveSyntax | AlternativeSyntaxOne | AlternativeSyntaxTwo | description/context/example |
+| Page(s) | Primary_Primitive_Syntax | First_Alternative_Syntax | Second_Alt_Syntax | description/context/example |
 | --- | ---     | ---     | ---   | ---                         |
 | 8   | `assume h:p` | `λ h:p`| `fun h:p` | hypotheses in a proof |
 | 11  | `#reduce`      | `#eval`  |             | `#reduce` is trustworthy; `#eval` is fast |
 | 11  | `def f (x:ℕ):ℕ := x+x` | `def f:ℕ → ℕ := λ(x:ℕ), x+x` |  |  |
-| 13  | `let a := t1 in t2`    | `(λ a, t2) t1` |   | WARNING: these are NOT the same (see p.13)  |
+| 13  | `let a := t1 in t2`    | `(λ a, t2) t1` |   | Warning: these are not the same! (see p. 13)  |
 | 16  | `namespace` | `section` |    | `namespace` organizes data, lives on outer level; `section` declares variables for insertion in theorems |
 | 18  | `sigma.fst(sigma.mk a b)` | `(sigma.mk a b).fst` | `(sigma.mk a b).1` | `variable a:α`; `variable b:βa`|
 | 18  | `sigma.snd(sigma.mk a b)` | `(sigma.mk a b).snd` | `(sigma.mk a b).2` | `variable a:α`; `variable b:βa`|
@@ -2979,7 +2949,7 @@ end Sec_4_6
 | 28 | `and.elim_left h` | `and.left h` | `h.left` | proves `p` when `h: p ∧ q` |
 | 28 | `and.elim_right h`| `and.right h`| `h.right`| proves `q` when `h: p ∧ q` |
 | 28 | `and.intro hp hq` | `⟨hp, hq⟩` |     | proves `p ∧ q` when `hp:p` and `hq:q` |
-| 29 | `foo.bar e` | `e.bar` |  | `e` inhabits inductive type `foo`; `bar` a function taking `foo` args |
+| 29 | `foo.bar e` | `e.bar` |  | `e` has type `foo` and `bar` is a function taking args of type `foo`|
 | 30 | `or.intro_left _ hp` | `or.inl hp`     |   | proves `p ∨ q` when `hp:p`    |
 | 30 | `or.intro_right _ hq`| `or.inr hq`     |   | proves `p ∨ q` when `hq:q`    |
 | 30 | `false.elim ¬p ∧ p`  | `absurd p ∧ ¬p` |   | proves `false` from `¬p ∧ p`  |
@@ -2992,5 +2962,9 @@ end Sec_4_6
 | 40 | `eq.subst h1 h2` | `h1 ▶ h2`  |   | proof by substitution  |
 | 41 | `mul_add a b c` | `left_distrib a b c` |  | proves `a * (b + c) = a * b + a * c`|
 | 41 | `add_mul a b c` | `right_distrib a b c` |  | proves `(a + b) * c = a * c + b * c`|
-|   |   |   |   |   |
+| 42 | `rewrite`   |`rw`        |  |  `a = b : by rw h` |
+| 44 |  `Exists` | `exists` | `∃`  | `∃ (x : α), p x` = `exists (x : α), p x` = `Exists (λ x : α, p x)`|
+| 44 |  `exists.intro t h` | `⟨t, h⟩` | | anonymous constructor notation for exists intro rule|
+| 45 | `⟨w, ⟨hw.right, hw.left⟩⟩` | `⟨w, hw.right, hw.left⟩` | | |
+
 --------------------------------------------------

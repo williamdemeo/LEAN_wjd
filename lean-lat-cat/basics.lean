@@ -21,7 +21,7 @@ namespace llc_basics
     #check trans_myrel hab
     #check trans_myrel hab hbc
 
-    def isTransitive (r : α → α → Prop) : Prop := ∀ (x y z : α), r x y → r y z → r x z
+--    def isTransitive (r : α → α → Prop) : Prop := ∀ (x y z : α), r x y → r y z → r x z
 
   end binary_relations
 
@@ -33,7 +33,9 @@ namespace llc_basics
     variable e_rel : α → α → Prop
     variable refl_e_rel : ∀ x, e_rel x x
     variable symm_e_rel : ∀ {x y}, e_rel x y → e_rel y x
-    variable trans_e_rel : ∀ {x y z}, e_rel x y → e_rel y z → e_rel x z
+    --variable trans_e_rel : ∀ {x y z}, e_rel x y → e_rel y z → e_rel x z
+    def isTransitive {γ : Type u} (r : γ → γ → Prop) : Prop := ∀ {x y z : γ}, r x y → r y z → r x z
+    variable trans_e_rel : isTransitive e_rel
 
     example (a b c d : α) (hab : e_rel a b) (hcb : e_rel c b) (hcd : e_rel c d) : e_rel a d :=
       trans_e_rel (trans_e_rel hab (symm_e_rel hcb)) hcd

@@ -748,11 +748,14 @@ namespace Sec_4_4
   end example5
 
 
-
   namespace example6
   /- (∃ x, p x → r) ↔ (∀ x, p x) → r := -/
+    variables (α :Type) (p q : α → Prop)
+    variable a : α
+    variables r s t: Prop
 
     theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
+    -- N.B. this theorem says  (∃ x, (p x → r)) → ((∀ x, p x) → r)
       (assume h : ∃ x, p x → r,
         assume h' : ∀ x, p x,
         exists.elim h
@@ -760,13 +763,25 @@ namespace Sec_4_4
             assume hw : p w → r,
             show r, from hw (h' w) )
       )
+    theorem constructive₉ : (∀ x, p x) → r → (∃ x, p x → r) :=  
+    -- N.B. this theorem says  ((∀ x, p x) →  r) → (∃ x, (p x → r))
+     assume (h₁ : ∀ x, p x) (h₂ : r),
+       have hrpar: r → (p a → r), from
+         assume (hr: r) (hpa: p a), hr,
+       have hpar : p a → r, from hrpar h₂,
+       exists.intro a hpar
 
-   theorem classical₆ : (∀ x, p x) → r → (∃ x, p x → r) :=  sorry
-
+   open classical
+   theorem classical₆ : ((∀ x, p x) → r) → (∃ x, p x → r) := sorry
+   -- -- N.B. this theorem says  (∀ x, p x) → ( r → (∃ x, (p x → r)) )
+                                       
   end example6
 
   namespace example7
-   example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+    variables (α :Type) (p q : α → Prop)
+    variable a : α
+    variables r s t: Prop
+    example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
   end example7  
     
 
