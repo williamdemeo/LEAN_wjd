@@ -2620,6 +2620,7 @@ Lean's front interprets user input, constructs formal expressions, and checks th
 The definitions and theorems in Lean's standard library (std lib) are spread across multiple files. Users may also wish to make use of additional libraries, or develop their own projects across multiple files. 
 
 When Lean starts, it automatically imports the contents of the library ``init`` folder, which includes a number of fundamental definitions and constructions. As a result, most of the examples we present here work "out of the box."
+
 ---
 
 If you want to use additional files, however, they need to be imported manually, via an ``import`` statement at the beginning of a file. 
@@ -2792,43 +2793,55 @@ Lean provides mechanisms for working with hierarchical names.  Identifiers are g
 + ``open foo`` then creates temporary *aliases* to definitions and theorems that begin with prefix ``foo``.
 
 ```lean
-
-    namespace foo
+  namespace foo
     def bar : ℕ := 1
-    end foo
-    open foo
-    #check bar
-    #check foo.bar
+  end foo
+  open foo
+  #check bar
+  #check foo.bar
 ```
 ---
 It is not important that the definition of ``foo.bar`` was the result of a ``namespace`` command:
 
 ```lean
-    def foo.bar : ℕ := 1
-    open foo
-    #check bar
-    #check foo.bar
+  def foo.bar : ℕ := 1
+  open foo
+  #check bar
+  #check foo.bar
 ```
 
-Although the names of theorems and definitions have to be unique, the aliases that identify them do not. For example, the std lib defines a theorem ``add_sub_cancel``, which asserts ``a + b - b = a`` in any additive group. The corresponding theorem on the natural numbers is named ``nat.add_sub_cancel``; it is not a special case of ``add_sub_cancel``, because the natural numbers do not form a group. When we open the ``nat`` namespace, the expression ``add_sub_cancel`` is overloaded, and can refer to either one. Lean tries to use type information to disambiguate the meaning in context, but you can always disambiguate by giving the full name. To that end, the string ``_root_`` is an explicit description of the empty prefix.
+Although the names of theorems and definitions have to be unique, the aliases that identify them do not. 
 
-```lean
-    #check add_sub_cancel
-    #check nat.add_sub_cancel
-    #check _root_.add_sub_cancel
-```
+For example, the std lib defines a theorem ``add_sub_cancel``, 
+which asserts ``a + b - b = a`` in any additive group. 
 
-We can prevent the shorter alias from being created by using the ``protected`` keyword:
+---
+
+The corresponding theorem on the natural numbers is named ``nat.add_sub_cancel``; it is not a special case of ``add_sub_cancel``, because the natural numbers do not form a group. 
+
+When we open the ``nat`` namespace, the expression ``add_sub_cancel`` is overloaded, and can refer to either one. Lean tries to use type information to disambiguate the meaning in context, but you can always disambiguate by giving the full name. 
+
+The string ``_root_`` is an explicit description of the empty prefix.
 ```lean
-    namespace foo
+  #check add_sub_cancel
+  #check nat.add_sub_cancel
+  #check _root_.add_sub_cancel
+````
+
+---
+#### Use protection 
+
+To prevent overloading common names, use the ``protected`` keyword:
+```lean
+  namespace foo
     protected def bar : ℕ := 1
-    end foo
-    open foo
-    -- #check bar -- (this line gives an error)
-    #check foo.bar
+  end foo
+  open foo
+ -- #check bar -- (this line gives an error)
+  #check foo.bar
 ```
 
-This is often used for names like ``nat.rec`` and ``nat.rec_on``, to prevent overloading of common names.
+This is often used for names like ``nat.rec`` and ``nat.rec_on`` (to prevent overloading).
 
 ---
 
@@ -2837,22 +2850,19 @@ This is often used for names like ``nat.rec`` and ``nat.rec_on``, to prevent ove
 The ``open`` command admits variations. 
 + The following creates aliases for only the identifiers listed:
   ```lean
-      open nat (succ add sub)
+    open nat (succ add sub)
   ```
-   
 + The following creates aliases for everything in the ``nat`` namespace *except* the identifiers listed:
   ```lean
-      open nat (hiding succ add sub)
+    open nat (hiding succ add sub)
   ```
-  
-+ The following creates aliases for everything in ``nat`` except ``succ`` and ``sub``, renaming ``nat.add`` to ``plus``, and renaming the protected definition ``nat.induction_on`` to ``induction_on``.
-```lean
-    open nat (renaming mul → times) (renaming add → plus) 
-      (hiding succ sub)
-```
++ This creates aliases for everything in ``nat`` except ``succ`` and ``sub``, renaming ``nat.add`` to ``plus``, and renaming the protected definition ``nat.induction_on`` to ``induction_on``.
+  ```lean
+    open nat (renaming mul → times) (renaming add → plus) (hiding succ sub)
+  ```
 ---
 
-#### Transfering alias to other namespaces
+#### Transfering aliases to other namespaces
 
 It is sometimes useful to ``export`` aliases from one namespace to another, or to the top level. 
 
@@ -2866,35 +2876,39 @@ If this command is used outside a namespace, the aliases are exported to the top
 
 ### 6.4 Attributes
 
-The main function of Lean is to translate user input to formal expressions that are checked by the kernel for correctness and then stored in the environment for later use. But some commands have other effects on the environment, either assigning attributes to objects in the environment, defining notation, or declaring instances of type classes, as described in Chapter 10.
+The main function of Lean is to translate user input to formal expressions that are checked by the kernel for correctness and then stored in the environment for later use. 
 
-Most of these commands have global effects, which is to say, that they remain in effect not only in the current file, but also in any file that imports it. However, such commands can often be prefixed with the ``local`` modifier, which indicates that they only have effect until the current ``section`` or ``namespace`` is closed, or until the end of the current file.
+But some commands have other effects on the environment, either assigning attributes to objects in the environment, defining notation, or declaring instances of *type classes* (Chapter 10).
+
+Most of these commands have global effects, which is to say, that they remain in effect not only in the current file, but also in any file that imports it. 
+
+Often such commands be prefixed with the ``local`` modifier, indicating that they are in effect only until the current ``section`` or ``namespace`` is closed, or until the end of the current file.
 
 ---
 
-Above we saw that theorems can be annotated with the ``[simp]`` attribute, which makes them available for use by the simplifier. The following example 
-1. defines divisibility on `nat`;
-2. makes `nat` an *instance* (defined in Chapter 10) of a type for which the divisibility notation ``\|`` is available;
-3. assigns the ``[simp]`` attribute.
+Above we saw that theorems can be annotated with the ``[simp]`` attribute, which makes them available for use by the simplifier. The following example... 
+1. ...defines divisibility on `nat`;
+2. ...makes `nat` an *instance* (Chapter 10) of a type for which the divisible notation ``\|`` is available;
+3. ...assigns the ``[simp]`` attribute.
 
 ```lean
-    def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
-    instance : has_dvd nat := ⟨nat.dvd⟩
-    attribute [simp]
-    theorem nat.dvd_refl (n : ℕ) : n ∣ n := (1, by simp)
-    example : 5 ∣ 5 := by simp
+  def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
+  instance : has_dvd nat := ⟨nat.dvd⟩
+  attribute [simp]
+  theorem nat.dvd_refl (n : ℕ) : n ∣ n := (1, by simp)
+  example : 5 ∣ 5 := by simp
 ```
-
 Here the simplifier proves ``5 ∣ 5`` by rewriting it to ``true``. 
 
-Lean allows the alternative annotation ``@[simp]`` before a theorem to assign the attribute:
+---
 
+Lean allows the alternative annotation ``@[simp]`` before a theorem to assign the attribute.
 ```lean
-    def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
-    instance : has_dvd nat := ⟨nat.dvd⟩
-    @[simp]
-    theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
-```
+  def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
+  instance : has_dvd nat := ⟨nat.dvd⟩
+  @[simp]
+  theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
+````
 One can also assign the attribute any time after the definition takes place:
 ```lean
     def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
@@ -2902,45 +2916,51 @@ One can also assign the attribute any time after the definition takes place:
     theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
     attribute [simp] nat.dvd_refl
 ```
-In all these cases, the attribute remains in effect in any file that imports the one in which the declaration occurs. But adding the ``local`` modifier restricts the scope:
+In all these cases, the attribute remains in effect in any file that imports the one in which the declaration occurs. 
+
+---
+#### The `local` modifier
+
+Adding the ``local`` modifier restricts the scope. For example,
 
 ```lean
-    def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
-    instance : has_dvd nat := ⟨nat.dvd⟩
-    -- BEGIN
-    section
-    local attribute [simp]
-    theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
-    example : 5 ∣ 5 := by simp
-    end
-    -- error:
-    -- example : 5 ∣ 5 := by simp
-    -- END
+  def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
+  instance : has_dvd nat := ⟨nat.dvd⟩
+  -- BEGIN
+  section
+  local attribute [simp]
+  theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
+  example : 5 ∣ 5 := by simp
+  end
+  -- error:
+  -- example : 5 ∣ 5 := by simp
+  -- END
 ```
 In fact, the ``instance`` command works by automatically generating a theorem name and assigning an ``[instance]`` attribute to it. The declaration can also be made local:
 ```lean
-    def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
-    section
-    def has_dvd_nat : has_dvd nat := ⟨nat.dvd⟩
-    local attribute [instance] has_dvd_nat
-    local attribute [simp]
-    theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
-    example : 5 ∣ 5 := by simp
-    end
-    -- error: 
-    -- #check 5 ∣ 5
+  def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
+  section
+  def has_dvd_nat : has_dvd nat := ⟨nat.dvd⟩
+  local attribute [instance] has_dvd_nat
+  local attribute [simp]
+  theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
+  example : 5 ∣ 5 := by simp
+  end
+  -- error: 
+  -- #check 5 ∣ 5
 ```
-For yet another example, the ``reflexivity`` tactic makes use of objects in the environment that have been tagged with the ``[refl]`` attribute:
+---
+Here's another example. The ``reflexivity`` tactic makes use of objects in the environment that have been tagged with the ``[refl]`` attribute.
 ```lean
-    def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
-    instance has_dvd_nat : has_dvd nat := ⟨nat.dvd⟩
-    @[simp,refl]
-    theorem nat.dvd_refl (n : ℕ) : n ∣ n :=
-    ⟨1, by simp⟩
-    example : 5 ∣ 5 :=
-    by reflexivity
+  def nat.dvd (m n : ℕ) : Prop := ∃ k, n = m * k
+  instance has_dvd_nat : has_dvd nat := ⟨nat.dvd⟩
+  @[simp,refl]
+  theorem nat.dvd_refl (n : ℕ) : n ∣ n := ⟨1, by simp⟩
+  example : 5 ∣ 5 := by reflexivity
 ```
 The scope of the ``[refl]`` attribute can similarly be restricted using the ``local`` modifier, as above.
+
+---
 
 In the section on Notation below, we will discuss Lean's mechanisms for defining notation, and see that they also support the ``local`` modifier. However, in Section [6.9: Setting Options](#6-9-setting-options), we show how to set options, which does *not* follow this pattern: options can *only* be set locally, which is to say, their scope is always restricted to the current section or current file.
 
