@@ -7,7 +7,7 @@ The remainder of this file is a collection of notes and excerpts from the tutori
 
 ---
 
-# 0. Some useful emacs keybindings
+## 0. Emacs keybindings for Lean
 
  `C-c C-b`, `C-c C-x`, `C-c C-r`
 
@@ -3593,7 +3593,41 @@ With the propositions as types correspondence, logical connectives are also inst
 
 ---
 
+## Emacs lean-mode
+
+For more details about `lean-mode`, refer to the official [lean-mode repository](https://github.com/leanprover/lean-mode).
+The remainder of this section are excerpts from the README.md file of 
+[lean-mode repository](https://github.com/leanprover/lean-mode).
+
+If things are working correctly, you should see the word ``Lean`` in the
+Emacs mode line when you open a file with extension `.lean`.
+
+### lean-mode key bindings and commands
+
+| Key                | Function                                                                        |
+|--------------------|---------------------------------------------------------------------------------|
+| <kbd>M-.</kbd>     | jump to definition in source file (`lean-find-definition`)                      |
+| <kbd>C-c C-k</kbd> | shows the keystroke needed to input the symbol under the cursor                 |
+| <kbd>C-c C-x</kbd> | execute lean in stand-alone mode (`lean-std-exe`)                               |
+| <kbd>C-c SPC</kbd> | run a command on the hole at point (`lean-hole`)                                |
+| <kbd>C-c C-d</kbd> | show a searchable list of definitions (`helm-lean-definitions`)                 |
+| <kbd>C-c C-g</kbd> | toggle showing current tactic proof goal (`lean-toggle-show-goal`)              |
+| <kbd>C-c C-n</kbd> | toggle showing next error in dedicated buffer (`lean-toggle-next-error`)        |
+| <kbd>C-c C-b</kbd> | toggle showing output in inline boxes (`lean-message-boxes-toggle`)             |
+| <kbd>C-c C-r</kbd> | restart the lean server (`lean-server-restart`)                                 |
+| <kbd>C-c ! n</kbd> | flycheck: go to next error                                                      |
+| <kbd>C-c ! p</kbd> | flycheck: go to previous error                                                  |
+| <kbd>C-c ! l</kbd> | flycheck: show list of errors                                                   |
+
+In the default configuration, the Flycheck annotation `FlyC:n/n` indicates the
+number of errors / responses from Lean; clicking on `FlyC` opens the Flycheck menu.
+
+
+---
+
 ## Related or equivalent syntax
+
+In Lean it is often possible to do something in more than one way, and while this can be helpful and convenient, it may cause confusion if we're unfamiliar with the different syntax that may be used to represent a single semantic entity.  The following is a table of syntactic alternatives, and pages on which they are introduced in the Theorem Proving tutorial.
 
 | Page(s) | Primary_Primitive_Syntax | First_Alternative_Syntax | Second_Alt_Syntax | description/context/example |
 | --- | ---     | ---     | ---   | ---                         |
