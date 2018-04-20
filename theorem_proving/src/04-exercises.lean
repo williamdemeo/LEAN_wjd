@@ -206,33 +206,110 @@ namespace Sec_4_6
            exists.elim h
            (assume w, assume hw : p w ∨ q w, 
              or.elim hw
-               (assume hl : p w, or.inl (exists.intro w hl))
-               (assume hr : q w, or.inr (exists.intro w hr))
+             (assume hl : p w, or.inl (exists.intro w hl))
+             (assume hr : q w, or.inr (exists.intro w hr))
            )
          )
          (assume h : (∃ x, p x) ∨ (∃ x, q x), show (∃ x, p x ∨ q x), from 
            or.elim h
-             (assume hl : (∃ x, p x), 
-               exists.elim hl
-                 (assume w, assume hpw : p w, exists.intro w (or.inl hpw)))
-             (assume hr : (∃ x, q x),
-               exists.elim hr
-                 (assume w, assume hqw : q w, exists.intro w (or.inr hqw)))
+           (assume hl : (∃ x, p x), 
+             exists.elim hl
+             (assume w, assume hpw : p w, exists.intro w (or.inl hpw)))
+           (assume hr : (∃ x, q x),
+             exists.elim hr
+             (assume w, assume hqw : q w, exists.intro w (or.inr hqw)))
          )
 
-       example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := iff.intro
+       open classical  -- double negation law needed for (<-) direction of next example
+       theorem thm1 : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := iff.intro
          (assume h : (∀ x, p x), show ¬ (∃ x, ¬ p x), from 
-           assume hn : (∃ x, ¬ p x), show false, from -- LEFT OFF HERE
+           assume hn : (∃ x, ¬ p x), show false, from 
+             exists.elim hn
+             (assume w, assume hpw : ¬ p w, (hpw (h w))) -- false.elim (hpw (h w)))
          )
          (assume h : ¬ (∃ x, ¬ p x), show (∀ x, p x), from 
-
+           (assume w, show p w, from 
+             by_contradiction
+             (assume h1: ¬ p w, show false, from h (exists.intro w h1))
+           )
          )
-       -- example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := sorry
-       -- example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
-       -- example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := sorry
-       -- example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
-       -- example : (∃ x, p x → r) ↔ (∀ x, p x) → r := sorry
+
+       example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := iff.intro
+         (assume h: (∃ x, p x), show ¬ (∀ x, ¬ p x), from
+           assume hc: ∀ x, ¬ p x, show false, from
+             exists.elim h
+             (assume w, assume hpw: p w, (hc w) hpw)
+         )
+         (assume h: ¬ (∀ x, ¬ p x), show (∃ x, p x), from
+           by_contradiction
+           (assume hc: ¬ (∃ x, p x),
+             have hnp : (∀ x, ¬ p x), from 
+               assume w (hpw : p w), show false, from 
+                 hc (exists.intro w hpw),
+             show false, from h hnp
+           )
+         )
+
+       example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := iff.intro
+         (assume h: (¬ ∃ x, p x), show (∀ x, ¬ p x), from 
+           assume w (hpw : p w), show false, from
+             h (exists.intro w hpw)
+         )
+         (assume h: (∀ x, ¬ p x), show (¬ ∃ x, p x), from 
+           assume hc: ∃ x, p x, show false, from
+             exists.elim hc
+             (assume w (hpw : p w), have hnpw : ¬ p w, from (h w), 
+               hnpw hpw
+             )
+         )
+       
+       theorem thm2 : ¬ (∃ x, ¬ p x) → (∀ x, p x) := 
+         assume h : ¬ (∃ x, ¬ p x), show (∀ x, p x), from 
+           (assume w, show p w, from 
+             by_contradiction
+             (assume h1: ¬ p w, show false, from h (exists.intro w h1))
+           )
+         
+       example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := iff.intro
+          (assume h: ¬ ∀ x, p x, show (∃ x, ¬ p x), from 
+            by_contradiction
+            (assume hn : ¬ (∃ x, ¬ p x),
+              have hc : ∀ x, p x, from thm2 α p hn,
+              show false, from h hc))
+          (assume h: (∃ x, ¬ p x), show (¬ ∀ x, p x), from 
+            exists.elim h
+              (assume w (hnpw: ¬ p w),
+                assume hp : ∀ x, p x, show false, from
+                  hnpw (hp w) )
+           )
+       
+       theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
+       -- N.B. this theorem says  (∃ x, (p x → r)) → ((∀ x, p x) → r)
+         (assume h : ∃ x, p x → r,
+           assume h' : ∀ x, p x,
+           exists.elim h
+             ( assume w,
+               assume hw : p w → r,
+               show r, from hw (h' w) )
+         )
+
+       theorem constructive₉ : (∀ x, p x) → r → (∃ x, p x → r) :=  
+       -- N.B. this theorem says  ((∀ x, p x) →  r) → (∃ x, (p x → r))
+         assume (h₁ : ∀ x, p x) (h₂ : r),
+           have hrpar: r → (p a → r), from
+             assume (hr: r) (hpa: p a), hr,
+           have hpar : p a → r, from hrpar h₂,
+           exists.intro a hpar
+
+       example : (∃ x, p x → r) ↔ (∀ x, p x) → r := iff.intro 
+         (assume himp: (∃ x, p x → r), show (∀ x, p x) → r, from
+           constructive₆ α p _ himp)
+         (assume himp : (∀ x, p x) → r, show  ∃ x, p x → r, from 
+           constructive₉ himp)
+
        -- example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+       -- example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+     
    end exercise_4_5
 ---
 
