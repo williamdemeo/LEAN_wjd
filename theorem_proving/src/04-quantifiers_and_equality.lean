@@ -217,7 +217,8 @@ namespace Sec_4_2
     example : f a₁ = f a₂ := congr_arg f h₁
     example : f a₁ = g a₁ := congr_fun h₂ a₁
     example : f a₁ = g a₂ := congr h₂ h₁
-    
+    #print congr_arg
+    #print congr
   end example4
 
   namespace example5

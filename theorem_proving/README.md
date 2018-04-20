@@ -1720,6 +1720,9 @@ variables α : Type 1
       assume h₃ : q,
       h₁ (and.intro h₂ h₃))
 
+```
+---
+```lean
   example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := iff.intro
     (assume h₁ : (p ∨ q) → r, show (p → r) ∧ (q → r), from
       and.intro (λ (hp : p), h₁ (or.intro_left q hp))
@@ -1745,6 +1748,9 @@ variables α : Type 1
         (assume (hq : q), (h₁.right hq))
       )
 
+```
+---
+```lean
   example : ¬p ∨ ¬q → ¬(p ∧ q) := assume h : ¬p ∨ ¬q,
      λ(hpq : p ∧ q), show false, from
        or.elim h (assume hnp : ¬p,  hnp hpq.left) (assume hnq : ¬q,  hnq hpq.right)
@@ -1760,6 +1766,9 @@ variables α : Type 1
     λ (h: ¬p ∨ q) (hp: p), show q, from
       or.elim h (assume hnp: ¬p, false.elim (hnp hp)) (assume hq: q, hq)
 
+```
+---
+```lean
   example : p ∨ false ↔ p := iff.intro
     (assume h: p ∨ false, show p, from or.elim h
       (assume hp: p, hp) (false.elim))
@@ -2110,7 +2119,7 @@ imperfect and approximate solutions. As a result, eq.subst doesn't always do
 what you want; this is discussed in greater detail in Section 6.10. -/
 
 ---
-**IMPORTANT** (for project proposal)  
+**IMPORTANT**
 Because equational reasoning is so common and important, Lean provides a 
 number of mechanisms to carry it out more effectively. The next section offers 
 syntax that allow you to write calculational proofs in a more natural and 
@@ -3593,7 +3602,10 @@ With the propositions as types correspondence, logical connectives are also inst
 
 ---
 
-## Emacs lean-mode
+---
+# Appendix
+
+## A.1. Emacs lean-mode
 
 For more details about `lean-mode`, refer to the official [lean-mode repository](https://github.com/leanprover/lean-mode).
 The remainder of this section are excerpts from the README.md file of 
@@ -3625,7 +3637,7 @@ number of errors / responses from Lean; clicking on `FlyC` opens the Flycheck me
 
 ---
 
-## Related or equivalent syntax
+## A.2. Syntactic Alternatives
 
 In Lean it is often possible to do something in more than one way, and while this can be helpful and convenient, it may cause confusion if we're unfamiliar with the different syntax that may be used to represent a single semantic entity.  The following is a table of syntactic alternatives, and pages on which they are introduced in the Theorem Proving tutorial.
 
