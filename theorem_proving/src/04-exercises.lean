@@ -282,35 +282,91 @@ namespace Sec_4_6
                 assume hp : ∀ x, p x, show false, from
                   hnpw (hp w) )
            )
-       
-       theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
-       -- N.B. this theorem says  (∃ x, (p x → r)) → ((∀ x, p x) → r)
-         (assume h : ∃ x, p x → r,
-           assume h' : ∀ x, p x,
-           exists.elim h
-             ( assume w,
-               assume hw : p w → r,
-               show r, from hw (h' w) )
-         )
+  end exercise_4_5
 
-       theorem constructive₉ : (∀ x, p x) → r → (∃ x, p x → r) :=  
-       -- N.B. this theorem says  ((∀ x, p x) →  r) → (∃ x, (p x → r))
-         assume (h₁ : ∀ x, p x) (h₂ : r),
-           have hrpar: r → (p a → r), from
-             assume (hr: r) (hpa: p a), hr,
-           have hpar : p a → r, from hrpar h₂,
-           exists.intro a hpar
+  section exercise_4_5_b
 
-       example : (∃ x, p x → r) ↔ (∀ x, p x) → r := iff.intro 
-         (assume himp: (∃ x, p x → r), show (∀ x, p x) → r, from
-           constructive₆ α p _ himp)
-         (assume himp : (∀ x, p x) → r, show  ∃ x, p x → r, from 
-           constructive₉ himp)
+  -- The following theorem asserts  (∃ x, (p x → r)) → ((∀ x, p x) → r)
+    theorem constructive₆ : Π {α : Type} {p : α → Prop} {r: Prop},
+      (∃ x, p x → r) → (∀ x, p x) → r :=
+        λ (α: Type) (p: α → Prop) (r: Prop),  
+      (assume h : ∃ x, p x → r,
+        assume h' : ∀ x, p x,
+        exists.elim h
+          ( assume w,
+            assume hw : p w → r,
+            show r, from hw (h' w) )
+      )
 
-       -- example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
-       -- example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+    lemma imp_abbrev_rl {p q : Prop} : (¬ p ∨ q) → (p → q) := 
+      assume h: ¬ p ∨ q, show p → q, from 
+      assume hp: p, or.elim h (assume hnp: ¬ p, false.elim (hnp hp)) (assume hq: q, hq)
+
+    lemma neg_distr_or_lr {p q : Prop} : ¬ (p ∨ q) → ¬ p ∧ ¬ q := 
+      assume h: ¬ (p ∨ q), show ¬ p ∧ ¬ q, from 
+        ⟨assume hp: p, show false, from (h (or.inl hp)),
+         assume hq: q, show false, from (h (or.inr hq))⟩
+
+    open classical
+    theorem dne {p : Prop} (h : ¬¬p) : p := or.elim (em p)
+      (assume hp : p, hp)
+      (assume hnp : ¬p, absurd hnp h)
+
+    variables (α : Type) (p: α → Prop) (r : Prop) (a : α)
+    -- The following theorem asserts  ((∀ x, p x) →  r) → (∃ x, (p x → r))
+    theorem classical₆ : --Π {α : Type} {p : α → Prop} {r: Prop} {a : α}, 
+      ((∀ x, p x) → r) → ∃ x, (p x → r) :=  --λ (α : Type) (p : α → Prop) (r : Prop) (a:α),
+        assume (h: (∀ x, p x) → r), show ∃ x, (p x → r), from
+        by_contradiction
+          (assume hc : ¬ ∃ x, (p x → r),
+            have hn₁ : ∀ x, ¬ (p x → r), from
+              (assume (x: α) (hfail : p x → r), 
+                show false, from hc ⟨x, hfail⟩),
+          have hn₂ : ∀ x, ¬ (¬ p x ∨ r), from 
+            assume x, have hnpxr : ¬ (p x → r), from hn₁ x,
+            assume (hnot: ¬ p x ∨ r), show false, from 
+              hnpxr (imp_abbrev_rl hnot),
+          have hn₃ : ∀ x, ¬ ¬ p x ∧ ¬ r, from 
+            assume x, neg_distr_or_lr (hn₂ x),
+          have hn₄ : ∀ x, ¬ ¬ p x, from (assume (x: α), (hn₃ x).left),
+          have hn₅ : ∀ x, p x, from (assume x, dne (hn₄ x)),
+          have hn₆ : ¬ r, from 
+            or.elim (em r)
+            (assume hr: r, false.elim ((hn₃ a).right hr))
+            (assume hnr: ¬ r, hnr),
+         false.elim (hn₆ (h hn₅)))
+
+    -- example (α: Type) (p: α → Prop) (r: Prop) (a : α) : 
+    example : (∃ x, p x → r) ↔ (∀ x, p x) → r := iff.intro 
+      (assume hexists: (∃ x, p x → r), show (∀ x, p x) → r, from constructive₆ hexists)
+      (assume (hall : (∀ (x:α), p x) → r), show ∃ (x:α), p x → r, from classical₆ α p r a hall)
+
+    ----
+    section example7
+    -- example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+    -- example : (∀ x, p x → r) ↔ (∃ x, p x) → r := sorry
+      variables (q : α → Prop)
+      variables s t: Prop
+      lemma lem1 : (∃ x, r → p x) → (r → ∃ x, p x) :=
+        assume h: ∃ x, r → p x, show (r → ∃ x, p x), from 
+          assume hr: r, show ∃ x, p x, from
+            exists.elim h 
+              (assume w, assume hrpw: r → p w, ⟨w, hrpw hr⟩)
+      open classical         
+      lemma lem2 : (r → ∃ x, p x) → (∃ x, r → p x) :=
+        assume h : (r → ∃ x, p x), show (∃ x, r → p x), from
+        or.elim (em r)
+          (assume hr: r, exists.elim (h hr)
+            (assume w, assume hpw: p w, show (∃ x, r → p x), from
+              ⟨w, assume hr': r, show p w, from hpw⟩))
+          (assume hnr: ¬ r, ⟨a, (assume hr': r, false.elim (hnr hr'))⟩)
+      -- we have to give the lemmas the appropriate context...
+      example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := iff.intro (lem1 α p r) (lem2 α p r a)
+      -- ...but Lean can infer most of what we need.
+      example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := iff.intro (lem1 _ _ _) (lem2 _ _ _ a)
+    end example7  
      
-   end exercise_4_5
+  end exercise_4_5_b
 ---
 
 -- 4.6 Give a calculational proof of the theorem ``log_mul`` below.

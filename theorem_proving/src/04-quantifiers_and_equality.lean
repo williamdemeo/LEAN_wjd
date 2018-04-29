@@ -530,6 +530,7 @@ namespace Sec_4_4
   namespace example6
     open classical
     variables (α : Type) (p : α → Prop)
+
     example (h : ¬ ∀ x, ¬ p x) : ∃ x, p x :=
       by_contradiction
         (assume h₁ : ¬ ∃ x, p x,
@@ -539,10 +540,22 @@ namespace Sec_4_4
             have h₄ : ∃ x, p x, from ⟨x, h₃⟩,
             show false, from h₁ h₄,
           show false, from h h₂)
+
+    -- a slightly alternative way to phrase the last example
+    example : (¬ ∀ x, ¬ p x) → ∃ x, p x :=
+      assume h : ¬ ∀ x, ¬ p x, show ∃ x, p x, from
+      by_contradiction
+        (assume h₁ : ¬ ∃ x, p x,
+          have h₂ : ∀ x, ¬ p x, from
+            assume (x: α) (h₃ : p x),
+            have h₄ : ∃ x, p x, from ⟨x, h₃⟩,
+            show false, from h₁ h₄,
+          show false, from h h₂)
   end example6
 
-  /- Here are some common identities involving the existential quantifier. (Prove as many as you can and
-     determine which are nonconstructive, and hence require some form of classical reasoning.) -/
+  -- Here are some common identities involving the existential quantifier. 
+  -- Prove as many as you can and determine which are nonconstructive, 
+  -- and hence require some form of classical reasoning.)
 
   namespace constructive_examples
 
@@ -565,25 +578,20 @@ namespace Sec_4_4
     )
 
   example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := iff.intro
-    -- ⇒ 
     (assume ⟨w, (h₁ : p w ∨ q w)⟩, 
       or.elim h₁
         (assume hpw : p w, or.inl ⟨w, hpw⟩)
         (assume hqw : q w, or.inr ⟨w, hqw⟩))
-    -- ⇐
     (assume h : (∃ x, p x) ∨ (∃ x, q x),
       or.elim h
         (assume ⟨w, hpw⟩, ⟨w, or.inl hpw⟩)
         (assume ⟨w, hpq⟩, ⟨w, or.inr hpq⟩))
-
   end constructive_examples
-
-
 
   namespace example1
   /-  (∀ x, p x) ↔ ¬ (∃ x, ¬ p x)
 
-      NOTE: for this example, only one direction require classical axioms.
+      NOTE: for this example, only one direction requires classical axioms.
       We split the proof up in two in order to highlight this fact. -/
 
     variables (α :Type) (p q : α → Prop)
@@ -601,29 +609,26 @@ namespace Sec_4_4
             show false, from hw' hw)
 
   -- Classical direction:
-
     open classical    
-
-    lemma dne : Π {α : Type} {x : α} {p : α → Prop}, (¬ ¬ (p x)) → (p x) := 
+    lemma double_negation : Π {α : Type} {x : α} {p : α → Prop}, (¬ ¬ (p x)) → (p x) := 
       λ (α : Type) (x : α) (p : α → Prop) (h : ¬ ¬ p x), 
         or.elim (em (p x))
         (assume h₂ : p x, h₂)  -- alternatively,  (assume h₂ : ¬p, absurd h₂ h)
         (assume h₃ : ¬ p x, false.elim (h h₃))
-
-    #check dne
+    #check double_negation
 
     theorem classical₁ : ¬ (∃ x, ¬ p x) → (∀ x, p x) :=
       assume h₁ : ¬ (∃ x, ¬ p x), 
       by_contradiction
-        (assume hc : ¬ (∀ x, p x), -- (reach a contradiction to prove `∀ x, p x`)
-         have hcc : ∀ x, ¬ ¬ p x, from
-           assume w,
-           assume h₂ : ¬ p w, -- (reach a contradiction to prove hcc)
-           have h₃ : ∃ x, ¬ p x, from ⟨w, h₂⟩,
-           show false, from h₁ h₃, -- (done proving hcc)
+        (assume hc : ¬ (∀ x, p x),
+           have hcc : ∀ x, ¬ ¬ p x, from
+           assume (w: α) (h₂ : ¬ p w),
+             have h₃ : ∃ x, ¬ p x, from exists.intro w h₂,
+             -- equivalently, `have h₃ : ∃ x, ¬ p x, from ⟨w, h₂⟩,`
+             show false, from h₁ h₃, -- (done proving hcc)
          have hz : ∀ x, p x, from
-           assume z,
-           show p z, from dne (hcc z),
+           assume z: α,
+           show p z, from double_negation (hcc z),
          show false, from hc hz)
 
     #check classical₁
@@ -757,32 +762,113 @@ namespace Sec_4_4
 
     theorem constructive₆ : (∃ x, p x → r) → (∀ x, p x) → r := 
     -- N.B. this theorem says  (∃ x, (p x → r)) → ((∀ x, p x) → r)
-      (assume h : ∃ x, p x → r,
-        assume h' : ∀ x, p x,
-        exists.elim h
-          ( assume w,
-            assume hw : p w → r,
-            show r, from hw (h' w) )
-      )
-    theorem constructive₉ : (∀ x, p x) → r → (∃ x, p x → r) :=  
-    -- N.B. this theorem says  ((∀ x, p x) →  r) → (∃ x, (p x → r))
-     assume (h₁ : ∀ x, p x) (h₂ : r),
-       have hrpar: r → (p a → r), from
-         assume (hr: r) (hpa: p a), hr,
-       have hpar : p a → r, from hrpar h₂,
-       exists.intro a hpar
+      (assume (h : ∃ x, p x → r) (h' : ∀ x, p x),
+        exists.elim h (assume w, assume hw : p w → r,
+            show r, from hw (h' w) ))
 
-   open classical
-   theorem classical₆ : ((∀ x, p x) → r) → (∃ x, p x → r) := sorry
-   -- -- N.B. this theorem says  (∀ x, p x) → ( r → (∃ x, (p x → r)) )
+    theorem constructive₉ : (∀ x, p x) → r → (∃ x, p x → r) :=  
+    -- N.B. this theorem says  (∀ x, p x) → ( r → (∃ x, (p x → r)) )
+     assume (h₁ : ∀ x, p x) (h₂ : r),
+       have hrpar: r → (p a → r), from assume (hr: r) (hpa: p a), hr,
+       have hpar : p a → r, from hrpar h₂, exists.intro a hpar
+
+    lemma imp_abbrev_rl {p q : Prop} : (¬ p ∨ q) → (p → q) := 
+      assume h: ¬ p ∨ q, show p → q, from assume hp: p, or.elim h 
+        (assume hnp: ¬ p, false.elim (hnp hp)) (assume hq: q, hq)
+
+    theorem neg_distr_or_lr {p q : Prop} : ¬ (p ∨ q) → ¬ p ∧ ¬ q := 
+      assume h: ¬ (p ∨ q), ⟨assume hp: p, (h (or.inl hp)), assume hq: q, (h (or.inr hq))⟩
+
+    theorem neg_distr_or_rl {p q : Prop} :  ¬ p ∧ ¬ q → ¬ (p ∨ q) := 
+      assume h: ¬ p ∧ ¬ q, assume hpq : p ∨ q, or.elim hpq 
+        (assume hp: p, h.left hp) (assume hq: q, h.right hq)
+
+    theorem neg_distr_and_rl {p q : Prop} :  ¬ p ∨ ¬ q → ¬ (p ∧ q) :=
+      assume h: ¬ p ∨ ¬ q, assume hpq: p ∧ q, or.elim h 
+        (assume hnp: ¬ p, hnp hpq.left) (assume hnq: ¬ q, hnq hpq.right)
+
+    theorem neg_distr_or {p q : Prop} : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q := 
+      iff.intro (assume h: ¬ (p ∨ q), neg_distr_or_lr h) (assume h: ¬ p ∧ ¬ q, neg_distr_or_rl h)
+
+
+    ---------- vvvvv ----- CLASSICAL STUFF BEGINS ----- vvvvv --------
+
+    open classical  
+
+    lemma dne {p : Prop} (h : ¬¬p) : p := or.elim (em p)
+      (assume hp : p, hp) (assume hnp : ¬p, absurd hnp h)
+
+    lemma imp_abbrev_lr {p q : Prop} : (p → q) → (¬ p ∨ q) := 
+      assume h: p → q, show ¬ p ∨ q, from or.elim (em p)
+        (assume hp: p, or.inr (h hp)) (assume hnp: ¬ p, or.inl hnp)
+
+    theorem implication_abbreviation {p q : Prop} : (p → q) ↔ (¬ p ∨ q) := 
+      iff.intro (assume h: p → q, imp_abbrev_lr h) (assume h: ¬ p ∨ q, imp_abbrev_rl h)
+
+    theorem neg_distr_and_lr {p q : Prop} : ¬ (p ∧ q) → ¬ p ∨ ¬ q :=
+      assume h: ¬ (p ∧ q), show ¬ p ∨ ¬ q, from 
+      or.elim (em p)
+      (assume hp: p, have hnq: ¬ q, from (assume hq: q, show false, from h ⟨hp, hq⟩), or.inr hnq)
+      (assume hnp: ¬ p, or.inl hnp)
+
+    theorem neg_distr_and {p q : Prop} : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q := 
+      iff.intro (assume h: ¬ (p ∧ q), neg_distr_and_lr h)
+                (assume h: ¬ p ∨ ¬ q, neg_distr_and_rl h)
+
+    theorem classical₆ : ((∀ x, p x) → r) → ∃ x, (p x → r) := 
+      assume (h: (∀ x, p x) → r), show ∃ x, (p x → r), from
+      by_contradiction
+        (assume hc : ¬ ∃ x, (p x → r),
+          have hn₁ : ∀ x, ¬ (p x → r), from
+            (assume (x: α) (hfail : p x → r), 
+              show false, from hc ⟨x, hfail⟩),
+          have hn₂ : ∀ x, ¬ (¬ p x ∨ r), from 
+            assume x, have hnpxr : ¬ (p x → r), from hn₁ x,
+            assume (hnot: ¬ p x ∨ r), show false, from 
+              hnpxr (imp_abbrev_rl hnot),
+          have hn₃ : ∀ x, ¬ ¬ p x ∧ ¬ r, from 
+            assume x, neg_distr_or_lr (hn₂ x),
+          have hn₄ : ∀ x, ¬ ¬ p x, from (assume (x: α), (hn₃ x).left),
+          have hn₅ : ∀ x, p x, from (assume x, dne (hn₄ x)),
+          have hn₆ : ¬ r, from 
+            or.elim (em r)
+            (assume hr: r, false.elim ((hn₃ a).right hr))
+            (assume hnr: ¬ r, hnr),
+         false.elim (hn₆ (h hn₅)))
                                        
+    theorem example₆ : ((∀ x, p x) → r) ↔ ∃ x, (p x → r) := iff.intro
+      (assume h: (∀ x, p x) → r, show ∃ x, (p x → r), from classical₆ _ _ a _ h)
+      (assume h: ∃ x, (p x → r), show (∀ x, p x) → r, from constructive₆ _ _ _ h)
+      
+
   end example6
 
   namespace example7
     variables (α :Type) (p q : α → Prop)
     variable a : α
     variables r s t: Prop
-    example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+
+    lemma lem1 : (∃ x, r → p x) → (r → ∃ x, p x) :=
+      assume h: ∃ x, r → p x, show (r → ∃ x, p x), from 
+        assume hr: r, show ∃ x, p x, from
+          exists.elim h 
+            (assume w, assume hrpw: r → p w, ⟨w, hrpw hr⟩)
+
+    open classical         
+    lemma lem2 : (r → ∃ x, p x) → (∃ x, r → p x) :=
+      assume h : (r → ∃ x, p x), show (∃ x, r → p x), from
+      or.elim (em r)
+        (assume hr: r, exists.elim (h hr)
+          (assume w, assume hpw: p w, show (∃ x, r → p x), from
+            ⟨w, assume hr': r, show p w, from hpw⟩))
+        (assume hnr: ¬ r, ⟨a, (assume hr': r, false.elim (hnr hr'))⟩)
+
+    -- we have to give the lemmas the appropriate context...
+    example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := iff.intro (lem1 α p r) (lem2 α p a r)
+      
+    -- ...but Lean can infer most of what we need.
+    example : (∃ x, r → p x) ↔ (r → ∃ x, p x) := iff.intro (lem1 _ _ _) (lem2 _ _ a _)
+
   end example7  
     
 
