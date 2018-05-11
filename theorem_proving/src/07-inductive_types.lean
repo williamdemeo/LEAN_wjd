@@ -168,61 +168,87 @@ namespace Sec_7_2
   /- To define a function on prod α β, we assume input of the form prod.mk a b, and specify
      the output in terms of a and b. For example, here is the definition of the two projections 
      for prod.  -/
-  namespace hide₂ 
-    open hide₂.prod (renaming rec_on → rec_on)
-    def fst {α : Type u} {β : Type v} (p : prod α β) : α := rec_on p (λ a b, a)
-    def snd {α : Type u} {β : Type v} (p : prod α β) : β := rec_on p (λ a b, b)
-  end hide₂
+  -- namespace custom_fst_snd
+  --   open hide₂.prod (renaming rec_on → rec_on)
+  --   -- def fst {α : Type u} {β : Type v} (p : prod α β) : α := rec_on p (λ a b, a)
+  --   -- def snd {α : Type u} {β : Type v} (p : prod α β) : β := rec_on p (λ a b, b)
+  -- end custom_fst_snd
 
   -- We could also use the std lib α × β and (a, b) (notation for prod α β and prod.mk a b, resp)
-  def fst {α : Type u} {β : Type v} (p : α × β) : α := prod.rec_on p (λ a b, a)
-  def snd {α : Type u} {β : Type v} (p : α × β) : β := prod.rec_on p (λ a b, b)
-
-  /- `fst` takes pair `p`, applies recursor `prod.rec_on p (λ a b, a)`---which interprets 
-     `p` as pair `prod.mk a b`---then uses the 2nd arg to determine what to do with a and b. -/
-
-  -- another example
-  def prod_example (p : bool × ℕ) : ℕ := prod.rec_on p (λ b n, cond b (2 * n) (2 * n + 1))
-
-  #reduce prod_example (tt, 3)  -- result: 6
-  #reduce prod_example (ff, 3)  -- result: 7
-
-  -- `cond` has the same effect as `bool.rec_on b t2 t1`.
-
-  /- `sum` has two constructors, `inl` and `inr` and each takes one explicit argument. 
-     To define a function on `sum α β`, we must handle 2 cases: if the input is of the form
-     `inl a` (resp., `inr b`) then we must specify an output value in terms of a (resp `b`). -/
-
-  def sum_example (s : ℕ ⊕ ℕ) : ℕ := sum.cases_on s (λ n, 2*n) (λ n, 2*n + 1)
-
-  #reduce sum_example (sum.inl 3) -- result: 6
-  #reduce sum_example (sum.inr 3) -- result: 7
-
-  -- Lean's inductive def syntax allows named args for constructors before the colon:
-
   namespace hide₃
+    def fst {α : Type u} {β : Type v} (p : α × β) : α := prod.rec_on p (λ a b, a)
+    def snd {α : Type u} {β : Type v} (p : α × β) : β := prod.rec_on p (λ a b, b)
+    /- `fst` takes pair `p`, applies recursor `prod.rec_on p (λ a b, a)`---which interprets 
+      `p` as pair `prod.mk a b`---then uses the 2nd arg to determine what to do with a and b. -/
+
+    -- another example
+    def prod_example₁ (p : bool × ℕ) : ℕ := prod.rec_on p (λ b n, cond b (2 * n) (2 * n + 1))
+    #reduce prod_example₁ (tt, 3)  -- result: 6
+    #reduce prod_example₁ (ff, 3)  -- result: 7
+
+    -- `cond` has the same effect as `bool.rec_on b t2 t1` (note the transposition of t2 t1)
+    def prod_example₂ (p: bool × ℕ): ℕ:= prod.rec_on p (λ b n, bool.rec_on b (2 * n + 1) (2 * n))
+    #reduce prod_example₂ (tt, 3)  -- result: 6
+    #reduce prod_example₂ (ff, 3)  -- result: 7
+
+    def prod_example₃ (p : bool × ℕ) : ℕ := if (p.fst) then 2* p.snd else 2* p.snd + 1
+    #reduce prod_example₃ (tt, 3)  -- result: 6
+    #reduce prod_example₃ (ff, 3)  -- result: 7
+
+    /- `sum` has two constructors, `inl` and `inr` and each takes one explicit argument. 
+      To define a function on `sum α β`, we must handle 2 cases: if the input is of the form
+      `inl a` (resp., `inr b`) then we must specify an output value in terms of a (resp `b`). -/
+
+    def sum_example (s : ℕ ⊕ ℕ) : ℕ := sum.cases_on s (λ n, 2*n) (λ n, 2*n + 1)
+
+    #reduce sum_example (sum.inl 3) -- result: 6
+    #reduce sum_example (sum.inr 3) -- result: 7
+  end hide₃
+
+  /- A type with multiple constructors is *disjunctive*; e.g. an element of `sum α β` is either 
+     of the form ``inl a`` *or* of the form ``inl b``. Further, each constructor with multiple 
+     arguments introduces conjunctive information; e.g., from an element `prod.mk a b` of 
+     `prod α β` we can extract `a` *and* `b`. An arbitrary inductive type can include both 
+     features, by having any number of constructors, each of which takes any number of arguments.
+  -/
+
+  -- Lean's inductive definition syntax allows named arguments to constructors before the colon.
+  namespace custom_prod₂
+    -- instead of `inductive prod (α : Type u) (β : Type v) | mk : α → β → prod`
+    -- we could have used
     inductive prod (α : Type) (β : Type) | mk (fst : α) (snd : β) : prod
     inductive sum (α : Type) (β : Type) | inl {} (a : α) : sum | inr {} (b : β) : sum
-    /- These result in essentially the same types as the ones above. In `sum`, `{}` refers to 
-       the parameters, `α` and `β`; braces specify which args are meant to be left implicit. -/
-  end hide₃
+    -- These result in essentially the same types as before. `{}` refers to params, `α` and `β`.
+
+    -- The following gives errors because naming fst and snd is not the same as defining them.
+    --   def prod_example₄ (p : prod bool ℕ) : ℕ := if (p.fst) then 2* p.snd else 2* p.snd + 1
+    --   #reduce prod_example₄ (prod.mk tt 3)  
+    -- See the fix in custom_prod₃ below
+  end custom_prod₂
 
   /- A type, like `prod`, that has only one constructor is purely conjunctive: 
      the constructor simply packs the list of arguments into a single piece of data, 
-     essentially a tuple where the type of subsequent arguments can depend on the type 
-     of the initial argument. We can think of such a type as a "record" or a "structure."  -/
+     essentially a tuple where 
 
-  /- In Lean, the keyword `structure` can be used to define such an inductive type as well 
+       *THE TYPE OF SUBSEQUENT ARGUMENTS CAN DEPEND ON THE TYPE OF THE INITIAL ARGUMENT*
+
+     We can think of such a type as a "record" or a "structure."  -/
+
+  /- In Lean, the keyword `structure` can be used to define such an inductive type, as well 
      as its projections, at the same time. -/
-
-  namespace hide₉
+  namespace custom_prod₃
     structure prod (α β : Type) := mk :: (fst : α) (snd : β)
     /- This simultaneously introduces the inductive type, `prod`, its constructor, `mk`, the
-       usual eliminators (`rec` and `rec_on`), as well as the projections, `fst` and `snd`. -/
-  end hide₉
+       usual eliminators (`rec` and `rec_on`), as well as the projections, `fst` and `snd`.
+       So our previous example, from `custom_prod`, works now. -/
+    def prod_example₄ (p : prod bool ℕ) : ℕ := if (p.fst) then 2* p.snd else 2* p.snd + 1
+    #reduce prod_example₄ (prod.mk tt 3)  
+    #reduce prod_example₄ (prod.mk ff 3)  
 
-    /- If you don't name the constructor, Lean uses `mk` as a default. For example, the 
-       following defines a record to store a color as a triple of RGB values: -/
+  end custom_prod₃
+
+  /- If you don't name the constructor, Lean uses `mk` as a default. For example, the 
+     following defines a record to store a color as a triple of RGB values: -/
 
   structure color := (red : ℕ) (green : ℕ) (blue : ℕ)
   def yellow := color.mk 255 255 0
@@ -230,29 +256,45 @@ namespace Sec_7_2
   #reduce color.green yellow   -- result: 255
   #reduce color.blue yellow    -- result: 0
 
-  -- `structure` is especially useful for defining algebraic structures!!!!!!
-  -- Lean provides substantial infrastructure to support working with them. 
+  /- ALGEBRAIC STRUCTURES. -/
 
-  -- Here's the definition of a semigroup:
+  -- `structure` IS ESPECIALLY USEFUL FOR DEFINING ALGEBRAIC STRUCTURES
+  -- and Lean provides substantial infrastructure to support working with them. 
 
-  structure Semigroup := (carrier : Type u) 
-    (mul : carrier → carrier → carrier)
+  -- SEMIGROUPS --
+  structure Semigroup := (univrs : Type u) 
+    (mul : univrs → univrs → univrs)
     (mul_assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
 
   -- ==> More examples in CHAPTER 9!!!!!!! <==
+  --
+  -- But let's try to define lattices on our own, using what we already know.
 
+  -- LATTICES --
+  structure Lattice := (univrs : Type u)
+    (meet: univrs → univrs → univrs)
+    (join: univrs → univrs → univrs)
+    (idempotent_meet : ∀ x,  meet x x = x)
+    (idemopotent_join : ∀ x,  join x x = x)
+    (commutative_meet : ∀ x y, meet x y = meet y x)
+    (commutative_join : ∀ x y, join x y = join y x)
+    (associative_meet : ∀ x y z, meet (meet x y) z = meet x (meet y z))
+    (associative_join : ∀ x y z, join (join x y) z = join x (join y z))
+    (absorptive_meet : ∀ x y, meet x (join x y) = x)
+    (absorptive_join : ∀ x y, join x (meet x y) = x)
+
+  -- Okay, fine, so now how do we *use* this structure to do lattice theory.
+
+  ----------------------------------------------------------------------------
+  
   -- Recall, sigma types are also known as the "dependent product" type:
-
   namespace hide₄
     inductive sigma {α : Type u} (β : α → Type v) | dpair : Π a : α, β a → sigma
 
     -- Two more inductive types in the library are `option` and `inhabited`.
-    inductive option (α : Type u) 
-    | none {} : option 
-    | some    : α → option
+    inductive option (α : Type u) | none {} : option | some    : α → option
 
-    inductive inhabited (α : Type u)
-    | mk : α → inhabited
+    inductive inhabited (α : Type u) | mk : α → inhabited
   end hide₄
 
   -- `option` type enables us to define partial functions
