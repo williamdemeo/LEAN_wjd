@@ -267,15 +267,18 @@ namespace Sec_7_2
     (mul_assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c))
 
   -- ==> More examples in CHAPTER 9!!!!!!! <==
-  --
-  -- But let's try to define lattices on our own, using what we already know.
+  -- (okay, but we should insert a short example of instantiating a semigroup here)
+  def mysg := Semigroup.mk nat (λ x y, x * y)
+  #check mysg
+
+  -- Let's try to define lattices on our own, using what we already know.
 
   -- LATTICES --
   structure Lattice := (univrs : Type u)
     (meet: univrs → univrs → univrs)
     (join: univrs → univrs → univrs)
     (idempotent_meet : ∀ x,  meet x x = x)
-    (idemopotent_join : ∀ x,  join x x = x)
+    (idempotent_join : ∀ x,  join x x = x)
     (commutative_meet : ∀ x y, meet x y = meet y x)
     (commutative_join : ∀ x y, join x y = join y x)
     (associative_meet : ∀ x y z, meet (meet x y) z = meet x (meet y z))
@@ -284,16 +287,18 @@ namespace Sec_7_2
     (absorptive_join : ∀ x y, join x (meet x y) = x)
 
   -- Okay, fine, so now how do we *use* this structure to do lattice theory.
-
   ----------------------------------------------------------------------------
-  
+  def mylat := Lattice.mk nat (λ x y, if (x < y) then x else y) (λ x y, if (y < x) then x else y) 
+  #check mylat
+
   -- Recall, sigma types are also known as the "dependent product" type:
   namespace hide₄
     inductive sigma {α : Type u} (β : α → Type v) | dpair : Π a : α, β a → sigma
+    -- This looks confusing because sigma is not a pi type.  But the constructor
+    -- is a function whose domain is a pi type and whose codomain is sigma.
 
     -- Two more inductive types in the library are `option` and `inhabited`.
     inductive option (α : Type u) | none {} : option | some    : α → option
-
     inductive inhabited (α : Type u) | mk : α → inhabited
   end hide₄
 
@@ -314,9 +319,22 @@ namespace Sec_7_2
   /- As exercises, develop a notion of composition for partial functions from `α` to `β` and 
      `β` to `γ`, and show that it behaves as expected. -/
 
+  namespace exercise₁
+    inductive option (α : Type u) | none {} : option | some : α → option
+    def compose (α β γ: Type u) (f : α → option β) (g : β → option γ) (x: α) : option γ := 
+      option.cases_on (f x) (option.none) (λ y, g y)
+  end exercise₁
+
   /- Also, show that `bool` and `nat` are inhabited, that the product of two inhabited types
      is inhabited, and that the type of functions to an inhabited type is inhabited. -/
-  
+  namespace exercise₂
+    inductive inhabited (α : Type u) | mk : α → inhabited
+    theorem bool_is_inhabited : inhabited bool := inhabited.mk tt 
+    theorem nat_is_inhabited : inhabited nat := inhabited.mk 0 
+    #check bool_is_inhabited
+    #check nat_is_inhabited
+  end exercise₂
+
 end Sec_7_2
 
 
@@ -333,15 +351,15 @@ namespace Sec_7_3
     inductive false : Prop
     inductive true : Prop | intro : true
     inductive and (a b : Prop) : Prop | intro : a → b → and
-    inductive or (a b : Prop) : Prop 
-    | intro_left : a → or 
-    | intro_right : b → or
+    inductive or (a b : Prop) : Prop | intro_left : a → or | intro_right : b → or
 
     -- Alternatively, we could give names to the inhabitants:
-    inductive and_alt (P Q : Prop) : Prop | intro (a : P) (b : Q) : and_alt
-    inductive or_alt (P Q : Prop) : Prop
-    | intro_left (a : P) : or_alt
-    | intro_right (b : Q) : or_alt
+    inductive and' (P Q : Prop) : Prop | intro (a : P) (b : Q) : and'
+    inductive or' (P Q : Prop) : Prop | inl (a : P) : or' | inr (b : Q) : or'
+
+    variable p: Prop 
+    #check @or.intro_left p
+    #check @or'.inl p
   end hide₅
 
   -- Think about how these give rise to the intro and elim rules we've already seen.
@@ -354,13 +372,9 @@ namespace Sec_7_3
      an element `hp : p` carries no info. (There is one exception discussed below.) -/
 
   -- Even the existential quantifier is inductively defined:
-
   namespace hide₆
     universe u
-
-    inductive Exists {α : Type u} (p : α → Prop) : Prop
-    | intro : ∀(a : α), p a → Exists
-
+    inductive Exists {α : Type u} (p : α → Prop) : Prop | intro : ∀(a : α), p a → Exists
     inductive Exists_alt {α : Type u} (p : α → Prop) : Prop
     | intro (w : ∀(a : α), p a) : Exists_alt
   
@@ -380,11 +394,9 @@ namespace Sec_7_3
 
   namespace hide₇
     universe u
-    inductive subtype {α : Type u} (p : α → Prop)
-    | mk : Π(x : α), p x → subtype
+    inductive subtype {α : Type u} (p : α → Prop) | mk : Π(x : α), p x → subtype
 
-    inductive subtype_alt {α : Type u} (p : α → Prop)
-    | mk (w : Π(x : α), p x) : subtype_alt
+    inductive subtype_alt {α : Type u} (p : α → Prop) | mk (w : Π(x : α), p x) : subtype_alt
   end hide₇
 
  -- This next example is unclear to me.
@@ -412,9 +424,7 @@ namespace Sec_7_4
 
   -- A canonical example:
   namespace hide_7_4_1
-    inductive nat : Type 
-    | zero : nat 
-    | succ : nat → nat
+    inductive nat : Type | zero : nat | succ : nat → nat
 
   /- The recursor for `nat` defines a dependent function `f` from `nat` to any domain, 
      that is, `nat.rec` defines an element `f` of `Π n : nat, C n` for any `C : nat → Type`. 
@@ -424,15 +434,19 @@ namespace Sec_7_4
      Second case: the recursor assumes f(n) has been computed and the recursor uses the 
      next input arg to specify a value for f (succ n) in terms of n and f n. -/
  
-    #check @nat.rec_on  -- result:  Π {C : nat → Sort u_1} (n : nat), -- arg 1: major premise
-                      --           C nat.zero →                     -- arg 2: minor premise 1
-                      -- (Π (a : nat), C a → C (nat.succ a))        -- arg 3: specifies how to 
-                      --                                                       construct f(n+1) 
-                      --                                                       given n and f(n)
-                      -- → C n                                      -- output type
+    #check @nat.rec_on -- result:  Π {C : nat → Sort u_1} (n : nat), -- arg 1: major premise
+                       --           C nat.zero →                     -- arg 2: minor premise 1
+                       -- (Π (a : nat), C a → C (nat.succ a))        -- arg 3: specifies how to 
+                       --                                                       construct f(n+1) 
+                       --                                                       given n and f(n)
+                       -- → C n                                      -- output type
 
     namespace nat
-      def add (m n : nat) : nat := nat.rec_on n m (λ n add_m_n, succ add_m_n)
+      def add (m n : nat) : nat := nat.rec_on n m               -- if n = zero, just return m
+                                   (λ n add_m_n, succ add_m_n)  -- otherwise, given n and the 
+                                                                -- result (add_m_n := add m n), 
+                                                                -- return add_m_n + 1 as the result
+
       #reduce add (succ zero) (succ (succ zero)) -- result: succ (succ (succ zero))
 
       -- Can we recurse on m instead of n?  Yes, of course.
