@@ -426,7 +426,7 @@ end Sec_7_3
 #print " "
 -- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#defining-the-natural-numbers
 
-namespace Sec_7_4
+namespace hidden
   /- The inductively defined types we have seen so far are "flat": constructors wrap data and
      insert it into a type, and the corresponding recursor unpacks the data and acts on it. 
      Things get more interesting when constructors act on elements of the type being defined. -/
@@ -481,13 +481,14 @@ namespace Sec_7_4
     theorem add_succ (m n : nat) : m + succ n = succ (m + n) := rfl
   end nat
 
-  -- end   hide_7_4_1
+  end hidden
 
   /- Proving `0 + m = m`, however, requires induction. The induction principle is just a 
      special case of the recursion principle when the codomain `C n` is an element of `Prop`. 
      It represents the familiar pattern of proof by induction: to prove `∀ n, C n`, first
      prove `C 0`, and then, for arbitrary `n`, assume `ih : C n` and prove `C (succ n)`. -/
-  open nat (renaming nat.zero → 0)  -- now we have an alias
+  namespace Sec_7_4
+  open nat
   theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
     (show 0 + 0 = 0, from rfl)
     (assume n, assume ih : 0 + n = n,
@@ -496,6 +497,7 @@ namespace Sec_7_4
           0 + succ n = succ (0 + n) : rfl
                  ... = succ n : by rw ih)
 
+  end Sec_7_4
   -- theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
   --   (show 0 + 0 = 0, from rfl)
   --   (assume n, assume ih : 0 + n = n,
@@ -504,6 +506,8 @@ namespace Sec_7_4
   --         0 + succ n = succ (0 + n) : rfl
   --                ... = succ n : by rw ih)
 
+  namespace Sec_7_4
+  open nat
   theorem zero_add' (n : ℕ) : 0 + n = n := nat.rec_on n 
   rfl (λ n ih, by simp only [add_succ, ih])
   /- Remarks: (1) when `nat.rec_on` is used in a proof, it's the induction principle in disguise. 
@@ -557,7 +561,7 @@ namespace Sec_7_4
     (by simp only [zero_add, add_zero])
     (λ n ih, by simp only [add_succ, ih, succ_add])
 
-  end hide_7_4_2
+--  end hide_7_4_2
 
 end Sec_7_4
 
