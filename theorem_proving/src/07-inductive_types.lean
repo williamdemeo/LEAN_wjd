@@ -752,7 +752,7 @@ namespace Sec_7_6
 
   end functionals
 
-  namespace induction_tactic
+  namespace hidden
 
   /- Just as `cases` is used to carry out proof by cases, the `induction` tactic is used 
      for proofs by induction. In contrast to `cases`, the argument to `induction` can only 
@@ -765,28 +765,31 @@ namespace Sec_7_6
       refl,
       rw [add_succ, ih]
   end
+  end hidden
 
+  namespace hidden
+  open nat
   
   -- The `case` tactic identifies each case with named arguments, making the proof clearer:
   theorem zero_add' (n : ℕ) : 0 + n = n :=
   begin
     induction n,
-    case zero { refl },
-    case succ n ih { rw [add_succ, ih] }
+    case zero : { refl },
+    case succ : n ih { rw [add_succ, ih] }
   end
 
   theorem succ_add' (m n : ℕ) : (succ m) + n = succ (m + n) :=
   begin
     induction n,
-    case zero { refl },
-    case succ n ih { rw [add_succ, ih] }
+    case zero : { refl },
+    case succ : n ih { rw [add_succ, ih] }
   end
 
   theorem add_comm' (m n : ℕ) : m + n = n + m :=
   begin
     induction n,
-    case zero { rw zero_add, refl },
-    case succ n ih { rw [add_succ, ih, succ_add] }
+    case zero : { rw zero_add, refl },
+    case succ : n ih { rw [add_succ, ih, succ_add] }
   end
 
   -- Here are terse versions of the last three proofs.
@@ -801,7 +804,7 @@ namespace Sec_7_6
   theorem add_assoc'' (m n k : ℕ) : m + n + k = m + (n + k) :=
   by induction k; simp only [*, add_zero, add_succ]
 
-  end induction_tactic
+  end hidden
 
   namespace injection_tactic
   /-We close this section with one last tactic that is designed to facilitate working with 
