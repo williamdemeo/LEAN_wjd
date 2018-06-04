@@ -432,8 +432,6 @@ namespace hidden
      Things get more interesting when constructors act on elements of the type being defined. -/
 
   -- -- A canonical example:
-  -- namespace hide_7_4_1
-
   inductive nat : Type 
   | zero : nat 
   | succ : nat → nat
@@ -453,11 +451,31 @@ namespace hidden
                      --                                                       given n and f(n)
                      -- → C n                                      -- output type
 
+  /-(motive) The implicit argument, `C`, is the codomain of the function being defined. 
+             In type theory we say `C` is the *motive* for the elimination/recursion, 
+             since it describes the kind of object we're constructing. 
+  - (major premise) `n : nat`, is the input to the function, aka the ``major premise``. 
+  - (minor premise) the two arguments after say how to compute the zero and succ cases, 
+                    as described above. They are aka the ``minor premises``. -/
+
   namespace nat
-    def add (m n: nat): nat:= nat.rec_on n m               -- if n = zero, just return m
-                              (λ n add_m_n, succ add_m_n)  -- otherwise, given n and the 
-                                                           -- result (add_m_n := add m n), 
-                                                           -- return add_m_n + 1
+    /-Consider `add m n` on natural numbers. Fix `m` and define `add` by recursion on `n`. 
+      + base case: let `add m zero` be `m`. 
+      + succ step: assume `add m n` is given; let `add m (succ n)` be `succ (add m n)`. -/
+
+    def add (m n: nat): nat:= nat.rec_on n m              -- if n = zero, just return m
+                              (λ n add_m_n, succ add_m_n) -- otherwise, given n and the 
+                                                          -- result (add_m_n := add m n), 
+                                                          -- return add_m_n + 1
+
+    /- Let's disect the defn of `add` in more detail.
+       + `nat.rec_on n` says "recurse on n".  
+       + (base case) The symbol `m` gives the answer in case n=zero.  
+       + (induction step) `(λ n add_m_n, succ add_m_n)` gives the answer in all other 
+                          (n > 0) cases. The first argument to the λ abstraction is `n`, 
+                          which means assume we know `add_m_n`---the value returned on 
+                          input `m n`; use this info to compute the value returned when 
+                          the input is `m (succ n)`; namely, return `succ add_m_n`.-/
 
     #reduce add (succ zero) (succ (succ zero)) -- result: succ (succ (succ zero))
 
@@ -465,14 +483,6 @@ namespace hidden
     def add' (m n : nat) : nat := nat.rec_on m n (λ m add_m_n, succ add_m_n)
     #reduce add' (succ zero) (succ (succ zero)) -- same result as above
 
-    /- Let's go back to the first definition of `add` and dissect it. 
-       + `nat.rec_on n` says "recurse on n".  
-       + The next symbol is `m` which gives the answer in base case: n=zero.  
-       + The next group of symbols is `(λ n add_m_n, succ add_m_n)` which gives the answer
-         in the inductive case. The first argument to the λ abstraction is `n`, which means 
-         assume we know the value, `add_m_n`, that should be returned on input `m n`.
-         Finally, use this to say what to do when the input is `m (succ n)`; namely,  
-         return `succ add_m_n`. That's all there is to it! -/
 
     instance : has_zero nat := has_zero.mk zero
     instance : has_add nat := has_add.mk add
@@ -480,14 +490,13 @@ namespace hidden
     theorem add_zero (m : nat) : m + 0 = m := rfl
     theorem add_succ (m n : nat) : m + succ n = succ (m + n) := rfl
   end nat
-
-  end hidden
-
   /- Proving `0 + m = m`, however, requires induction. The induction principle is just a 
      special case of the recursion principle when the codomain `C n` is an element of `Prop`. 
      It represents the familiar pattern of proof by induction: to prove `∀ n, C n`, first
      prove `C 0`, and then, for arbitrary `n`, assume `ih : C n` and prove `C (succ n)`. -/
-  namespace Sec_7_4
+end hidden
+
+namespace hidden2
   open nat
   theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
     (show 0 + 0 = 0, from rfl)
@@ -497,17 +506,6 @@ namespace hidden
           0 + succ n = succ (0 + n) : rfl
                  ... = succ n : by rw ih)
 
-  end Sec_7_4
-  -- theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
-  --   (show 0 + 0 = 0, from rfl)
-  --   (assume n, assume ih : 0 + n = n,
-  --     show 0 + succ n = succ n, from 
-  --       calc
-  --         0 + succ n = succ (0 + n) : rfl
-  --                ... = succ n : by rw ih)
-
-  namespace Sec_7_4
-  open nat
   theorem zero_add' (n : ℕ) : 0 + n = n := nat.rec_on n 
   rfl (λ n ih, by simp only [add_succ, ih])
   /- Remarks: (1) when `nat.rec_on` is used in a proof, it's the induction principle in disguise. 
@@ -531,7 +529,6 @@ namespace hidden
   theorem add_assoc' (m n k : ℕ) : m + n + k = m + (n + k) := nat.rec_on k
     rfl (λ k ih, by simp only [add_succ, ih])
 
-
   theorem succ_add (m n : ℕ) : succ m + n = succ (m + n) := nat.rec_on n
     (show succ m + 0 = succ (m + 0), from rfl)
      (assume n,
@@ -546,24 +543,19 @@ namespace hidden
   theorem add_comm (m n : ℕ) : m + n = n + m := nat.rec_on n
    (show m + 0 = 0 + m, by rw [nat.zero_add, nat.add_zero])
    (assume n,
-     assume ih : m + n = n + m,
-     show m + succ n = succ n + m, from
-       calc 
-         m + succ n = succ (m + n) : rfl
-                ... = succ (n + m) : by rw ih
-                ... = succ n + m : by simp only [succ_add])
+     assume ih : m + n = n + m, show m + succ n = succ n + m, from
+       calc m + succ n = succ (m + n) : rfl
+                   ... = succ (n + m) : by rw ih
+                   ... = succ n + m : by simp only [succ_add])
 
   -- Here are the shorter versions of the last two theorems:
   theorem succ_add' (m n : ℕ) : succ m + n = succ (m + n) := 
-  nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
+    nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
 
   theorem add_comm' (m n : ℕ) : m + n = n + m := nat.rec_on n 
     (by simp only [zero_add, add_zero])
     (λ n ih, by simp only [add_succ, ih, succ_add])
-
---  end hide_7_4_2
-
-end Sec_7_4
+end hidden2
 
 
 #print "==========================================="
@@ -683,12 +675,7 @@ namespace Sec_7_6
   variable p : ℕ → Prop
   open nat
   example (hz : p 0) (hs : ∀ n, p (succ n)) : ∀ n, p n :=
-  begin
-    intro n,
-    cases n,
-      exact hz,
-      apply hs
-  end
+    begin intro n, cases n, exact hz, apply hs end
   
   /- `cases` lets you choose names for arguments to the constructors using `with`. 
      For example, we can choose the name `m` for the argument to `succ`, so the second 
@@ -707,8 +694,7 @@ namespace Sec_7_6
   end
 
   -- `cases` can be also be used to produce data and define functions.
-  def f (n : ℕ) : ℕ := 
-  begin cases n, exact 3, exact 7 end
+  def f (n : ℕ) : ℕ := begin cases n, exact 3, exact 7 end
 
   example : f 0 = 3 := rfl
   example : f 5 = 7 := rfl
@@ -720,23 +706,20 @@ namespace Sec_7_6
     reflexivity                -- goal: (succ a ≠ 0) ⊢ f (succ a) = 7
   end
   end example₁
-  -- Let's define a function that takes an single argument of type `tuple`.
 
-  -- First define the type `tuple`.
-
-
+  -- Now let's define a function that takes a single argument of type `tuple`.
   namespace functionals
   universe u
   open list
 
+  -- First define the type `tuple`.
   -- Recall, we define a type that satisfies a predicate like this:
-
   def tuple (α : Type u) (n : ℕ) := subtype (λ (l : list α), (list.length l = n)) 
     -- { l : list α // list.length l = n }  -- (this didn't work for me) 
 
   variables {α : Type u} {n : ℕ}
 
-  def f {n : ℕ} (t : tuple α n) : ℕ := begin cases n, exact 3, exact 7 end
+  def f {n : ℕ} (t : tuple α n) : ℕ := begin cases n, exact 0, exact 7 end
 
   def my_tuple : tuple ℕ 3 := ⟨[0, 1, 2], rfl⟩
 
@@ -923,51 +906,73 @@ namespace Sec_7_7
       subst h (eq.refl (f a))
   end hidden
 
--- (A, {f})   θ ⊂ A × A  is a congruence with respect to f : A → A
--- (a, b) ∈ θ    →    (f(a), f(b)) ∈ θ 
--- θ ∈ Con (A)
-
   -- In the type theory literature, there are further generalizations of inductive definitions, 
   -- for example, the principles of *induction-recursion* and *induction-induction*. 
   -- These are not supported by Lean.
-
 end Sec_7_7
-
 
 #print "==========================================="
 #print "Section 7.8. Axiomatic Details"
 #print " "
 
 /-This section is for those interested in the axiomatic foundations.
+
   We have seen that the constructor to an inductive type takes 
-  + **parameters.** the arguments that remain fixed throughout the inductive construction.  
-  + **indices.** the arguments parameterizing the family of types that is 
-    simultaneously under construction. 
+  + **parameters** = the arguments that remain fixed throughout the inductive construction.  
+  + **indices** = the arguments parameterizing the family of types under construction. 
   
-  Each constructor should have a Pi type, where the argument types are built up from previously defined types, the parameter and index types, and the inductive family currently being defined. The requirement is that if the latter is present at all, it occurs only *strictly positively*. This means simply that any argument to the constructor in which it occurs is a Pi type in which the inductive type under definition occurs only as the resulting type, where the indices are given in terms of constants and previous arguments.
+  Each constructor should have a Pi type whose argument types are built up from 
+  (a) previously defined types, (b) parameter types, (c) index types and (d) the inductive 
+  family currently being defined. 
+  
+  If (d) is present at all, then it occurs only *strictly positively*. This means simply
+  that any argument to the constructor in which (d) occurs is a Pi type in which the 
+  inductive type under definition occurs only as the resulting type, where the indices 
+  are given in terms of constants and previous arguments.
 
-Since an inductive type lives in ``Sort u`` for some ``u``, it is reasonable to ask *which* universe levels ``u`` can be instantiated to. Each constructor ``c`` in the definition of a family ``C`` of inductive types is of the form
+  Since an inductive type lives in `Sort u` for some `u`, it is reasonable to ask, 
+  "in what universe levels can `u` be instantiated?" 
+    
+  Each constructor `c` in the defn of a family `C` of inductive types is of the form
 
-.. code-block:: text
+      c : Π (a : α) (b : β[a]), C a p[a,b]
 
-    c : Π (a : α) (b : β[a]), C a p[a,b]
+  where `a` is a sequence of data type parameters, `b` is the sequence of arguments to 
+  the constructors, and `p[a, b]` are the indices, that determine which element of the 
+  inductive family the construction inhabits. 
+  
+  (Note that this description is somewhat misleading in that the arguments to the 
+  constructor can appear in any order as long as the dependencies make sense.) 
+  
+  The constraints on the universe level of `C` fall into two cases, depending on whether 
+  or not the inductive type is specified to land in `Prop` (that is, `Sort 0`).
 
-where ``a`` is a sequence of data type parameters, ``b`` is the sequence of arguments to the constructors, and ``p[a, b]`` are the indices, which determine which element of the inductive family the construction inhabits. (Note that this description is somewhat misleading, in that the arguments to the constructor can appear in any order as long as the dependencies make sense.) The constraints on the universe level of ``C`` fall into two cases, depending on whether or not the inductive type is specified to land in ``Prop`` (that is, ``Sort 0``).
+  Let us first consider the case where the inductive type does *not* land in `Prop`. 
+  Then the universe level `u` is constrained to satisfy the following:
 
-Let us first consider the case where the inductive type is *not* specified to land in ``Prop``. Then the universe level ``u`` is constrained to satisfy the following:
+    - For each constructor `c`, and each `βk[a]` in the sequence `β[a]`, 
+      if `βk[a] : Sort v`, then `u ≥ v`.
 
-    For each constructor ``c`` as above, and each ``βk[a]`` in the sequence ``β[a]``, if ``βk[a] : Sort v``, we have ``u`` ≥ ``v``.
+  In other words, the universe level `u` is required to be at least as large as the 
+  universe level of each type that represents an argument to the constructor.
 
-In other words, the universe level ``u`` is required to be at least as large as the universe level of each type that represents an argument to a constructor.
+  When the inductive type lands in `Prop`, there are no constraints on the universe 
+  levels of the constructor arguments. But these universe levels do have a bearing on 
+  the elimination rule. Generally speaking, for an inductive type in `Prop`, the motive 
+  of the elimination rule is required to be in `Prop`.
 
-When the inductive type is specified to land in ``Prop``, there are no constraints on the universe levels of the constructor arguments. But these universe levels do have a bearing on the elimination rule. Generally speaking, for an inductive type in ``Prop``, the motive of the elimination rule is required to be in ``Prop``.
+  There is an exception to this last rule: we are allowed to eliminate from an 
+  inductively defined `Prop` to an arbitrary `Sort` when there is only one constructor 
+  and each constructor argument is either in `Prop` or an index. In this case the 
+  elimination does not make use of any information other than the mere fact that the 
+  argument type is inhabited. This special case is known as *singleton elimination*.
 
-There is an exception to this last rule: we are allowed to eliminate from an inductively defined ``Prop`` to an arbitrary ``Sort`` when there is only one constructor and each constructor argument is either in ``Prop`` or an index. The intuition is that in this case the elimination does not make use of any information that is not already given by the mere fact that the type of argument is inhabited. This special case is known as *singleton elimination*.
-
-We have already seen singleton elimination at play in applications of ``eq.rec``, the eliminator for the inductively defined equality type. We can use an element ``h : eq a b`` to cast an element ``t' : p a`` to ``p b`` even when ``p a`` and ``p b`` are arbitrary types, because the cast does not produce new data; it only reinterprets the data we already have. Singleton elimination is also used with heterogeneous equality and well-founded recursion, which will be discussed in a later chapter.
-
-.. _mutual_and_nested_inductive_types:
-
+  We have already seen singleton elimination in applications of `eq.rec`, the eliminator 
+  for the inductively defined equality type. We can use an element `h : eq a b` to cast 
+  an element `t' : p a` to `p b` even when `p a` and `p b` are arbitrary types, because 
+  the cast does not produce new data; it only reinterprets the data we already have. 
+  Singleton elimination is also used with heterogeneous equality and well-founded 
+  recursion, which will be discussed in a later chapter. -/
 
 namespace Sec_7_8
 
@@ -992,3 +997,5 @@ namespace Sec_7_10
 end Sec_7_10
 
 
+-- (A, {f})   If θ ⊂ A × A  is an equivalence relation on A, then
+-- (∀(a, b) ( (a, b) ∈ θ  →  (f(a), f(b)) ∈ θ )  ⇒  θ ∈ Con (A)
