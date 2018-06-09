@@ -206,7 +206,7 @@ namespace Sec_7_2
   end hide₃
 
   /- A type with multiple constructors is *disjunctive*; e.g. an element of `sum α β` is either 
-     of the form ``inl a`` *or* of the form ``inl b``. Further, each constructor with multiple 
+     of the form `inl a` *or* of the form `inl b`. Further, each constructor with multiple 
      arguments introduces conjunctive information; e.g., from an element `prod.mk a b` of 
      `prod α β` we can extract `a` *and* `b`. An arbitrary inductive type can include both 
      features, by having any number of constructors, each of which takes any number of arguments.
@@ -454,11 +454,20 @@ namespace hidden
   /-(motive) The implicit argument, `C`, is the codomain of the function being defined. 
              In type theory we say `C` is the *motive* for the elimination/recursion, 
              since it describes the kind of object we're constructing. 
-  - (major premise) `n : nat`, is the input to the function, aka the ``major premise``. 
+  - (major premise) `n : nat`, is the input to the function, aka the `major premise`. 
   - (minor premise) the two arguments after say how to compute the zero and succ cases, 
-                    as described above. They are aka the ``minor premises``. -/
+                    as described above. They are aka the `minor premises`. -/
 
   namespace nat
+
+    -- predecessor
+    def pred (n : nat) : nat := nat.rec_on n zero (λ n pred_n, n)
+
+    #reduce pred zero
+    #reduce pred (succ zero)
+    #reduce pred (succ (succ zero))
+    #reduce pred (succ (succ (succ zero)))
+
     /-Consider `add m n` on natural numbers. Fix `m` and define `add` by recursion on `n`. 
       + base case: let `add m zero` be `m`. 
       + succ step: assume `add m n` is given; let `add m (succ n)` be `succ (add m n)`. -/
@@ -487,27 +496,22 @@ namespace hidden
     instance : has_zero nat := has_zero.mk zero
     instance : has_add nat := has_add.mk add
 
-    theorem add_zero (m : nat) : m + 0 = m := rfl
-    theorem add_succ (m n : nat) : m + succ n = succ (m + n) := rfl
-  end nat
+    theorem add_zero (m : nat) : add m zero = m := rfl
+    theorem add_succ (m n : nat) : add m (succ n) = succ (add m n) := rfl
   /- Proving `0 + m = m`, however, requires induction. The induction principle is just a 
      special case of the recursion principle when the codomain `C n` is an element of `Prop`. 
      It represents the familiar pattern of proof by induction: to prove `∀ n, C n`, first
      prove `C 0`, and then, for arbitrary `n`, assume `ih : C n` and prove `C (succ n)`. -/
-end hidden
 
-namespace hidden2
-  open nat
-  theorem zero_add (n : ℕ) : 0 + n = n := nat.rec_on n
-    (show 0 + 0 = 0, from rfl)
-    (assume n, assume ih : 0 + n = n,
-      show 0 + succ n = succ n, from 
-        calc
-          0 + succ n = succ (0 + n) : rfl
-                 ... = succ n : by rw ih)
+    theorem zero_add (n : nat) : add zero n = n := nat.rec_on n
+      (show add zero zero = zero, from rfl)
+      (assume n, assume ih : add zero n = n,
+        show add zero (succ n) = succ n, from 
+          calc add zero (succ n) = succ (add zero n) : rfl
+                             ... = succ n : by rw ih)
 
-  theorem zero_add' (n : ℕ) : 0 + n = n := nat.rec_on n 
-  rfl (λ n ih, by simp only [add_succ, ih])
+    theorem zero_add' (n : nat) : add zero n = n := nat.rec_on n 
+    rfl (λ n ih, by simp only [add_succ, ih])
   /- Remarks: (1) when `nat.rec_on` is used in a proof, it's the induction principle in disguise. 
      The `rewrite` and `simp` tactics tend to be effective in proofs like these.
      (2) Leaving off the `only` modifier would be misleading because `zero_add` is declared 
@@ -516,46 +520,47 @@ namespace hidden2
   /- Associativity of addition: ∀ m n k, m + n + k = m + (n + k). 
      The hardest part is figuring out which variable to do the induction on. 
      Since addition is defined by recursion on the second argument, k is a good guess. -/
-  theorem add_assoc (m n k : ℕ) : m + n + k = m + (n + k) := nat.rec_on k
-    (show m + n + 0 = m + (n + 0), from rfl)
-    (assume k, assume ih : m + n + k = m + (n + k), 
-      show (m + n) + succ k = m + (n + succ k), from
-        calc (m + n) + succ k = succ ((m + n) + k) : rfl
-                          ... = succ (m + (n + k)) : by rw ih
-                          ... = m + succ (n + k) : rfl
-                          ... = m + (n + succ k) : rfl)
+    theorem add_assoc (m n k : nat) : add (add m n) k = add m (add n k) := nat.rec_on k
+      (show add (add m n) zero = add m (add n zero), from rfl)
+      (assume k, assume ih : add (add m n) k = add m (add n k), 
+        show add (add m n) (succ k) = add m (add n (succ k)), from
+          calc add (add m n) (succ k) = succ (add (add m n) k) : rfl
+                            ... = succ (add m (add n k)) : by rw ih
+                            ... = add m (succ (add n k)) : rfl
+                            ... = add m (add n (succ k)) : rfl)
 
-  -- once again, there is a one-line proof
-  theorem add_assoc' (m n k : ℕ) : m + n + k = m + (n + k) := nat.rec_on k
-    rfl (λ k ih, by simp only [add_succ, ih])
+    -- once again, there is a one-line proof
+    theorem add_assoc' (m n k : nat) : add (add m n) k = add m (add n k) := nat.rec_on k
+      rfl (λ k ih, by simp only [add_succ, ih])
 
-  theorem succ_add (m n : ℕ) : succ m + n = succ (m + n) := nat.rec_on n
-    (show succ m + 0 = succ (m + 0), from rfl)
-     (assume n,
-       assume ih : succ m + n = succ (m + n),
-       show succ m + succ n = succ (m + succ n), from
-         calc 
-           succ m + succ n = succ (succ m + n) : rfl
-                       ... = succ (succ (m + n)) : by rw ih
-                       ... = succ (m + succ n) : rfl)
+    theorem succ_add (m n : nat) : add (succ m) n = succ (add m n) := nat.rec_on n
+      (show add (succ m) zero = succ (add m zero), from rfl)
+       (assume n,
+         assume ih : add (succ m) n = succ (add m n),
+         show add (succ m) (succ n) = succ (add m (succ n)), from
+           calc add (succ m) (succ n) = succ (add (succ m) n) : rfl
+                                  ... = succ (succ (add m n)) : by rw ih
+                                  ... = succ (add m (succ n)) : rfl)
 
-  -- Commutativity of addition:
-  theorem add_comm (m n : ℕ) : m + n = n + m := nat.rec_on n
-   (show m + 0 = 0 + m, by rw [nat.zero_add, nat.add_zero])
-   (assume n,
-     assume ih : m + n = n + m, show m + succ n = succ n + m, from
-       calc m + succ n = succ (m + n) : rfl
-                   ... = succ (n + m) : by rw ih
-                   ... = succ n + m : by simp only [succ_add])
+    -- Commutativity of addition:
+    theorem add_comm (m n : nat) : add m n = add n m := nat.rec_on n
+      (show add m zero = add zero m, by rw [zero_add, add_zero])
+      (assume n,
+      assume ih : add m n = add n m, show add m (succ n) = add (succ n) m, from
+        calc add m (succ n) = succ (add m n) : rfl
+                        ... = succ (add n m) : by rw ih
+                        ... = add (succ n) m : by simp only [succ_add])
 
-  -- Here are the shorter versions of the last two theorems:
-  theorem succ_add' (m n : ℕ) : succ m + n = succ (m + n) := 
-    nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
+    -- Here are the shorter versions of the last two theorems:
+    theorem succ_add' (m n : nat) : add (succ m) n = succ (add m n) := 
+      nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
 
-  theorem add_comm' (m n : ℕ) : m + n = n + m := nat.rec_on n 
+  theorem add_comm' (m n : nat) : add m n = add n m := nat.rec_on n 
     (by simp only [zero_add, add_zero])
     (λ n ih, by simp only [add_succ, ih, succ_add])
-end hidden2
+
+  end nat
+end hidden
 
 
 #print "==========================================="
@@ -564,21 +569,28 @@ end hidden2
 -- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#other-recursive-data-types
 
 -- Here are some more examples of inductively defined types.
-namespace Sec_7_5
+namespace hidden
+  open hidden.nat
+
   -- For any type, α, the type list α of lists of elements of α is defined in the library.
   universe u
-  inductive my_list (α : Type u)
-  | nil {} : my_list
-  | cons : α → my_list → my_list
+  inductive list (α : Type u)
+  | nil {} : list
+  | cons : α → list → list
 
-  namespace my_list
+  namespace list
   
   variable {α : Type}
   
   notation h :: t := cons h t
 
-  def append (s t : my_list α) : my_list α := 
-    my_list.rec t (λ (x: α) (l: my_list α) (u: my_list α), x :: u) s
+  def length (l : list α ) : nat := list.rec_on l zero (λ (x: α) (xs: list α) n, succ n)
+
+  #reduce length (cons zero (cons zero nil))
+
+  lemma list_add_one (x: nat) (t : list nat) : length (cons x t) = succ (length t) := rfl
+
+  def append (s t : list α) : list α := list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
   /- Dissection of append: 
      The first arg to `list.rec` is `t`, meaning return `t` when `s` is `null`.
      The second arg is `(λ x l u, x :: u) s`.  I *think* this means the following:
@@ -588,25 +600,24 @@ namespace Sec_7_5
 
   /- To give some support for the claim that the foregoing interpretation is (roughtly) 
      correct, let's make the types explicit and verify that the definition still type-checks: -/
-  def append' (s t : my_list α) : my_list α := 
-    my_list.rec (t: my_list α) 
-                (λ (x : α) (l : my_list α) (u: my_list α), x :: u) (s : my_list α)
+  def append' (s t : list α) : list α := list.rec (t: list α) 
+                (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
 
-  def append_rec_on (s t : my_list α) : my_list α := 
-    my_list.rec (t: my_list α) 
-                (λ (x : α) (l : my_list α) (u: my_list α), x :: u) (s : my_list α)
+  def append_rec_on (s t : list α) : list α := 
+    list.rec (t: list α) 
+                (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
 
   #check nil                       -- nil : list ?M_1
-  #check (nil: my_list ℕ)         -- nil : list ℕ
+  #check (nil: list ℕ)         -- nil : list ℕ
   #check cons 0 nil                -- 0 :: nil : list ℕ
   #check cons "a" nil              -- 0 :: nil : list string
   #check cons "a" (cons "b" nil)   -- a :: b :: nil : list string
 
   notation s ++ t := append s t
 
-  theorem nil_append (t : my_list α) : nil ++ t = t := rfl
+  theorem nil_append (t : list α) : nil ++ t = t := rfl
 
-  theorem cons_append (x : α) (s t : my_list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
+  theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
   
   -- Lean allows us to define iterative notation for lists:
@@ -614,15 +625,15 @@ namespace Sec_7_5
   notation `{` l:(foldr `,` (h t, cons h t) nil) `}` := l
 
   section
-    open nat
+    --open hidden.nat
     #check {1,2,3,4,5}               -- Lean assumes this is a list of nats
-    #check ({1,2,3,4,5} : my_list int)  -- Forces Lean to take this as a list of ints.
+    #check ({1,2,3,4,5} : list int)  -- Forces Lean to take this as a list of ints.
   end 
 
   -- As an exercise, prove the following:
-  theorem append_nil (t : my_list α) : t ++ nil = t := my_list.rec_on t 
+  theorem append_nil (t : list α) : t ++ nil = t := list.rec_on t 
     (show (append nil nil) = nil, from rfl)
-    (assume (x : α), assume (t : my_list α),
+    (assume (x : α), assume (t : list α),
      assume ih : (append t nil) = t,
      show append (x :: t) nil = (x :: t), from
        calc
@@ -630,11 +641,11 @@ namespace Sec_7_5
                          ... = x :: t             : by rw ih)
 
   -- As an exercise, prove the following:
-  theorem append_nil' (t : my_list α) : t ++ nil = t := my_list.rec_on t 
+  theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
     rfl  -- (base)
-    (λ (x : α) (t : my_list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
+    (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
 
-  --theorem append_assoc (r s t : my_list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+  --theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
 
   -- binary trees
   inductive binary_tree
@@ -644,7 +655,7 @@ namespace Sec_7_5
   -- countably branching trees
   inductive cbtree
   | leaf : cbtree
-  | sup : (ℕ → cbtree) → cbtree
+  | sup : (nat → cbtree) → cbtree
 
   namespace cbtree
   
@@ -656,9 +667,9 @@ namespace Sec_7_5
 
   def omega : cbtree := sup (λ n, nat.rec_on n leaf (λ n t, succ t))
   end cbtree
-  end my_list
+  end list
            
-end Sec_7_5
+end hidden
 
 
 #print "==========================================="
@@ -666,15 +677,17 @@ end Sec_7_5
 #print " " 
 -- https://leanprover.github.io/theorem_proving_in_lean/inductive_types.html#tactics-for-inductive-types
 
-namespace Sec_7_6
+namespace hidden
   /- There are a number of tactics designed to work with inductive types effectively. 
      The `cases` tactic works on elements of an inductively defined type by decomposing 
      the element into the ways it could be constructed. -/
 
-  namespace example₁
-  variable p : ℕ → Prop
-  open nat
-  example (hz : p 0) (hs : ∀ n, p (succ n)) : ∀ n, p n :=
+  universe u
+  open hidden.list
+  open hidden.nat
+
+  variable p : nat → Prop
+  example (hz : p zero) (hs : ∀ n, p (succ n)) : ∀ n, p n :=
     begin intro n, cases n, exact hz, apply hs end
   
   /- `cases` lets you choose names for arguments to the constructors using `with`. 
@@ -684,65 +697,60 @@ namespace Sec_7_6
      reintroduces them. In the example below, notice that `h : n ≠ 0` becomes `h : 0 ≠ 0` 
      in the first branch, and `h : succ m ≠ 0` in the second.-/
 
-  example (n : ℕ) (h : n ≠ 0) : succ (pred n) = n :=
-  begin
-    cases n with m,  -- name cases using variable m
-      -- goal: h : 0 ≠ 0 ⊢ succ (pred 0) = 0
-      { apply (absurd rfl h) },
-      -- goal: h : succ m ≠ 0 ⊢ succ (pred (succ m)) = succ m
-      reflexivity
-  end
+  example (n : nat) (h : n ≠ zero) : succ (hidden.nat.pred n) = n :=
+    begin
+      cases n with m,  -- name cases using variable m
+        -- goal: h : 0 ≠ 0 ⊢ succ (pred 0) = 0
+        { apply (absurd rfl h) },
+        -- goal: h : succ m ≠ 0 ⊢ succ (pred (succ m)) = succ m
+        reflexivity
+    end
 
   -- `cases` can be also be used to produce data and define functions.
-  def f (n : ℕ) : ℕ := begin cases n, exact 3, exact 7 end
+  def f (n : nat) : ℕ := begin cases n, exact 3, exact 7 end
 
   example : f 0 = 3 := rfl
-  example : f 5 = 7 := rfl
-  example : f 1000 = 7 := rfl
+  example : f (succ (succ zero))  = 7 := rfl
   -- in fact, we can prove that f n is constantly 7, except when n = 0.
-  example  (n : ℕ) (h : n ≠ 0) : (f n) = 7 := begin
-    cases n,
-    { apply (absurd rfl h) },  -- goal: 0 ≠ 0 ⊢ f 0 = 7
-    reflexivity                -- goal: (succ a ≠ 0) ⊢ f (succ a) = 7
-  end
-  end example₁
+  example  (n : nat) (h : n ≠ 0) : (f n) = 7 := 
+    begin
+      cases n,
+      { apply (absurd rfl h) },  -- goal: 0 ≠ 0 ⊢ f 0 = 7
+      reflexivity                -- goal: (succ a ≠ 0) ⊢ f (succ a) = 7
+    end
+
+  variable α : Type u
+  
+  def length {α : Type u} (l : list α ) : nat := list.rec_on l zero (λ (x: α) (xs: list α) n, succ n)
 
   -- Now let's define a function that takes a single argument of type `tuple`.
-  namespace functionals
-  universe u
-  open list
-
+  
   -- First define the type `tuple`.
   -- Recall, we define a type that satisfies a predicate like this:
-  def tuple (α : Type u) (n : ℕ) := subtype (λ (l : list α), (list.length l = n)) 
-    -- { l : list α // list.length l = n }  -- (this didn't work for me) 
+  def tuple {α : Type u} (n : nat) := subtype (λ (l : list α), (length l) = n)
+    --{ l : list α // list.length l = n }  -- (this didn't work for me) 
 
-  variables {α : Type u} {n : ℕ}
+  --variables {α : Type u} {n : nat}
 
-  def f {n : ℕ} (t : tuple α n) : ℕ := begin cases n, exact 0, exact 7 end
+  def ff {n : nat} (t : @tuple nat n) : nat := begin cases n, exact zero, exact succ (succ (succ zero)) end
 
-  def my_tuple : tuple ℕ 3 := ⟨[0, 1, 2], rfl⟩
+  def my_tuple : tuple (succ (succ (succ zero))) := ⟨(cons zero (cons (succ zero) (cons zero nil))), rfl⟩
 
-  example : f my_tuple = 7 := rfl
+  example : ff my_tuple = succ ( succ ( succ zero)) := rfl
 
   -- As above, we prove that f t is constantly 7, except when t.length=0.
-  example  (n : ℕ) (t : tuple α n) (h : n ≠ 0) : f t = 7 := 
-  begin
-    cases n,
-    apply (absurd rfl h),  -- goal: 0 ≠ 0 ⊢ f 0 = 7
-    reflexivity            -- goal: (a : ℕ) (succ a ≠ 0) (t : tuple α (succ a)) ⊢ f t = 7
-  end
-
-  end functionals
-
-  namespace hidden
+  example  (n : nat) (t : tuple n) (h : n ≠ zero) : ff t = succ (succ (succ zero)) := 
+    begin
+      cases n,
+      apply (absurd rfl h),  -- goal: 0 ≠ 0 ⊢ f 0 = 7
+      reflexivity            -- goal: (a : ℕ) (succ a ≠ 0) (t : tuple α (succ a)) ⊢ f t = 7
+    end
 
   /- Just as `cases` is used to carry out proof by cases, the `induction` tactic is used 
      for proofs by induction. In contrast to `cases`, the argument to `induction` can only 
      come from the local context. -/
 
-  open nat
-  theorem zero_add (n : ℕ) : 0 + n = n :=
+  theorem zero_add (n : nat) : add zero n = n :=
   begin
     induction n with n ih,
       refl,
@@ -750,21 +758,21 @@ namespace Sec_7_6
   end
   
   -- The `case` tactic identifies each case with named arguments, making the proof clearer:
-  theorem zero_add' (n : ℕ) : 0 + n = n :=
+  theorem zero_add' (n : nat) : add zero n = n :=
   begin
     induction n,
     case zero : { refl },
     case succ : n ih { rw [add_succ, ih] }
   end
 
-  theorem succ_add' (m n : ℕ) : (succ m) + n = succ (m + n) :=
+  theorem succ_add' (m n : nat) : add (succ m) n = succ (add m n) :=
   begin
     induction n,
     case zero : { refl },
-    case succ : n ih { rw [add_succ, ih] }
+    case succ : n ih { simp [add_succ, ih] }
   end
 
-  theorem add_comm' (m n : ℕ) : m + n = n + m :=
+  theorem add_comm' (m n : nat) :add m n = add n m :=
   begin
     induction n,
     case zero : { rw zero_add, refl },
@@ -772,54 +780,50 @@ namespace Sec_7_6
   end
 
   -- Here are terse versions of the last three proofs.
-  theorem zero_add'' (n : ℕ) : 0 + n = n := by induction n; simp only [*, add_zero, add_succ]
+  theorem zero_add'' (n : nat) : add zero n = n := 
+    by induction n; simp only [*, hidden.nat.add_zero, add_succ]
 
-  theorem succ_add'' (m n : ℕ) : (succ m) + n = succ (m+n) := 
-  by induction n; simp only [*, add_zero, add_succ]
+  theorem succ_add'' (m n : nat) : add (succ m) n = succ (add m n) := 
+    by induction n; simp only [*, hidden.nat.add_zero, add_succ]
 
-  theorem add_comm'' (m n : ℕ) : m + n = n + m :=
-  by induction n; simp only [*, zero_add, add_zero, add_succ, succ_add]
+  theorem add_comm'' (m n : nat) : add m n = add n m :=
+  by induction n; simp only [*, zero_add, hidden.nat.add_zero, add_succ, succ_add]
 
-  theorem add_assoc'' (m n k : ℕ) : m + n + k = m + (n + k) :=
-  by induction k; simp only [*, add_zero, add_succ]
-
-  end hidden
+  theorem add_assoc'' (m n k : nat) : add (add m n) k = add m (add n k) :=
+  by induction k; simp only [*, hidden.nat.add_zero, add_succ]
 
   /-We close this section a tactic designed to assist with inductive types---the injection tactic. 
     The elements of an inductive type are freely generated, that is, the constructors are injective 
     and have disjoint ranges. The injection tactic is designed to make use of this fact.  -/
-  
-  open nat
 
-  example (m n k : ℕ) (h : succ (succ m) = succ (succ n)) : 
+  example (m n k : nat) (h : succ (succ m) = succ (succ n)) : 
     n + k = m + k :=
   begin
     injection h with h',   -- adds `h' : succ m = succ n` to the context
     injection h' with h'', -- adds `h'' : m = n` to the context
     rw h''
   end
-  -- The plural variant, ``injections``, applies ``injection`` to all hypotheses repeatedly. 
-  -- It still allows you to name the results using ``with``.
+  -- The plural variant, `injections`, applies `injection` to all hypotheses repeatedly. 
+  -- It still allows you to name the results using `with`.
 
-  example (m n k : ℕ) (h : succ (succ m) = succ (succ n)) : 
+  example (m n k : nat) (h : succ (succ m) = succ (succ n)) : 
     n + k = m + k :=
   begin
     injections with h' h'',
     rw h''
   end
 
-  /- The ``injection`` and ``injections`` tactics will also detect contradictions that arise when 
+  /- The `injection` and `injections` tactics will also detect contradictions that arise when 
      different constructors are set equal to one another, and use them to close the goal. -/
 
-  example (m n : ℕ) (h : succ m = 0) : n = n + 7 := by injections
-  example (m n : ℕ) (h : succ m = 0) : n = n + 7 := by contradiction
+  example (m n : nat) (h : succ m = 0) : n = n + succ (succ (succ zero)) := by injections
+  example (m n : nat) (h : succ m = 0) : n = n + succ (succ (succ zero)) := by contradiction
   example (h : 7 = 4) : false := by injections
 
   /-As the 2nd example shows, `contradiction` also detects contradictions of this form. 
-    But the `contradiction` tactic does not solve the third goal, while ``injections`` does. -/
+    But the `contradiction` tactic does not solve the third goal, while `injections` does. -/
 
-
-end Sec_7_6
+end hidden
 
 
 #print "==========================================="
@@ -974,27 +978,187 @@ end Sec_7_7
   Singleton elimination is also used with heterogeneous equality and well-founded 
   recursion, which will be discussed in a later chapter. -/
 
-namespace Sec_7_8
-
-end Sec_7_8
-
 
 #print "==========================================="
 #print "Section 7.9. Mutual and Nested Inductive Types"
 #print " "
 
-namespace Sec_7_9
+/-We now consider two useful generalizations of inductive types that Lean supports 
+  by "compiling" them down to the more primitive kinds of inductive types described 
+  above. In other words, Lean parses the more general definitions, defines auxiliary 
+  inductive types based on them, and then uses the auxiliary types to define the 
+  ones we really want. Lean's equation compiler, described in the next chapter, 
+  is needed to make use of these types effectively. -/
 
-end Sec_7_9
+/-First, Lean supports *mutually defined* inductive types. The idea is that we can 
+  define two (or more) inductive types at the same time, where each one depends on
+  the other(s). -/
 
+namespace hide791 
+  mutual inductive even, odd
+    with even : ℕ → Prop
+    | even_zero : even 0
+    | even_succ : ∀ n, odd n → even (n + 1)
+    with odd : ℕ → Prop
+    | odd_succ : ∀ n, even n → odd (n + 1)
+
+end hide791
+
+/-In this example, two types are defined simultaneously: a natural number `n` is 
+  `even` if it is `0` or one more than an `odd` number, and 
+  `odd` if it is one more than an `even` number. -/
+  
+/-Under the hood, this definition is compiled down to a single inductive type 
+  with an index `i` in a two-valued type (such as `bool`), where `i` encodes 
+  which of `even` or `odd` is intended. In the exercises below, you are asked 
+  to spell out the details. -/
+
+--A mutual inductive definition can also be used to define the notation of a 
+--finite tree with nodes labeled by elements of `α`:
+
+namespace hide792
+  universe u
+
+  mutual inductive tree, list_tree (α : Type u) with tree : Type u
+  | node   : α → list_tree → tree with list_tree : Type u
+  | nil {} : list_tree
+  | cons   : tree → list_tree → list_tree
+
+end hide792
+
+/-With this definition, one can construct an element of `tree α` by giving an 
+  element of `α` together with a list of subtrees, possibly empty. The list of 
+  subtrees is represented by the type `list_tree α`, which is defined to be either 
+  the empty list, `nil`, or the `cons` of a tree and an element of `list_tree α`. -/
+
+/-This definition is inconvenient to work with, however. It would be nicer if the 
+  list of subtrees were given by the type `list (tree α)`, especially since Lean's 
+  library contains a number of functions and theorems for working with lists. 
+  One can show that the type `list_tree α` is *isomorphic* to `list (tree α)`, 
+  but translating results back and forth along this isomorphism is tedious. -/
+
+-- In fact, Lean allows us to define the inductive type we really want:
+namespace hide793
+  universe u
+
+  inductive tree (α : Type u)
+  | mk : α → list tree → tree
+
+ end hide793
+
+/-This is known as a *nested* inductive type. It falls outside the strict 
+  specification of an inductive type given in the last section because `tree` 
+  does not occur strictly positively among the arguments to `mk`, but, rather, 
+  nested inside the `list` type constructor. -/
+  
+/-Under the hood, Lean compiles this down to the mutual inductive type described 
+  above, which is compiled down to an ordinary inductive type. Lean then builds 
+  the isomorphism between `list_tree α` and `list (tree  α)`, and defines the 
+  constructors for `tree` in terms of the isomorphism. The types of the constructors 
+  for mutual and nested inductive types can be read off from the definitions. -/
+  
+/-Defining functions *from* such types is more complicated, because these also have 
+  to be compiled down to more basic operations, making use of the primitive recursors 
+  that are associated to the inductive types that are declared under the hood. Lean 
+  does its best to hide the details from users, allowing them to use the equation 
+  compiler, described in the next section, to define such functions in natural ways. -/
 
 #print "==========================================="
 #print "Section 7.10. Exercises"
 #print " "
 
-namespace Sec_7_10
+-- 1. Try defining other operations on the natural numbers, such as multiplication, 
+--    predecessor (with `pred 0 = 0`), truncated subtraction (with `n - m = 0` 
+--    when `m` is greater than or equal to `n`), and exponentiation. 
+--    Then prove some of their properties, building on the thms we already proved.
+namespace hidden
+  open hidden.nat 
+  def mult (m n: nat): nat:= 
+    nat.rec_on n zero              -- if n = zero, return 0 otherwise, given n and the 
+    (λ n mult_m_n, add mult_m_n m) -- result (mult_m_n := mult m n), return mult_m_n + m
 
-end Sec_7_10
+  theorem mult_zero (m : nat) : mult m zero = zero := rfl
+
+  theorem mult_succ (m n : nat) : mult m (succ n) = add (mult m n) m := rfl
+
+  theorem zero_mult (n : nat) : mult zero n = zero := nat.rec_on n rfl
+    (assume n,
+    assume ih: mult zero n = zero, show mult zero (succ n) = zero, from
+      calc mult zero (succ n) = add (mult zero n) zero : mult_succ zero n
+                          ... = add zero zero : ih
+                          ... = zero : hidden.nat.add_zero zero)
+
+  theorem add_succ (m n : nat) : add m (succ n) = succ (add m n) := rfl
+
+  theorem succ_mult (n m : nat) : add (mult n m) m = mult (succ n) m := nat.rec_on m 
+  (show add (mult n zero) zero = mult (succ n) zero, from 
+    calc add (mult n zero) zero = add zero zero : mult_zero n
+                            ... = zero : add_zero zero
+                            ... = mult (succ n) zero: mult_zero (succ n))
+  (assume m,
+    assume ih: add (mult n m) m = mult (succ n) m, 
+    show add (mult n (succ m)) (succ m) = mult (succ n) (succ m), from
+    calc add (mult n (succ m)) (succ m) = add (add (mult n m) n) (succ m) : rfl
+                                    ... = succ (add (add (mult n m) n) m) : by simp [add_succ]
+                                    ... = succ (add (mult n m) (add n m)) : by simp [hidden.nat.add_assoc]
+                                    ... = succ (add (mult n m) (add m n))  : by simp [hidden.nat.add_comm]
+                                    ... = succ (add (add (mult n m) m) n): by simp [hidden.nat.add_assoc]
+                                    ... = add (add (mult n m) m) (succ n) : by simp [add_succ]
+                                    ... = add (mult (succ n) m) (succ n) : by simp [ih]
+                                    ... = mult (succ n) (succ m) : mult_succ (succ n) m)
+
+  theorem mult_add_distr (m n k : nat) : mult m (add n k) = add (mult m n) (mult m k) :=
+    nat.rec_on k rfl
+    (λ k ih, by simp [add_succ, hidden.nat.add_assoc, mult_succ, ih])
+
+  theorem mult_assoc (m n k : nat) : mult (mult m n) k = mult m (mult n k) := 
+    nat.rec_on k rfl
+    (λ k ih, by simp [mult_add_distr, mult_succ, ih]) 
+
+  theorem mult_comm (m n : nat) : mult m n = mult n m := nat.rec_on n 
+        (show mult m zero = mult zero m, by simp [mult_zero, zero_mult])
+        (assume n, assume ih: mult m n = mult n m,
+          show mult m (succ n)= mult (succ n) m, from
+          calc mult m (succ n) = add (mult m n) m : rfl
+                           ... = add (mult n m) m : congr_arg (λ x, add x m) ih
+                           ... = mult (succ n) m : succ_mult n m)
+
+end hidden
+
+-- 2. Define some operations on lists, like a `length` function or the `reverse` function. Prove some properties, such as the following:
+
+namespace hidden
+
+  open hidden.nat
+  open hidden.list
+  variables α β : Type
+
+  -- a. `length (s ++ t) = length s + length t` 
+  theorem length_equality (s t : list α) : length (s ++ t) = length s + length t := list.rec_on t 
+    (show length (s ++ nil) = length s + length nil, from rfl)
+    (assume (x: α) (t : list α), assume ih: length (s ++ t) = length s + length t, 
+    show length (s ++ (cons x t)) = length s + length (cons x t), from
+    have h₁ : length (cons x t) = succ (length t), from rfl,
+    have h₂ : length s + length (cons x t) = length s + succ (length t), from congr_arg (λ (x: nat), add (length s) x) h₁,
+
+--   b. `length (reverse t) = length t`
+
+   --c. `reverse (reverse t) = t`
+
+-- 3. Define an inductive data type consisting of terms built up from the following constructors:
+
+--   -  `const n`, a constant denoting the natural number `n`
+--   -  `var n`, a variable, numbered `n`
+--   -  `plus s t`, denoting the sum of `s` and `t`
+--   -  `times s t`, denoting the product of `s` and `t`
+
+/-   Recursively define a function that evaluates any such term with respect to an assignment of values to the variables.
+
+#. Similarly, define the type of propositional formulas, as well as functions on the type of such formulas: an evaluation function, functions that measure the complexity of a formula, and a function that substitutes another formula for a given variable.
+
+#. Simulate the mutual inductive definition of `even` and `odd` described in :numref:`mutual_and_nested_inductive_types` with an ordinary inductive type, using an index to encode the choice between them in the target type.
+-/
+end hidden
 
 
 -- (A, {f})   If θ ⊂ A × A  is an equivalence relation on A, then
