@@ -404,7 +404,6 @@ namespace Sec_7_3
   namespace hide₇
     universe u
     inductive subtype {α : Type u} (p : α → Prop) | mk : Π(x : α), p x → subtype
-
     inductive subtype_alt {α : Type u} (p : α → Prop) | mk (w : Π(x : α), p x) : subtype_alt
   end hide₇
 
@@ -417,8 +416,6 @@ namespace Sec_7_3
    #check {x : α // p x }  -- why is the result `{x // p x } : Type u` ??
  end confusing_example
  -- The notation `{x : α // p x}` is syntactic sugar for subtype `(λ x : α, p x)`. 
-
-
 end Sec_7_3
 
 #print "==========================================="
@@ -1135,6 +1132,7 @@ namespace hidden
   open hidden.list
   variables α β : Type
 
+
 -- a. `length (s ++ t) = length s + length t` 
   theorem length_is_a_monoid_morphism (s t : list α) : 
     length (s ++ t) = add (length s) (length t) := list.rec_on s 
@@ -1156,8 +1154,31 @@ namespace hidden
          ... = add (succ (length s)) (length t) : by rw succ_add
          ... = add (length (x::s)) (length t): by rw h₁)
 
---   b. `length (reverse t) = length t`
+ --   b. `length (reverse t) = length t`
+  def reverse {α : Type} : list α → list α 
+  | nil := nil
+  | (cons x xs) := (reverse xs) ++ (cons x nil)
 
+  #reduce (cons 0 (cons 1 (cons 2 nil)))
+  #reduce 0::1::2::nil                            -- {0,1,2}
+  #reduce reverse (cons 0 (cons 1 (cons 2 nil)))  -- {2,1,0}
+
+  theorem len_rev_eq_len (t: list α) : length (reverse t) = length t := list.rec_on t 
+    rfl 
+    (assume (x: α) (t: list α), 
+      assume ih: length (reverse t) = length t,
+        show length (reverse (x::t)) = length (x::t), from
+        have hr: reverse (x::t) = reverse t ++ x::nil, from rfl,
+        have hrl: length (reverse t ++ x::nil) = add (length (reverse t)) (length (x::nil)), 
+          by rw [length_is_a_monoid_morphism],
+        have hh: add (length t) (length (x::nil)) = succ (length t), from rfl,
+        have lhs: length (reverse (x::t)) = succ (length t), by rw [hr,hrl,ih,hh],
+        have rhs: length (x::t) = succ (length t), from rfl,
+        have done : length (reverse (x::t)) = length (x::t), by rw [lhs,rhs],
+        done)
+
+end hidden
+   
    --c. `reverse (reverse t) = t`
 
 -- 3. Define an inductive data type consisting of terms built up from the following constructors:
@@ -1169,11 +1190,10 @@ namespace hidden
 
 /-   Recursively define a function that evaluates any such term with respect to an assignment of values to the variables.
 
-#. Similarly, define the type of propositional formulas, as well as functions on the type of such formulas: an evaluation function, functions that measure the complexity of a formula, and a function that substitutes another formula for a given variable.
+4. Similarly, define the type of propositional formulas, as well as functions on the type of such formulas: an evaluation function, functions that measure the complexity of a formula, and a function that substitutes another formula for a given variable.
 
-#. Simulate the mutual inductive definition of `even` and `odd` described in :numref:`mutual_and_nested_inductive_types` with an ordinary inductive type, using an index to encode the choice between them in the target type.
+5. Simulate the mutual inductive definition of `even` and `odd` described in :numref:`mutual_and_nested_inductive_types` with an ordinary inductive type, using an index to encode the choice between them in the target type.
 -/
-end hidden
 
 
 -- (A, {f})   If θ ⊂ A × A  is an equivalence relation on A, then
