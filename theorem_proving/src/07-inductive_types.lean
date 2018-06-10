@@ -585,14 +585,17 @@ namespace hidden
   notation h :: t := cons h t
 
   def length (l : list α ) : nat := list.rec_on l zero (λ (x: α) (xs: list α) n, succ n)
-
+  
+  #reduce length nil
   #reduce length (cons zero (cons zero nil))
+  lemma len_nil {α: Type} : length (nil: list α) = zero := rfl
 
-  lemma list_add_one (x: nat) (t : list nat) : length (cons x t) = succ (length t) := rfl
+  lemma list_add_one (x: nat) (t : list nat) : length (x :: t) = succ (length t) := rfl
 
-  def append (s t : list α) : list α := list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
+  def append (s t : list α) : list α := 
+    list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
   /- Dissection of append: 
-     The first arg to `list.rec` is `t`, meaning return `t` when `s` is `null`.
+     The first arg to `list.rec` is `t`, meaning return `t` when `s` is `nil`.
      The second arg is `(λ x l u, x :: u) s`.  I *think* this means the following:
      assuming `u` is the result of `append l t`, then `append (x :: l) t` results
      in `x :: u`.  
@@ -603,9 +606,6 @@ namespace hidden
   def append' (s t : list α) : list α := list.rec (t: list α) 
                 (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
 
-  def append_rec_on (s t : list α) : list α := 
-    list.rec (t: list α) 
-                (λ (x : α) (l : list α) (u: list α), x :: u) (s : list α)
 
   #check nil                       -- nil : list ?M_1
   #check (nil: list ℕ)         -- nil : list ℕ
@@ -614,9 +614,9 @@ namespace hidden
   #check cons "a" (cons "b" nil)   -- a :: b :: nil : list string
 
   notation s ++ t := append s t
+  --notation a + b := add a b
 
   theorem nil_append (t : list α) : nil ++ t = t := rfl
-
   theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
   
@@ -631,21 +631,22 @@ namespace hidden
   end 
 
   -- As an exercise, prove the following:
-  theorem append_nil (t : list α) : t ++ nil = t := list.rec_on t 
-    (show (append nil nil) = nil, from rfl)
-    (assume (x : α), assume (t : list α),
-     assume ih : (append t nil) = t,
-     show append (x :: t) nil = (x :: t), from
-       calc
-         append (x :: t) nil = x :: append t nil  : cons_append x t nil
-                         ... = x :: t             : by rw ih)
+  theorem append_nil (t : list α) : t ++ nil = t := 
+    list.rec_on t 
+      rfl  -- more explicitly, `(show (append nil nil) = nil, from rfl)`
+      (assume (x : α), assume (t : list α),
+        assume ih : (append t nil) = t,
+        show append (x :: t) nil = (x :: t), from
+          calc append (x :: t) nil = x :: append t nil  : cons_append x t nil
+                               ... = x :: t             : by rw ih)
 
   -- As an exercise, prove the following:
   theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
     rfl  -- (base)
     (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
 
-  --theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+  -- theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+  -- TODO: prove append_assoc
 
   -- binary trees
   inductive binary_tree
@@ -722,7 +723,8 @@ namespace hidden
   variable α : Type u
   
   def length {α : Type u} (l : list α ) : nat := list.rec_on l zero (λ (x: α) (xs: list α) n, succ n)
-
+  
+ -- lemma len_nil : (length nil) = zero := rfl
   -- Now let's define a function that takes a single argument of type `tuple`.
   
   -- First define the type `tuple`.
@@ -1133,13 +1135,26 @@ namespace hidden
   open hidden.list
   variables α β : Type
 
-  -- a. `length (s ++ t) = length s + length t` 
-  theorem length_equality (s t : list α) : length (s ++ t) = length s + length t := list.rec_on t 
-    (show length (s ++ nil) = length s + length nil, from rfl)
-    (assume (x: α) (t : list α), assume ih: length (s ++ t) = length s + length t, 
-    show length (s ++ (cons x t)) = length s + length (cons x t), from
-    have h₁ : length (cons x t) = succ (length t), from rfl,
-    have h₂ : length s + length (cons x t) = length s + succ (length t), from congr_arg (λ (x: nat), add (length s) x) h₁,
+-- a. `length (s ++ t) = length s + length t` 
+  theorem length_is_a_monoid_morphism (s t : list α) : 
+    length (s ++ t) = add (length s) (length t) := list.rec_on s 
+    -- base case: s = nil
+    (show length (nil ++ t) = add (length nil) (length t), from 
+      have h₁ : length (nil: list α)  = zero, from rfl,
+      calc length (nil ++ t) = length t : rfl
+                        ... = add zero (length t) : by rw [hidden.nat.zero_add]
+                        ... = add (length nil) (length t) : rfl)
+                        
+    -- induction step: t : list α 
+    (assume (x: α) (s : list α), 
+      assume ih: length (s ++ t) = add (length s) (length t), 
+      show length (x::s ++ t) = add (length (x::s)) (length t), from
+        have h₁ : length (x::s) = succ (length s), from rfl,
+        calc length (x::s ++ t) = length (x:: (s ++ t)): by rw [cons_append]
+         ... = succ (length (s ++ t)): rfl
+         ... = succ (add (length s) (length t)) : by rw ih
+         ... = add (succ (length s)) (length t) : by rw succ_add
+         ... = add (length (x::s)) (length t): by rw h₁)
 
 --   b. `length (reverse t) = length t`
 
