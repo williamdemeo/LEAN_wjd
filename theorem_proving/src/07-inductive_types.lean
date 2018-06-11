@@ -616,7 +616,7 @@ namespace hidden
   theorem nil_append (t : list α) : nil ++ t = t := rfl
   theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
-  
+  theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
   -- Lean allows us to define iterative notation for lists:
 
   notation `{` l:(foldr `,` (h t, cons h t) nil) `}` := l
@@ -1157,7 +1157,7 @@ namespace hidden
  --   b. `length (reverse t) = length t`
   def reverse {α : Type} : list α → list α 
   | nil := nil
-  | (cons x xs) := (reverse xs) ++ (cons x nil)
+  | (x::xs) := (reverse xs) ++ (x::nil)
 
   #reduce (cons 0 (cons 1 (cons 2 nil)))
   #reduce 0::1::2::nil                            -- {0,1,2}
@@ -1176,10 +1176,40 @@ namespace hidden
         have rhs: length (x::t) = succ (length t), from rfl,
         have done : length (reverse (x::t)) = length (x::t), by rw [lhs,rhs],
         done)
+--theorem nil_append (t : list α) : nil ++ t = t := rfl
+  
+   --c. `reverse (reverse t) = t`
+   lemma reverse_swapomorphism (s t: list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) := 
+     list.rec_on s 
+     (show (reverse (nil ++ t)) = (reverse t) ++ (reverse nil), from
+      calc reverse (nil ++ t) = reverse t : by rw [nil_append]
+                          ... = reverse t ++ nil : by rw [append_nil (reverse t)]
+                          ... = reverse t ++ (reverse nil) : rfl)
+     (assume (x: α) (s t: list α),
+      assume ih: reverse (s ++ t) = (reverse t) ++ (reverse s),
+      show reverse ((x::s) ++ t) = (reverse t) ++ (reverse (x::s)), from
+      have hrs: reverse s ++ (x::nil) = reverse (x::s), from rfl,
+      calc reverse ((x::s) ++ t) = reverse ( x :: (s++t)) : rfl
+                             ... = reverse (s++t) ++ x::nil : rfl
+                             ... = reverse t ++ reverse s ++ (x::nil) : by rw [ih]
+                             ... = reverse t ++ (reverse s ++ (x::nil)) : append_associative (reverse t) (reverse s) (x::nil)
+                             ... = reverse t ++ reverse (x::s) : by simp [append_associative,hrs])
+
+
+   theorem reverse_is_an_involution (t : list α) : reverse (reverse t) = t := list.rec_on t
+    rfl
+    (assume (x: α) (t: list α),
+      assume ih: reverse (reverse t) = t,
+      have hrx : reverse (x::nil) = x::nil, from rfl,
+        show reverse (reverse (x::t)) = x::t, from
+        calc reverse (reverse (x::t)) = reverse ((reverse t) ++ (x::nil)) : rfl
+                                  ... = reverse (x::nil) ++ (reverse (reverse t)) : reverse_swapomorphism _ (reverse t) (x::nil)
+                                  ... = (x::nil) ++ (reverse (reverse t)) : by rw [hrx]
+                                  ... = (x::nil) ++ t : by rw [ih])
+
+
 
 end hidden
-   
-   --c. `reverse (reverse t) = t`
 
 -- 3. Define an inductive data type consisting of terms built up from the following constructors:
 
