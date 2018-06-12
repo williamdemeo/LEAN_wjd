@@ -320,7 +320,10 @@ namespace Sec_7_2
      `β` to `γ`, and show that it behaves as expected. -/
 
   namespace exercise₁
-    inductive option (α : Type u) | none {} : option | some : α → option
+    inductive option (α : Type u) 
+    | none {} : option 
+    | some : α → option
+
     def compose (α β γ: Type u) (f : α → option β) (g : β → option γ) (x: α) : option γ := 
       option.cases_on (f x) (option.none) (λ y, g y)
   end exercise₁
@@ -616,7 +619,17 @@ namespace hidden
   theorem nil_append (t : list α) : nil ++ t = t := rfl
   theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
-  theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
+  theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := list.rec_on r
+  rfl
+  (assume (x: α) (r : list α),
+    assume ih: r ++ s ++ t = r ++ (s ++ t),
+    show (x::r) ++ s ++ t = (x::r) ++ (s ++ t), from
+      calc (x::r) ++ s ++ t = x::(r++s) ++ t: by rw [cons_append]
+                        ... = x::((r++s)++t) : by rw [cons_append]
+                        ... = x::(r++(s++t)) : by rw [ih]
+                        ... = (x::r)++(s++t) : by rw [cons_append])
+
+
   -- Lean allows us to define iterative notation for lists:
 
   notation `{` l:(foldr `,` (h t, cons h t) nil) `}` := l
@@ -1132,7 +1145,6 @@ namespace hidden
   open hidden.list
   variables α β : Type
 
-
 -- a. `length (s ++ t) = length s + length t` 
   theorem length_is_a_monoid_morphism (s t : list α) : 
     length (s ++ t) = add (length s) (length t) := list.rec_on s 
@@ -1176,7 +1188,6 @@ namespace hidden
         have rhs: length (x::t) = succ (length t), from rfl,
         have done : length (reverse (x::t)) = length (x::t), by rw [lhs,rhs],
         done)
---theorem nil_append (t : list α) : nil ++ t = t := rfl
   
    --c. `reverse (reverse t) = t`
    lemma reverse_swapomorphism (s t: list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) := 
@@ -1185,7 +1196,7 @@ namespace hidden
       calc reverse (nil ++ t) = reverse t : by rw [nil_append]
                           ... = reverse t ++ nil : by rw [append_nil (reverse t)]
                           ... = reverse t ++ (reverse nil) : rfl)
-     (assume (x: α) (s t: list α),
+     (assume (x: α) (s: list α),
       assume ih: reverse (s ++ t) = (reverse t) ++ (reverse s),
       show reverse ((x::s) ++ t) = (reverse t) ++ (reverse (x::s)), from
       have hrs: reverse s ++ (x::nil) = reverse (x::s), from rfl,
@@ -1194,7 +1205,6 @@ namespace hidden
                              ... = reverse t ++ reverse s ++ (x::nil) : by rw [ih]
                              ... = reverse t ++ (reverse s ++ (x::nil)) : append_associative (reverse t) (reverse s) (x::nil)
                              ... = reverse t ++ reverse (x::s) : by simp [append_associative,hrs])
-
 
    theorem reverse_is_an_involution (t : list α) : reverse (reverse t) = t := list.rec_on t
     rfl
@@ -1207,23 +1217,61 @@ namespace hidden
                                   ... = (x::nil) ++ (reverse (reverse t)) : by rw [hrx]
                                   ... = (x::nil) ++ t : by rw [ih])
 
+-- 3. Define an inductive data type consisting of terms built from the following constructors:
+
+      --   -  `const n`, a constant denoting the natural number `n`
+      --   -  `var n`, a variable, numbered `n`
+      --   -  `plus s t`, denoting the sum of `s` and `t`
+      --   -  `times s t`, denoting the product of `s` and `t`
+  inductive expr : Type
+  | const : ℕ → expr
+  | var : ℕ → expr
+  | plus : expr → expr → expr
+  | times : expr → expr → expr
+
+  #check expr.const 0
+  #check expr.var 1
+
+  -- Recursively define a function that evaluates any such term with respect to an 
+  -- assignment of values to the variables.
+  open hidden.expr
+  def eval : expr → (ℕ → ℕ) → ℕ 
+  | (const n) (env: ℕ → ℕ) := n
+  | (var n) (env: ℕ → ℕ) := env n
+  | (plus e1 e2) env := (eval e1 env) + (eval e2 env)
+  | (times e1 e2) env := (eval e1 env) * (eval e2 env)
+
+  -- Here's an example with an environment that sets all vars to 2
+  #reduce eval (times (plus (var 3) (const 5)) (var 2)) (λ n, 2)  -- result: 14
+
+-- 4. Similarly, define the type of propositional formulas, as well as functions on 
+--    the type of such formulas: an evaluation function, functions that measure the 
+--    complexity of a formula, and a function that substitutes another formula for 
+--    a given variable.
+
+  inductive wff : Type
+  | const : bool → wff
+  | var : ℕ → wff
+  | and : wff → wff → wff
+  | or : wff → wff → wff
+  | not : wff → wff
+
+  --open hidden.wff
+
+  def peval : wff → (ℕ → bool) → bool 
+  | (wff.const b) (env: ℕ → bool) := b
+  | (wff.var n) (env: ℕ → bool) := env n
+  | (wff.and e1 e2) (env: ℕ → bool) := if (peval e1 env) then (peval e2 env) else false
+  | (wff.or e1 e2) (env: ℕ → bool) := if (peval e1 env) then true else (peval e2 env)
+  | (wff.not e) (env: ℕ → bool) := if (peval e env) then false else true
+ 
+
+-- 5. Simulate the mutual inductive definition of `even` and `odd` described in this 
+--    chapter with an ordinary inductive type, using an index to encode the choice 
+--    between them in the target type.
 
 
 end hidden
-
--- 3. Define an inductive data type consisting of terms built up from the following constructors:
-
---   -  `const n`, a constant denoting the natural number `n`
---   -  `var n`, a variable, numbered `n`
---   -  `plus s t`, denoting the sum of `s` and `t`
---   -  `times s t`, denoting the product of `s` and `t`
-
-/-   Recursively define a function that evaluates any such term with respect to an assignment of values to the variables.
-
-4. Similarly, define the type of propositional formulas, as well as functions on the type of such formulas: an evaluation function, functions that measure the complexity of a formula, and a function that substitutes another formula for a given variable.
-
-5. Simulate the mutual inductive definition of `even` and `odd` described in :numref:`mutual_and_nested_inductive_types` with an ordinary inductive type, using an index to encode the choice between them in the target type.
--/
 
 
 -- (A, {f})   If θ ⊂ A × A  is an equivalence relation on A, then
