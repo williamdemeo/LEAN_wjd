@@ -309,32 +309,97 @@ end hidden
   - `a` is an element of type `α`. -/
 
 namespace Sec_8_4
-    universe u
-    variable α : Sort u
-    variable r : α → α → Prop
-    #check acc r
-    #check well_founded r
+  universes u v
+  variable α : Sort u
+  variable r : α → α → Prop
+  #check (acc r: α → Prop)
+  #check (well_founded r: Prop)
 
+  /-Here, `acc` is an inductively defined predicate, and `acc r x` is equivalent to 
 
-    namespace hidden
-    open nat
+        ∀ y, r y x → acc r y 
 
+    Think of `r y x` as denoting a kind of order relation `y ≺ x`. Then `acc r x` 
+    says that `x` is accessible "from below", in the sense that all its predecessors 
+    are accessible. In particular, if `x` has no predecessors, it is accessible.
+    
+    Given any type `α`, we can assign a value to each accessible element of `α`, 
+    recursively, by assigning values to all its predecessors first.
+
+    The statement that `r` is a well founded relation over `α`, denoted 
+    `well_founded r`, means that every element of the type `α` is accessible.
+    
+    By the above considerations, if `r` is a well-founded relation over a type `α`, 
+    then we have a principle of well-founded recursion on `α`, with respect to `r`.
+    Indeed, the Lean stdlib defines `well_founded.fix`, which serves that purpose.-/
+
+  -- Let's assume `r` is well founded:
+  variable h: well_founded r
+    
+  -- Now let's define a variable `C` that represents the "motive" of a 
+  -- recursive definition: 
+  variable C: α → Sort v
+
+  -- For each element x : α, we would like to construct an element of C x. 
+  -- The following function provides an inductive recipe for doing that.
+  variable F : Π x, (Π (y: α), r y x → C y) → C x
+
+  -- The function `F` tells us how to construct an element `C x`, given 
+  -- we have `C y` for each predecessor `y` of `x`.
+
+  -- Finally, we use `F`, the hypothesis `h` (that `r` is well founded), and 
+  -- `well_founded.fix` to define the function that gives `C x` for each `x`.
+  def f : Π (x: α), C x := well_founded.fix h F
+
+  /-Note that `well_founded.fix` works equally well as an induction principle. 
+    It says that if `≺` is well founded and you want to prove `∀ x, C x`, then
+    it suffices to show that for an arbitrary `x`, if we have `∀ y ≺ x, C y`, 
+    then we have `C x`.-/
+
+  namespace hidden
+  open nat
+
+    -- Next we define `div`, which is essentially division on `nat` as found in stdlib.
+
+    -- First we'll define a division lemma using two functions from the std lib:
+    #check @nat.sub_lt -- ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
+    #check @nat.lt_of_lt_of_le -- ∀ {n m k : ℕ}, n < m → m ≤ k → n < k
+
+    def div_rec_lemma { x y : ℕ } : 0 < y ∧ y ≤ x → x - y < x :=
+      assume h : 0 < y ∧ y ≤ x,
+        have hx : 0 < x, from (lt_of_lt_of_le h.left h.right),
+        show x - y < x, from sub_lt hx h.left 
+
+    -- Finally, here's div:
+    def div.F (x: ℕ) (f : Π x₁, x₁ < x → ℕ → ℕ) (y: ℕ) : ℕ :=
+      if h : 0 < y ∧ y ≤ x then
+        f (x - y) (div_rec_lemma h) y + 1 -- the 1st arg is x₁, the 2nd is h: x₁ < x
+      else 0
+
+    -- The equation compiler make definitions like this more convenient. 
+    -- It accepts the following:
     def div : ℕ → ℕ → ℕ
     | x y :=
       if h : 0 < y ∧ y ≤ x then
         have x - y < x, 
           from sub_lt (lt_of_lt_of_le h.left h.right) h.left,
         div (x - y) y + 1
-      else
-        0
+      else 0
 
+    -- The defining equation for `div` does not hold definitionally, but the 
+    -- equation is available to `rewrite` and `simp`.
     example (x y : ℕ) :  
       div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
-    by rw [div]
+    by rw [div]  -- `simp` would loop here, but `rw` works.
 
     example (x y : ℕ) (h : 0 < y ∧ y ≤ x) : 
       div x y = div (x - y) y + 1 :=
     by rw [div, if_pos h]
+
+    /-The following example is similar: it converts any nat to binary, (a list of 
+      0’s and 1’s). We have to give the equation compiler with evidence that the 
+      recursive call is decreasing, which we do with `sorry`. Here `sorry` doesn't 
+      prevent the bytecode evaluator from evaluating the function successfully.-/
 
     def nat_to_bin : ℕ → list ℕ 
     | 0 := [0]
@@ -365,6 +430,11 @@ namespace Sec_8_4
 
     #eval ack 3 9
 
+  /-Lean's mechanisms for guessing a well-founded relation and then proving that 
+    recursive calls decrease are still in a rudimentary state. They will be 
+    improved over time. When they work, they are more convenient for defining 
+    functions than using `well_founded.fix` manually. When they don't work,
+    the latter is always available as a backup.-/
 end Sec_8_4
 
 
