@@ -280,14 +280,90 @@ namespace hidden
 
     end nat
 
+    -- The following adds elements of the first list to elements of the second list, 
+    -- until one of the two lists runs out. 
+
+    def {u} list_add {α : Type u} [has_add α] : list α → list α → list α 
+    | [] _ := []
+    | _ [] := []
+    | (x::xs) (y::ys) := (x + y) :: list_add xs ys
+
+    -- Note: this is defined this outside of `nat`, so `+` doesn't clash.
+    -- QUESTION: How to define this inside `nat`?
+
+    example : list_add [1,2,3] [4,5] = [5,7] := rfl
+
+    #eval list_add [0,1,2,3,4,5,6,7,8] [1,2,3,4,5,6,7,8]
+
 end hidden
 
 
 #print "==========================================="
 #print "Section 8.4. Well-Founded Recursion and Induction"
 #print " "
+/-Dependent type theory is powerful enough to encode and justify well-founded 
+  recursion. We start with the logical background needed to understand how it works.-/
+
+/-Lean's std lib defines two predicates, `acc r a` and `well_founded r`, where 
+  - `r` is a binary relation on a type `α`
+  - `a` is an element of type `α`. -/
 
 namespace Sec_8_4
+    universe u
+    variable α : Sort u
+    variable r : α → α → Prop
+    #check acc r
+    #check well_founded r
+
+
+    namespace hidden
+    open nat
+
+    def div : ℕ → ℕ → ℕ
+    | x y :=
+      if h : 0 < y ∧ y ≤ x then
+        have x - y < x, 
+          from sub_lt (lt_of_lt_of_le h.left h.right) h.left,
+        div (x - y) y + 1
+      else
+        0
+
+    example (x y : ℕ) :  
+      div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+    by rw [div]
+
+    example (x y : ℕ) (h : 0 < y ∧ y ≤ x) : 
+      div x y = div (x - y) y + 1 :=
+    by rw [div, if_pos h]
+
+    def nat_to_bin : ℕ → list ℕ 
+    | 0 := [0]
+    | 1 := [1]
+    | (n+2) := have (n+2)/2 < n+2, from sorry,
+               nat_to_bin ((n+2)/2) ++ [n % 2]
+
+    #eval nat_to_bin 8
+    -- (n+2) = 8  =>  n = 6
+    -- nat_to_bin 4 ++ [6%2]   --> [0]
+       -- (n+2) = 4  =>  n=2
+       -- nat_to_bin 2 ++ [2%2]   --> [0, 0]
+          -- (n+2) = 2  =>  n=0
+          -- nat_to_bin 1 ++ [0%2]  --> [0, 0, 0]
+          -- nat_to_bin 1 = [1]        
+          --  Final answer:            --> [1, 0, 0, 0]
+
+
+    end hidden
+
+    -- Ackermann's function can be defined directly, because it is justified by 
+    -- the well foundedness of the lexicographic order on the natural numbers.
+
+    def ack : ℕ → ℕ → ℕ 
+    | 0 y := y+1
+    | (x+1) 0 := ack x 1
+    | (x+1) (y+1) := ack x (ack (x+1) y)
+
+    #eval ack 3 9
 
 end Sec_8_4
 
