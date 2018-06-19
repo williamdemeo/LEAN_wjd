@@ -1,8 +1,31 @@
--- 8. Induction and Recursion
+#print "
+
+Chapter 8. Induction and Recursion
 
 
-#print "==========================================="
-#print "Section 8.1. Pattern Matching"
+THE EQUATION COMPILER
+
+In the previous chapter, we saw that inductive definitions provide a powerful
+means of introducing new types in Lean and that the constructors and the 
+recursors provide the only means of defining functions on these types. 
+
+By the propositions-as-types correspondence, this means that 
+
+  *induction is the fundamental method of proof*.
+
+Lean provides natural ways of defining recursive functions, performing pattern 
+matching, and writing inductive proofs. It allows you to define a function by 
+specifying equations that it should satisfy, and it allows you to prove a 
+theorem by specifying how to handle various cases that can arise. 
+  
+Behind the scenes these descriptions are 'compiled' down to primitive recursors, 
+using the so-called 'equation compiler.' The *equation compiler* is not part of 
+the trusted code base; its output consists of terms that are checked independently 
+by the kernel."
+
+
+#print "
+Section 8.1. Pattern Matching"
 #print " "
 
 namespace Sec_8_1
@@ -34,7 +57,7 @@ namespace Sec_8_1
                                                -- `¬ false` here, although
     #check not_false                         -- <- this line gives `¬false`
 
-    -- Pattern matching works with any inductive type, such as product and option.
+    #print "Pattern matching works with any inductive type, such as product and option."
     universes u v
     variables {α : Type u} {β: Type v} 
 
@@ -50,7 +73,7 @@ namespace Sec_8_1
     #reduce bar (some 3)
     #reduce bar none
 
-    -- Here we use pattern matching to define a function, and do a proof by cases.
+    #print "We use pattern matching to define a function, and do a proof by cases."
     def bnot : bool → bool
     | tt := ff
     | ff := tt
@@ -59,7 +82,7 @@ namespace Sec_8_1
     | tt := rfl   -- proof that bnot (bnot tt) = tt
     | ff := rfl   -- proof that bnot (bnot ff) = ff
 
-    -- Pattern matching can also be used to destruct inductively defined props.
+    #print "Pattern matching can also be used to destruct inductively defined props."
 
     example (p q : Prop) : p ∧ q → q ∧ p
     | (and.intro hp hq) := and.intro hq hp
@@ -87,11 +110,11 @@ namespace Sec_8_1
     | 1 := 0
     | (a+2) := a
 
-    -- See how Lean compiles the function to recursors:
+    #print "See how Lean compiles the function to recursors:"
     #print sub2._main
     #print id_rhs
 
-    -- The defining equations hold "definitionally."
+    #print "The defining equations hold definitionally."
     example : sub2 0 = 0 := rfl
     example : sub2 1 = 0 := rfl
     example : sub2 2 = 0 := rfl
@@ -132,23 +155,24 @@ namespace Sec_8_1
     example (a: ℕ): sub5 (succ a) = a := rfl -- ""
     example (a: ℕ): sub5 (a+1) = a := rfl    -- ""
 
-    -- Here's another example of nested pattern matching.
+    #print "Another example of nested pattern matching."
     universe w
     example {α : Type w} (p q : α → Prop) : 
       (∃ x, p x ∨ q x) → (∃ x, p x) ∨ (∃ x, q x) 
     | (exists.intro x (or.inl hp)) := or.inl (exists.intro x hp)
     | (exists.intro x (or.inr hq)) := or.inr (exists.intro x hq)
      
-    -- The equation compiler can process multiple arguments sequentially.
+    #print "The equation compiler can process multiple arguments sequentially."
     def sum_heads : list ℕ → list ℕ → ℕ 
     | [] [] := 0
     | (a::as) [] := a
     | [] (b::bs) := b
     | (a::as) (b::bs) := a + b
 
-    -- Notice that, in the last example, case splitting was applied to both 
-    -- the first and second arguments. In contrast, the next few examples split
-    -- on the first argument only.
+    
+    #print "In the last example, case splitting can be applied to both the first and second
+    arguments. In contrast, the next few examples split on the first argument only."
+
     def band : bool → bool → bool
     | tt a := a
     | ff _ := ff
@@ -178,99 +202,96 @@ namespace Sec_8_1
 end Sec_8_1
 
 
-#print "==========================================="
 #print "Section 8.2. Wildcards and Overlapping Patterns"
-#print " "
--- namespace Sec_8_2
--- end Sec_8_2
 
 
-#print "==========================================="
-#print "Section 8.3. Structural Recursion and Induction"
-#print " "
+#print "Section 8.3. Structural Recursion and Induction
 
-  /-What makes the equation compiler powerful is that it also supports recursive 
-    definitions. In the next three sections, we will describe, respectively:
-      - structurally recursive definitions
-      - well-founded recursive definitions
-      - mutually recursive definitions
-    Generally speaking, the equation compiler processes input of the following form:
+What makes the equation compiler powerful is that it also supports recursive 
+definitions. The next three sections describe, respectively,
 
-        def foo (a : α) : Π (b : β), γ
-        | [patterns₁] := t₁
-        ...
-        | [patternsₙ] := tₙ 
+  - structurally recursive definitions
+  - well-founded recursive definitions
+  - mutually recursive definitions
 
-    Here 
-    - `(a : α)` is a sequence of parameters, 
-    - `(b : β)` is the sequence of arguments on which pattern matching takes place,
-    - `γ` is any type, which can depend on `a` and `b`. 
+Generally speaking, the equation compiler processes input of the following form:
 
-    Each line should contain the same number of patterns, one for each element of β. 
-    As we have seen, a pattern is either 
-    - a variable, 
-    - a constructor applied to other patterns, or 
-    - an expression that normalizes to something of these forms
-    (where the non-constructors are marked with the `[pattern]` attribute). 
-    The appearances of constructors prompt case splits, with the arguments to the 
-    constructors represented by the given variables. -/
+    def foo (a : α) : Π (b : β), γ
+    | [patterns₁] := t₁
+    ...
+    | [patternsₙ] := tₙ 
 
-    /-As we saw in the last section, the terms `t₁, ..., tₙ` can make use of any of 
-    the parameters `a`, as well as any of the variables that are introduced in the 
-    corresponding patterns. What makes recursion and induction possible is that they 
-    can also involve recursive calls to `foo`. 
+Here 
+
+  - `(a : α)` is a sequence of parameters, 
+  - `(b : β)` is the sequence of arguments on which pattern matching takes place,
+  - `γ` is any type, which can depend on `a` and `b`. 
+
+Each line should contain the same number of patterns, one for each element of β. 
+As we have seen, a pattern is either 
+
+  - a variable, 
+  - a constructor applied to other patterns, or 
+  - an expression that normalizes to something of these forms
+
+(where the non-constructors are marked with the `[pattern]` attribute). 
+The appearances of constructors prompt case splits, with the arguments to the 
+constructors represented by the given variables."
+
+#print "We saw above that the terms `t₁, ..., tₙ` can make use of any of the parameters 
+from the sequence `a`, as well as any of the variables that are introduced in the 
+corresponding patterns. What makes recursion and induction possible is that the 
+terms, `t₁, ..., tₙ`, can also invoke (recursive) calls to `foo`. 
     
-    In this section, we will deal with *structural recursion*, in which the 
-    arguments to `foo` occurring on the right-hand side of the `:=` are subterms 
-    of the patterns on the left-hand side. The idea is that they are structurally 
-    smaller, and hence appear in the inductive type at an earlier stage. -/
+In this section, we will deal with *structural recursion*, in which the arguments to 
+`foo` occurring on the right-hand side of `:=` are subterms of the patterns on the 
+left-hand side. The idea is that they are structurally smaller, and hence appear in 
+the inductive type at an earlier stage.
     
-    -- Here are some examples of structural recursion from the last chapter, 
-    -- now defined using the equation compiler:
+Here we look at some examples of structural recursion from the last chapter, but now 
+define them using the equation compiler."
 
 namespace hidden
      
-    inductive nat : Type
-    | zero : nat
-    | succ : nat → nat
+  inductive nat : Type
+  | zero : nat
+  | succ : nat → nat
     
-    namespace nat
+  namespace nat
 
-    def add : nat → nat → nat
-    | m zero := m
-    | m (succ n) := succ (add m n)
+  def add : nat → nat → nat
+  | m zero := m
+  | m (succ n) := succ (add m n)
 
-    local infix ` + ` := add
+  local infix ` + ` := add
 
-    theorem add_zero (m : nat) : m + zero = m := rfl
+  theorem add_zero (m : nat) : m + zero = m := rfl
 
-    theorem zero_add : ∀ (m : nat), zero + m = m 
-    | zero := rfl
-    | (succ m) := congr_arg succ (zero_add m)
+  theorem zero_add : ∀ (m : nat), zero + m = m 
+  | zero := rfl
+  | (succ m) := congr_arg succ (zero_add m)
 
-    def mult: nat → nat → nat
-    | m zero := zero
-    | m (succ n) := (mult m n) + m 
+  def mult: nat → nat → nat
+  | m zero := zero
+  | m (succ n) := (mult m n) + m 
 
-
-    -- QUESTION: why doesn't the following type-check?
-/-     theorem zero_add_alt (n : nat) : zero + n = n 
-    | zero := rfl
-    | (succ m) := congr_arg succ (zero_add_alt m)
- -/
-    theorem zero_add_alt : ∀ (n: nat), zero + n = n 
-    | zero := by rw [add]
-    | (succ m) := by rw [add, zero_add_alt m]
-
-
-    def add_alt (m : nat) : nat → nat
-    | zero := m
-    | (succ n) := succ (add_alt n)
+  -- QUESTION: why doesn't the following type-check?
+  /-     theorem zero_add_alt (n : nat) : zero + n = n 
+          | zero := rfl
+          | (succ m) := congr_arg succ (zero_add_alt m)
+  -/
+  theorem zero_add_alt : ∀ (n: nat), zero + n = n 
+  | zero := by rw [add]
+  | (succ m) := by rw [add, zero_add_alt m]
 
 
-    -- (Course-of-value compilation is discussed here.)
+  def add_alt (m : nat) : nat → nat
+  | zero := m
+  | (succ n) := succ (add_alt n)
 
-    -- Another good example of a recursive definition is the list append function.
+  #print "(Course-of-value compilation is discussed here.)"
+
+  #print "Another good example of a recursive definition is the list append function."
     def append {α : Type} : list α → list α → list α 
     | [] ys := ys
     | xs [] := xs
@@ -280,8 +301,8 @@ namespace hidden
 
     end nat
 
-    -- The following adds elements of the first list to elements of the second list, 
-    -- until one of the two lists runs out. 
+  #print "The next example adds elements of the first list to elements of the second list, 
+  until one of the two lists runs out."
 
     def {u} list_add {α : Type u} [has_add α] : list α → list α → list α 
     | [] _ := []
@@ -298,15 +319,16 @@ namespace hidden
 end hidden
 
 
-#print "==========================================="
-#print "Section 8.4. Well-Founded Recursion and Induction"
-#print " "
-/-Dependent type theory is powerful enough to encode and justify well-founded 
-  recursion. We start with the logical background needed to understand how it works.-/
+#print "Section 8.4. Well-Founded Recursion and Induction
 
-/-Lean's std lib defines two predicates, `acc r a` and `well_founded r`, where 
+Dependent type theory is powerful enough to encode and justify well-founded recursion. 
+Here is the logical background needed to understand how it works.
+
+Lean's std lib defines two predicates, `acc r a` and `well_founded r`, where 
+
   - `r` is a binary relation on a type `α`
-  - `a` is an element of type `α`. -/
+
+  - `a` is an element of type `α`."
 
 namespace Sec_8_4
   universes u v
@@ -315,23 +337,23 @@ namespace Sec_8_4
   #check (acc r: α → Prop)
   #check (well_founded r: Prop)
 
-  /-Here, `acc` is an inductively defined predicate, and `acc r x` is equivalent to 
+#print "`acc` is an inductively defined predicate, and `acc r x` is equivalent to 
 
-        ∀ y, r y x → acc r y 
+∀ y, r y x → acc r y 
 
-    Think of `r y x` as denoting a kind of order relation `y ≺ x`. Then `acc r x` 
-    says that `x` is accessible "from below", in the sense that all its predecessors 
-    are accessible. In particular, if `x` has no predecessors, it is accessible.
+Think of `r y x` as denoting a kind of order relation `y ≺ x`. Then `acc r x` 
+says that `x` is accessible 'from below' in the sense that all its predecessors 
+are accessible. In particular, if `x` has no predecessors, it is accessible.
     
-    Given any type `α`, we can assign a value to each accessible element of `α`, 
-    recursively, by assigning values to all its predecessors first.
+Given any type `α`, we can assign a value to each accessible element of `α`, 
+recursively, by assigning values to all its predecessors first.
 
-    The statement that `r` is a well founded relation over `α`, denoted 
-    `well_founded r`, means that every element of the type `α` is accessible.
+The statement that `r` is a well founded relation over `α`, denoted 
+`well_founded r`, means that every element of the type `α` is accessible.
     
-    By the above considerations, if `r` is a well-founded relation over a type `α`, 
-    then we have a principle of well-founded recursion on `α`, with respect to `r`.
-    Indeed, the Lean stdlib defines `well_founded.fix`, which serves that purpose.-/
+By the above considerations, if `r` is a well-founded relation over a type `α`, 
+then we have a principle of well-founded recursion on `α`, with respect to `r`.
+Indeed, the Lean stdlib defines `well_founded.fix`, which serves that purpose."
 
   -- Let's assume `r` is well founded:
   variable h: well_founded r
@@ -359,47 +381,49 @@ namespace Sec_8_4
   namespace hidden
   open nat
 
-    -- Next we define `div`, which is essentially division on `nat` as found in stdlib.
+  #print "The fn `div` defined below is essentially division on `nat` as found in the std lib."
 
-    -- First we'll define a division lemma using two functions from the std lib:
-    #check @nat.sub_lt -- ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
-    #check @nat.lt_of_lt_of_le -- ∀ {n m k : ℕ}, n < m → m ≤ k → n < k
+  #print "But first, a division lemma using two functions from the std lib:"
+  #check @nat.sub_lt -- ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
+  #check @nat.lt_of_lt_of_le -- ∀ {n m k : ℕ}, n < m → m ≤ k → n < k
 
-    def div_rec_lemma { x y : ℕ } : 0 < y ∧ y ≤ x → x - y < x :=
-      assume h : 0 < y ∧ y ≤ x,
-        have hx : 0 < x, from (lt_of_lt_of_le h.left h.right),
-        show x - y < x, from sub_lt hx h.left 
+  def div_rec_lemma { x y : ℕ } : 0 < y ∧ y ≤ x → x - y < x :=
+    assume h : 0 < y ∧ y ≤ x,
+      have hx : 0 < x, from (lt_of_lt_of_le h.left h.right),
+      show x - y < x, from sub_lt hx h.left 
 
-    -- Finally, here's div:
-    def div.F (x: ℕ) (f : Π x₁, x₁ < x → ℕ → ℕ) (y: ℕ) : ℕ :=
-      if h : 0 < y ∧ y ≤ x then
-        f (x - y) (div_rec_lemma h) y + 1 -- the 1st arg is x₁, the 2nd is h: x₁ < x
-      else 0
+  #print "Finally, here's div."
+  def div.F (x: ℕ) (f : Π x₁, x₁ < x → ℕ → ℕ) (y: ℕ) : ℕ :=
+    if h : 0 < y ∧ y ≤ x then
+      f (x - y) (div_rec_lemma h) y + 1 -- the 1st arg is x₁, the 2nd is h: x₁ < x
+    else 0
 
-    -- The equation compiler make definitions like this more convenient. 
-    -- It accepts the following:
-    def div : ℕ → ℕ → ℕ
-    | x y :=
-      if h : 0 < y ∧ y ≤ x then
-        have x - y < x, 
-          from sub_lt (lt_of_lt_of_le h.left h.right) h.left,
-        div (x - y) y + 1
-      else 0
+  #print "The equation compiler makes such definitions more convenient. It accepts the following:"
+  def div : ℕ → ℕ → ℕ
+  | x y :=
+    if h : 0 < y ∧ y ≤ x then
+      have x - y < x, 
+        from sub_lt (lt_of_lt_of_le h.left h.right) h.left,
+      div (x - y) y + 1
+    else 0
 
-    -- The defining equation for `div` does not hold definitionally, but the 
-    -- equation is available to `rewrite` and `simp`.
-    example (x y : ℕ) :  
-      div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
-    by rw [div]  -- `simp` would loop here, but `rw` works.
+  #print "The defining equation for `div` does not hold definitionally, but the equation is 
+  available to `rewrite` and `simp`."
+  example (x y : ℕ) :  
+    div x y = if 0 < y ∧ y ≤ x then div (x - y) y + 1 else 0 :=
+  by rw [div]  -- `simp` would loop here, but `rw` works.
 
-    example (x y : ℕ) (h : 0 < y ∧ y ≤ x) : 
-      div x y = div (x - y) y + 1 :=
-    by rw [div, if_pos h]
+  example (x y : ℕ) (h : 0 < y ∧ y ≤ x) : 
+    div x y = div (x - y) y + 1 :=
+  by rw [div, if_pos h]
 
-    /-The following example is similar: it converts any nat to binary, (a list of 
-      0’s and 1’s). We have to give the equation compiler with evidence that the 
-      recursive call is decreasing, which we do with `sorry`. Here `sorry` doesn't 
-      prevent the bytecode evaluator from evaluating the function successfully.-/
+  #print "
+  Here's a similar example that converts a natural number into binary (0’s and 1’s). 
+  We have to supply the equation compiler with evidence that the recursive call is 
+  decreasing, which we do with `sorry`. 
+  
+  Note how the use of `sorry` here doesn't prevent the bytecode evaluator from 
+  evaluating the function successfully."
 
     def nat_to_bin : ℕ → list ℕ 
     | 0 := [0]
@@ -438,20 +462,35 @@ namespace Sec_8_4
 end Sec_8_4
 
 
-#print "==========================================="
 #print "Section 8.5. Mutual Recursion"
-#print " "
-
 namespace Sec_8_5
-
+-- I already know the material covered in this section... it's easy.
 end Sec_8_5
 
 
-#print "==========================================="
-#print "Section 8.6. Dependent Pattern Matching"
-#print " "
+#print "
+Section 8.6. Dependent Pattern Matching
+
+The examples of pattern matching considered above are easily written using `cases_on` 
+and `rec_on`. However, this is often not the case with indexed inductive families such 
+as `vector α n`, since the splits impose constraints on the values of the indices.
+
+Without the equation compiler, we would need a lot of boilerplate code to define very 
+simple functions such as map, zip, and unzip using recursors." 
 
 namespace Sec_8_6
+  --Consider the tail function, which takes `v : vector α (succ n)` and deletes the first element. 
+  -- A first thought might be to use the `cases_on` function:
+  universe u
+  inductive vector (α : Type u) : nat → Type u
+  | nil {} : vector 0
+  | cons : Π {n : nat}, α → vector n → vector (n+1)
+
+  namespace vector 
+    local notation h :: t := cons h t
+
+    #check @vector.cases_on
+  end vector 
 
 end Sec_8_6
 
