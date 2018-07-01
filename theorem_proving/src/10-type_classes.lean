@@ -603,6 +603,26 @@ namespace Sec_10_6
                                ... = (f a) * power (f a) n : by rw [ih]
                                ... = power (f a) (nat.succ n) : rfl)
     
+  #print "
+  With the coercion in place, we can write `f (a * a * a)` instead of 
+  `morphism.mor f (a * a * a)`. When the morphism, `f`, is used where a function is expected, 
+  Lean inserts the coercion. So, we have yet another class `has_coe_to_fun` for the this kind 
+  of coercion. The field `F` is used to specify the function type to which we are coercing. 
+  This type may depend on the type from which we are coercing.
+
+  Finally, `⇑f` and `↥S` are notations for `coe_fn f` and `coe_sort S`. They are the coercion 
+  operators for the function and sort classes.
+
+  We can instruct Lean's pretty-printer to hide the operators `↑` and `⇑` with `set_option`."
+
+  theorem test (S₁ S₂ : Semigroup) (f: morphism S₁ S₂) (a: S₁) : 
+    f(a * a * a) = f a * f a * f a := calc
+    f(a * a * a) = f (a * a) * f a : by rw [resp_mul f]
+             ... = f a * f a * f a : by rw [resp_mul f]
+
+  #check @test
+  set_option pp.coercions false
+  #check @test
 
 end Sec_10_6
 

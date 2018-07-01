@@ -197,7 +197,7 @@ namespace Sec_4_2
   -- Lean has a shorthand for eq.subst as well; it's ▸, as shown here.
     example (α : Type u) (a₁ a₂ : α) (p : α → Prop)
       (h₁ : a₁ = a₂) (h₂ : p a₁) : p a₂ := h₁ ▸ h₂
-  
+  -- Type this symbol with `\t`.
   
   end example3
 
