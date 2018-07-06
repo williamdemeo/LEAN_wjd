@@ -25,8 +25,8 @@ by the kernel."
 
 
 #print "
-Section 8.1. Pattern Matching"
-#print " "
+Section 8.1. Pattern Matching
+-----------------------------"
 
 namespace Sec_8_1
     open nat
@@ -46,16 +46,23 @@ namespace Sec_8_1
     #reduce is_zero (sub0 (succ zero))  -- true
     #reduce is_zero (succ zero)         -- false
 
-    -- The equations used to define these function hold definitionally:
+    #print "The equations used to define these function hold definitionally."
 
-    example : sub0 0 = 0 := rfl
-    example (n: ℕ) : sub0 (succ n) = n := rfl
-    example : is_zero zero = true := rfl
-    example : is_zero (sub0 (succ zero))  = true :=rfl
-    example : is_zero (succ zero) = false := rfl
-    example (n: ℕ) : ¬ is_zero (n + 3) := not_false -- N.B. you can't use 
+    lemma example1 : sub0 0 = 0 := rfl
+    lemma example2 (n: ℕ) : sub0 (succ n) = n := rfl
+    lemma example3 : is_zero zero = true := rfl
+    lemma example4 : is_zero (sub0 (succ zero))  = true :=rfl
+    lemma example5 : is_zero (succ zero) = false := rfl
+    lemma example6 (n: ℕ) : ¬ is_zero (n + 3) := not_false -- N.B. you can't use 
                                                -- `¬ false` here, although
     #check not_false                         -- <- this line gives `¬false`
+    
+    #print example1
+    #print example2
+    #print example3
+    #print example4
+    #print example5
+    #print example6
 
     #print "Pattern matching works with any inductive type, such as product and option."
     universes u v
@@ -102,8 +109,6 @@ namespace Sec_8_1
     example : sub1 2 = 0 := rfl
     example : sub1 3 = 1 := rfl
     example : sub1 4 = 2 := rfl
-
-
 
     def sub2 : ℕ → ℕ 
     | 0 := 0
@@ -482,24 +487,171 @@ namespace Sec_8_6
   --Consider the tail function, which takes `v : vector α (succ n)` and deletes the first element. 
   -- A first thought might be to use the `cases_on` function:
   universe u
-  inductive vector (α : Type u) : nat → Type u
+  inductive vector (α : Type u) : ℕ → Type u
   | nil {} : vector 0
-  | cons : Π {n : nat}, α → vector n → vector (n+1)
+  | cons : Π {n}, α → vector n → vector (n+1)
 
   namespace vector 
     local notation h :: t := cons h t
 
     #check @vector.cases_on
-  end vector 
+    -- Π {α : Type u_2} {C : Π (a : ℕ), vector α a → Sort u_1} {a : ℕ} (n : vector α a),
+    --   C 0 nil → (Π {n : ℕ} (a : α) (a_1 : vector α n), C (n + 1) (a :: a_1)) → C a n
+
+    #print "But what value should we return in the `nil` case? Something funny is going on. 
+    If `v` has type `vector α (succ n)`, it *can't* be nil, but it is not clear how to tell 
+    that to `cases_on`.
+
+    One solution is to define an auxiliary function."
+  
+    def tail_aux {α : Type} {n m : ℕ} (v : vector α m) : m = n + 1 → vector α n :=
+      vector.cases_on v
+        (assume H : 0 = n + 1, nat.no_confusion H)
+        (assume m (a : α) w : vector α m,
+          assume H : m + 1 = n + 1,
+            nat.no_confusion H (λ H1 : m = n, eq.rec_on H1 w))
+
+    def tail_first_try {α : Type} {n : ℕ} (v : vector α (n+1)) : vector α n := tail_aux v rfl
+  #print "In the `nil` case, `m` is instantiated to `0`, and `no_confusion` makes use of the 
+  fact that `0 = succ n` cannot occur. Otherwise, `v` is of the form `a :: w`, and we can 
+  simply return `w`, after casting it from a vector of length `m` to a vector of length `n`.
+
+  The difficulty in defining `tail` is to maintain the relationships between the indices. 
+  The hypothesis `e : m = n + 1` in `tail_aux` is used to communicate the relationship between 
+  `n` and the index associated with the minor premise. Moreover, the `zero = n + 1` case is 
+  unreachable, and the canonical way to discard such a case is to use `no_confusion`."
+
+  end vector
+
+
+  #print "The `tail` function is, however, easy to define using recursive equations, and the 
+  equation compiler generates all the boilerplate code automatically for us. Here are a 
+  number of similar examples."
+  namespace vector
+    local notation h :: t := cons h t
+    def head {α : Type} : Π {n}, vector α (n+1) → α
+    | n (h :: t) := h
+
+    def tail {α : Type} : Π {n}, vector α (n+1) → vector α n
+    | n (h :: t) := t
+
+    lemma eta {α : Type} : 
+    ∀ {n} (v : vector α (n+1)), head v :: tail v = v
+    | n (h :: t) := rfl
+
+    def map {α β γ : Type} (f : α → β → γ) : Π {n}, vector α n → vector β n → vector γ n
+    | 0     nil       nil       := nil
+    | (n+1) (a :: va) (b :: vb) := f a b :: map va vb
+
+    def zip {α β : Type} : Π {n}, vector α n → vector β n → vector (α × β) n
+    | 0     nil       nil       := nil
+    | (n+1) (a :: va) (b :: vb) := (a, b) :: zip va vb
+
+    #print head
+    #print tail
+    #print eta
+    #print map
+    #print zip
+
+  end vector
+
+#print "Note that we can omit recursive equations for 'unreachable' cases such as `head nil`. 
+
+The automatically generated definitions for indexed families are far from 
+straightforward, as the following examples demonstrate."
+  namespace vector
+  local notation h :: t := cons h t
+
+  def vector.map {α β γ : Type} (f : α → β → γ): Π {n : nat}, vector α n → vector β n → vector γ n
+    | 0     nil     nil     := nil
+    | (n+1) (a::va) (b::vb) := f a b :: vector.map va vb
+
+    #print map
+    #print map._main
+
+   end vector
+
+#print "The `map` function is even more tedious to define by hand than the `tail` function. 
+TODO: We encourage you to try it, using `rec_on`, `cases_on` and `no_confusion`."
 
 end Sec_8_6
 
+#print "
+Section 8.7. Inaccessible Terms
+===============================
 
-#print "==========================================="
-#print "Section 8.7. Inaccessible Terms"
-#print " "
+Sometimes an argument in a dependent pattern matching is not essential to the definition, 
+but nonetheless has to be included to specialize the type of the expression appropriately. 
+Lean allows users to mark such subterms as *inaccessible* for pattern matching. These 
+annotations are essential, for example, when a term occurring in the left-hand side is 
+neither a variable nor a constructor application, because such terms are not suitable targets 
+for pattern matching. We can view such inaccessible terms as 'don't care' components of the 
+patterns. You can declare a subterm inaccessible by writing `.(t)`. If the inaccessible term 
+can be inferred, you can also write `._`.
 
+The following example can be found in [GoMM06]_. We declare an inductive type that defines the 
+property of 'being in the image of `f`'. You can view an element of the type `image_of f b` 
+as evidence that `b` is in the image of `f`, whereby the constructor `imf` is used to build 
+such evidence. We can then define any function `f` with an 'inverse' which takes anything 
+in the image of `f` to an element that is mapped to it. The typing rules forces us to write 
+`f a` for the first argument, but this term is neither a variable nor a constructor application, 
+and plays no role in the pattern-matching definition. 
+
+To define the function `inverse` below, we *have to* mark `f a` inaccessible.
+
+"
 namespace Sec_8_7
+
+  namespace example_image_of
+
+    variables {α β : Type}
+
+    inductive image_of (f : α → β) : β → Type
+    | imf : Π (a: α), image_of (f a)
+
+    open image_of
+
+    def inverse_of {f : α → β} : Π (b: β), image_of f b → α 
+    | .(f a) (imf .(f) a) := a
+
+    #print "In the example above, the inaccessible annotation makes it clear that `f` is 
+    *not* a pattern matching variable.
+
+    Inaccessible terms can be used to clarify and control definitions that make use of dependent 
+    pattern matching. Consider the function defining the addition of any two vectors of elements 
+    of a type that has an associated addition function."
+
+  end example_image_of
+
+  namespace example_vector_addition
+    universe u
+
+    inductive vector (α : Type u) : ℕ → Type u
+    | nil {} : vector 0
+     | cons : Π {n : ℕ}, α → vector n → vector (n+1) 
+
+    namespace vector 
+      local notation h :: t := cons h t
+      variable {α : Type u}
+
+      def add [has_add α] : Π {n : ℕ}, vector α n → vector α n → vector α n 
+      | 0      nil             nil               := nil
+      | (n+1) (cons a v) (cons b w) := cons (a + b) (add v w)
+
+
+    end vector 
+
+
+  #print "The argument `{n : ℕ}` has to appear after the colon, because it cannot be held 
+  fixed throughout the definition. When implementing this definition, the equation compiler 
+  starts with a case distinction as to whether the first argument is `0` or of the form `n+1`. 
+  This is followed by nested case splits on the next two arguments, and in each case the equation compiler rules out the cases are not compatible with the first pattern.
+
+But, in fact, a case split is not required on the first argument; the ``cases_on`` eliminator for ``vector`` automatically abstracts this argument and replaces it by ``0`` and ``n + 1`` when we do a case split on the second argument. Using inaccessible terms, we can prompt the equation compiler to avoid the case split on ``n``:
+"
+  end example_vector_addition
+
+
 
 end Sec_8_7
 
@@ -522,3 +674,8 @@ namespace Sec_8_9
 end Sec_8_9
 
 
+
+/- [GoMM06] Healfdene Goguen, Conor McBride, and James McKinna. 'Eliminating dependent pattern 
+matching. In Kokichi Futatsugi, Jean-Pierre Jouannaud, and José Meseguer, editors, 
+Algebra, Meaning, and Computation, Essays Dedicated to Joseph A. Goguen."
+ -/
