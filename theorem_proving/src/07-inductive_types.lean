@@ -553,7 +553,7 @@ namespace hidden
 
     -- Here are the shorter versions of the last two theorems:
     theorem succ_add' (m n : nat) : add (succ m) n = succ (add m n) := 
-      nat.rec_on n rfl (λ n ih, by simp only [succ_add, ih])
+      nat.rec_on n rfl (λ n ih, by simp only [add_succ, ih])
 
   theorem add_comm' (m n : nat) : add m n = add n m := nat.rec_on n 
     (by simp only [zero_add, add_zero])
