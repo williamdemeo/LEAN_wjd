@@ -54,8 +54,8 @@ namespace Sec_8_1
     lemma example4 : is_zero (sub0 (succ zero))  = true :=rfl
     lemma example5 : is_zero (succ zero) = false := rfl
     lemma example6 (n: ℕ) : ¬ is_zero (n + 3) := not_false -- N.B. you can't use 
-                                               -- `¬ false` here, although
-    #check not_false                         -- <- this line gives `¬false`
+                                                           -- `¬ false` here, although
+    #check not_false                                       -- <- this line gives `¬false`
     
     #print example1
     #print example2
@@ -584,18 +584,18 @@ Sometimes an argument in a dependent pattern matching is not essential to the de
 but nonetheless has to be included to specialize the type of the expression appropriately. 
 Lean allows users to mark such subterms as *inaccessible* for pattern matching. These 
 annotations are essential, for example, when a term occurring in the left-hand side is 
-neither a variable nor a constructor application, because such terms are not suitable targets 
-for pattern matching. We can view such inaccessible terms as 'don't care' components of the 
-patterns. You can declare a subterm inaccessible by writing `.(t)`. If the inaccessible term 
-can be inferred, you can also write `._`.
+neither a variable nor a constructor application, because such terms are not suitable 
+targets for pattern matching. We can view such inaccessible terms as 'don't care' 
+components of the patterns. You can declare a subterm inaccessible by writing `.(t)`. 
+If the inaccessible term can be inferred, you can also write `._`.
 
-The following example can be found in [GoMM06]_. We declare an inductive type that defines the 
-property of 'being in the image of `f`'. You can view an element of the type `image_of f b` 
-as evidence that `b` is in the image of `f`, whereby the constructor `imf` is used to build 
-such evidence. We can then define any function `f` with an 'inverse' which takes anything 
-in the image of `f` to an element that is mapped to it. The typing rules forces us to write 
-`f a` for the first argument, but this term is neither a variable nor a constructor application, 
-and plays no role in the pattern-matching definition. 
+The following example can be found in [GoMM06]. We declare an inductive type that defines 
+the property of 'being in the image of `f`'. You can view an element of the type 
+`image_of f b` as evidence that `b` is in the image of `f`, whereby the constructor `imf` 
+is used to build such evidence. We can then define any function `f` with an 'inverse' which 
+takes anything in the image of `f` to an element that is mapped to it. The typing rules 
+forces us to write `f a` for the first argument, but this term is neither a variable nor 
+a constructor application, and plays no role in the pattern-matching definition. 
 
 To define the function `inverse` below, we *have to* mark `f a` inaccessible.
 
@@ -614,12 +614,13 @@ namespace Sec_8_7
     def inverse_of {f : α → β} : Π (b: β), image_of f b → α 
     | .(f a) (imf .(f) a) := a
 
-    #print "In the example above, the inaccessible annotation makes it clear that `f` is 
+    #print "
+    In the example above, the inaccessible annotation makes it clear that `f` is 
     *not* a pattern matching variable.
 
-    Inaccessible terms can be used to clarify and control definitions that make use of dependent 
-    pattern matching. Consider the function defining the addition of any two vectors of elements 
-    of a type that has an associated addition function."
+    Inaccessible terms can be used to clarify and control definitions that make use 
+    of dependent pattern matching. Consider the function defining the addition of any 
+    two vectors of elements of a type that has an associated addition function."
 
   end example_image_of
 
@@ -628,27 +629,56 @@ namespace Sec_8_7
 
     inductive vector (α : Type u) : ℕ → Type u
     | nil {} : vector 0
-     | cons : Π {n : ℕ}, α → vector n → vector (n+1) 
+    | cons : Π {n : ℕ}, α → vector n → vector (n+1) 
 
     namespace vector 
       local notation h :: t := cons h t
       variable {α : Type u}
 
-      def add [has_add α] : Π {n : ℕ}, vector α n → vector α n → vector α n 
+      def add_first_try [has_add α] : Π {n : ℕ}, vector α n → vector α n → vector α n 
       | 0      nil             nil               := nil
-      | (n+1) (cons a v) (cons b w) := cons (a + b) (add v w)
+      | (n+1) (cons a v) (cons b w) := cons (a + b) (add_first_try v w)
 
 
+      #print "
+      The argument `{n : ℕ}` has to appear after the colon, because it cannot be held 
+      fixed throughout the definition."
+        
+      #print "
+      When implementing this definition, the equation compiler starts with a case match
+      on the 1st arg, which is `0` or `n+1`. Then nested case splits are applied to the 
+      next 2 args; in each case the equation compiler rules out cases that are not 
+      compatible with the 1st pattern.
+
+      In fact, a split on the 1st arg isn't required; the `cases_on` eliminator for 
+      `vector` automatically abstracts this argument and replaces it by `0` and `n + 1` 
+      when we case-split on the 2nd arg. Using inaccessible terms, we can prompt the 
+      equation compiler to avoid the case-split on `n`."
+  
+      def add_second_try [has_add α] : Π {n : ℕ}, vector α n → vector α n → vector α n 
+      | ._nil nil := nil
+      | ._(cons a v) (cons b w) := cons (a + b) (add_second_try v w)
+
+      #print "
+      Marking the 1st arg as inaccessible and implicit tells the equation compiler 
+      (1) the form of the arg should be inferred from constraints imposed by other args;
+      (2) the 1st arg should *not* participate in pattern matching.
+
+      Using explicit inaccessible terms makes it even clearer what is going on."
+
+      def add [has_add α] : Π {n : ℕ}, vector α n → vector α n → vector α n
+      | .(0)  nil  nil := nil  
+      | .(n+1) (@cons .(α) n a v) (cons b w) := cons (a + b) (add v w)
+
+      #print "
+      We have to introduce the variable `n` in the pattern `@cons .(α) n a v`, since it 
+      is involved in the pattern match over that arg. In contrast, the parameter `α` is 
+      held fixed; we could have left it implicit by writing `._` instead. The advantage 
+      of naming the variable there is that we can now use inaccessible terms in the 1st 
+      position to display the values that were inferred implicitly in the previous example."
     end vector 
 
-
-  #print "The argument `{n : ℕ}` has to appear after the colon, because it cannot be held 
-  fixed throughout the definition. When implementing this definition, the equation compiler 
-  starts with a case distinction as to whether the first argument is `0` or of the form `n+1`. 
-  This is followed by nested case splits on the next two arguments, and in each case the equation compiler rules out the cases are not compatible with the first pattern.
-
-But, in fact, a case split is not required on the first argument; the ``cases_on`` eliminator for ``vector`` automatically abstracts this argument and replaces it by ``0`` and ``n + 1`` when we do a case split on the second argument. Using inaccessible terms, we can prompt the equation compiler to avoid the case split on ``n``:
-"
+  
   end example_vector_addition
 
 
@@ -656,11 +686,79 @@ But, in fact, a case split is not required on the first argument; the ``cases_on
 end Sec_8_7
 
 
-#print "==========================================="
-#print "Section 8.8. Match Expressions"
-#print " "
+#print "
+Section 8.8. Match Expressions
+==============================
 
+Lean also provides a compiler for *match-with* expressions found in many functional 
+languages. To compile recursive equations, it uses essentially the same infrastructure 
+as that described above."
 namespace Sec_8_8
+
+  def is_not_zero (m : ℕ ) : bool := match m with | 0 := ff | (n+1) := tt end
+
+  #print "
+  This doesn't look very different from an ordinary pattern match def; the point is 
+  that a `match` can be used anywhere in an expression, and with arbitrary arguments."
+
+  def filter {α : Type} : (α → bool) → list α → list α 
+  | p [] := []
+  | p (a :: l) := 
+    match p a with
+    | tt := a :: filter p l
+    | ff := filter p l
+    end
+
+  example : filter is_not_zero [1, 0, 0, 3, 0] = [1, 3] := rfl
+
+  #print "
+  Here is another example."
+  
+  def foo (n: ℕ) (b c : bool) := 5 + match (n-5), b && c with
+  | 0, tt := 0
+  | m+1, tt := m + 7
+  | 0, ff := 5
+  | m+1, ff := m + 3
+  end
+
+  #eval foo 7 tt ff   -- result: 9
+
+  example : foo 7 tt ff = 9 := rfl
+
+  #print "
+  Notice that with multiple arguments, the syntax for the match statement is markedly 
+  different from that used for pattern matching in an ordinary recursive definition. 
+  Because arbitrary terms are allowed in the `match`, parentheses are not enough to set 
+  the arguments apart; if we wrote `(n - 5) (b && c)`, it would be interpreted as the 
+  result of applying `n - 5` to `b && c`. Instead, the arguments are separated by commas. 
+  Then, for consistency, the patterns on each line are separated by commas as well.
+
+  Lean uses the `match` construct internally to implemented a pattern-matching `assume`, 
+  as well as a pattern-matching `let`. Thus, all four of these definitions have the same 
+  net effect."
+  def bar₁ : ℕ × ℕ → ℕ | (m, n) := m + n
+
+  def bar₂ (p: ℕ × ℕ) : ℕ := match p with (m, n) := m + n end
+
+  def bar₃ : ℕ × ℕ → ℕ := λ ⟨m, n⟩, m + n
+
+  def bar₄ (p : ℕ × ℕ) : ℕ := let ⟨ m, n ⟩ := p in m + n
+
+  #print "
+  The 2nd def also illustrates the fact that in a match with a single pattern, the
+  bar is optional. These variations are equally useful for destructing propositions."
+
+  example (p q : ℕ → Prop) : (∃ x, p x) → (∃ y, q y) → ∃ x y, p x ∧ q y
+  | ⟨ x, hpx ⟩ ⟨ y, hqy ⟩ := ⟨ x, y, hpx, hqy ⟩ 
+
+  example (p q : ℕ → Prop) (h₀ : ∃ x, p x) (h₁ : ∃ y, q y) : ∃ x y, p x ∧ q y :=
+  match h₀, h₁ with ⟨ x, hpx⟩, ⟨ y, hqy⟩ := ⟨ x, y, hpx, hqy⟩ end
+
+  example (p q : ℕ → Prop) : (∃ x, p x) → (∃ y, q y) → ∃ x y, p x ∧ q y :=
+  λ ⟨ x, hpx⟩ ⟨ y, hqy⟩, ⟨ x, y, hpx, hqy⟩ 
+
+  example (p q : ℕ → Prop) (h₀ : ∃ x, p x) (h₁ : ∃ y, q y) : ∃ x y, p x ∧ q y :=
+  let ⟨x, hpx⟩ := h₀, ⟨y, hqy⟩ := h₁ in ⟨x, y, hpx , hqy⟩ 
 
 end Sec_8_8
 
@@ -670,6 +768,122 @@ end Sec_8_8
 #print " "
 
 namespace Sec_8_9
+
+  #print "
+  8.9.1. Use pattern matching to prove the composition of surjective functions is surjective."
+
+  namespace Ex_8_9_1
+    open function
+    #print surjective
+    universes u v w
+    variables {α : Type u} {β : Type v} {γ : Type w}
+
+    lemma surjective_comp {g : β → γ} {f : α → β} (hg : surjective g) (hf : surjective f) : 
+      surjective (g ∘ f) := sorry
+
+  end Ex_8_9_1
+
+  #print "
+  8.9.2. Open a namespace `hide` to avoid naming conflicts, and use the equation compiler to 
+  define addition, multiplication, and exponentiation on the natural numbers. Then use the 
+  equation compiler to derive some of their basic properties."
+
+  #print "
+  8.9.3. Similarly, use the equation compiler to define some basic operations on lists (like 
+  the `reverse` function) and prove theorems about lists by induction (such as the fact that 
+  `reverse (reverse l) = l` for any list `l`)."
+
+  #print "
+  8.9.4. Define your own function to carry out course-of-value recursion on the natural numbers. 
+  Similarly, see if you can figure out how to define `well_founded.fix` on your own."
+
+  #print "
+  8.9.5. Following the examples in the 'Dependent pattern matching' section, define a function 
+  that will append two vectors. This is tricky; you will have to define an auxiliary function."
+
+  #print "
+  8.9.6 Consider the following type of arithmetic expressions. The idea is that `var n` is a 
+  variable, `vₙ`, and `const n` is the constant whose value is `n`."
+
+  namespace Ex_8_9_6
+  inductive aexpr : Type
+  | const : ℕ → aexpr
+  | var : ℕ → aexpr
+  | plus : aexpr → aexpr → aexpr
+  | times : aexpr → aexpr → aexpr
+
+  open aexpr
+  def sample_aexpr : aexpr := 
+  plus (times (var 0) (const 7)) (times (const 2) (var 1))
+  -- Here ``sample_aexpr`` represents ``(v₀ + 7) * (2 + v₁)``. 
+  end Ex_8_9_6
+
+  #print "
+  8.9.7. Write a function that evaluates such an expression, evaluating each `var n` to `v n`."
+
+  namespace Ex_8_9_7
+    inductive aexpr : Type
+    | const : ℕ → aexpr
+    | var : ℕ → aexpr
+    | plus : aexpr → aexpr → aexpr
+    | times : aexpr → aexpr → aexpr
+
+    open aexpr
+
+    def sample_aexpr : aexpr := 
+    plus (times (var 0) (const 7)) (times (const 2) (var 1))
+
+    def aeval (v : ℕ → ℕ) : aexpr → ℕ
+    | (const n)    := sorry
+    | (var n)      := v n
+    | (plus e₁ e₂)  := sorry
+    | (times e₁ e₂) := sorry
+
+    def sample_val : ℕ → ℕ
+    | 0 := 5
+    | 1 := 6
+    | _ := 0
+
+    -- Try it out. You should get 47 here.
+    -- #eval aeval sample_val sample_aexpr
+  end Ex_8_9_7
+
+  #print "
+  8.9.8.    Implement "constant fusion," a procedure that simplifies subterms like ``5 + 7`` to ``12``. Using the auxiliary function ``simp_const``, define a function "fuse": to simplify a plus or a times, first simplify the arguments recursively, and then apply ``simp_const`` to try to simplify the result.
+
+  begin Ex_8_9_8
+    inductive aexpr : Type
+    | const : ℕ → aexpr
+    | var : ℕ → aexpr
+    | plus : aexpr → aexpr → aexpr
+    | times : aexpr → aexpr → aexpr
+
+    open aexpr
+
+    def aeval (v : ℕ → ℕ) : aexpr → ℕ
+    | (const n)    := sorry
+    | (var n)      := v n
+    | (plus e₁ e₂)  := sorry
+    | (times e₁ e₂) := sorry
+
+    def simp_const : aexpr → aexpr
+    | (plus (const n₁) (const n₂))  := const (n₁ + n₂)
+    | (times (const n₁) (const n₂)) := const (n₁ * n₂)
+    | e                             := e
+
+    def fuse : aexpr → aexpr := sorry
+
+    theorem simp_const_eq (v : ℕ → ℕ) : 
+      ∀ e : aexpr, aeval v (simp_const e) = aeval v e :=
+    sorry
+
+    theorem fuse_eq (v : ℕ → ℕ) : 
+      ∀ e : aexpr, aeval v (fuse e) = aeval v e :=
+    sorry
+
+    #print "The last two theorems show that the definitions preserve the value."
+
+  end Ex_8_9_7
 
 end Sec_8_9
 
