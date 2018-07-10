@@ -778,28 +778,100 @@ namespace Sec_8_9
     universes u v w
     variables {α : Type u} {β : Type v} {γ : Type w}
 
-    lemma surjective_comp {g : β → γ} {f : α → β} (hg : surjective g) (hf : surjective f) : 
-      surjective (g ∘ f) := sorry
+    lemma surjective_comp {g : β → γ} {f : α → β} 
+    (hg : surjective g) (hf : surjective f) : surjective (g ∘ f) := 
+      assume (c : γ), show ∃ a, g (f a) = c, from 
+      exists.elim (hg c)  -- ∃ (b: β), g b = c
+        (assume (b : β) (h₁ : g b = c),
+        exists.elim (hf b) -- ∃ (a: α), f a = b
+          (assume (a : α) (h₂ : f a = b),
+          have h₃ : g (f a) = c, by rw [h₂, h₁], ⟨a, h₃⟩))
 
   end Ex_8_9_1
 
   #print "
-  8.9.2. Open a namespace `hide` to avoid naming conflicts, and use the equation compiler to 
-  define addition, multiplication, and exponentiation on the natural numbers. Then use the 
-  equation compiler to derive some of their basic properties."
+  8.9.2. Use the equation compiler to define addition, multiplication, and exponentiation on 
+  the natural numbers. Then use the equation compiler to derive some of their basic properties."
+  namespace Ex_8_9_2
+    inductive nat : Type 
+    | zero : nat
+    | succ : nat → nat
+
+    namespace nat
+
+    def add : nat → nat → nat
+    | m zero := m
+    | m (succ n) := succ (add m n)
+
+    local infix ` + ` := add
+
+    theorem add_zero (m : nat) : m + zero = m := rfl
+
+    theorem zero_add : ∀ (m : nat), zero + m = m 
+    | zero := rfl
+    | (succ m) := congr_arg succ (zero_add m)
+
+    def mult: nat → nat → nat
+    | m zero := zero
+    | m (succ n) := (mult m n) + m 
+
+    /- QUESTION: why doesn't the following type-check?
+        theorem zero_add_alt (n : nat) : (zero + n = n)
+        | zero := rfl
+        | (succ m) := congr_arg succ (zero_add_alt m)
+    -/
+  
+    theorem zero_add_alt_two : ∀ (n: nat), zero + n = n 
+    | zero := by rw [add]
+    | (succ m) := by rw [add, zero_add_alt_two m]
+
+
+    def add_alt (m : nat) : nat → nat
+    | zero := m
+    | (succ n) := succ (add_alt n)
+
+    instance : has_zero nat := has_zero.mk zero
+    instance : has_add nat := has_add.mk add
+
+    theorem zero_add_alt : ∀ (n: nat), zero + n = n 
+    | zero := by rw [add]
+    | (succ m) := by rw [add, zero_add_alt m]
+
+    --??    theorem succ_add :  ∀ (m n : nat),  (succ m) + n = succ (m + n)  
+    --??    | zero, _ : (succ m), (succ n) := n ih { rw [add_succ, ih, succ_add] }    
+
+/-     
+    theorem add_assoc (m n k : nat) : add (add m n) k = add m (add n k) := nat.rec_on k
+    rfl (λ k ih, by simp only [add_succ, ih])
+
+    theorem add_comm (m n : nat) : add m n = add n m := nat.rec_on n 
+    (by simp only [zero_add, add_zero])
+    (λ n ih, by simp only [add_succ, ih, succ_add])
+ -/
+
+    end nat
+
+  end Ex_8_9_2
+  
 
   #print "
   8.9.3. Similarly, use the equation compiler to define some basic operations on lists (like 
   the `reverse` function) and prove theorems about lists by induction (such as the fact that 
   `reverse (reverse l) = l` for any list `l`)."
+  namespace Ex_8_9_2
+  end Ex_8_9_2
 
   #print "
   8.9.4. Define your own function to carry out course-of-value recursion on the natural numbers. 
   Similarly, see if you can figure out how to define `well_founded.fix` on your own."
+  namespace Ex_8_9_2
+  end Ex_8_9_2
 
   #print "
   8.9.5. Following the examples in the 'Dependent pattern matching' section, define a function 
   that will append two vectors. This is tricky; you will have to define an auxiliary function."
+  namespace Ex_8_9_2
+  end Ex_8_9_2
 
   #print "
   8.9.6 Consider the following type of arithmetic expressions. The idea is that `var n` is a 
