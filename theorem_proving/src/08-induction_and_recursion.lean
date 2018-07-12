@@ -793,72 +793,228 @@ namespace Sec_8_9
   8.9.2. Use the equation compiler to define addition, multiplication, and exponentiation on 
   the natural numbers. Then use the equation compiler to derive some of their basic properties."
   namespace Ex_8_9_2
-    inductive nat : Type 
-    | zero : nat
-    | succ : nat → nat
+    inductive nnat : Type 
+    | zero : nnat
+    | succ : nnat → nnat
 
-    namespace nat
+    namespace nnat
 
-    def add : nat → nat → nat
+    def add : nnat → nnat → nnat
     | m zero := m
     | m (succ n) := succ (add m n)
 
     local infix ` + ` := add
 
-    theorem add_zero (m : nat) : m + zero = m := rfl
+    theorem add_zero (m : nnat) : m + zero = m := rfl
 
-    theorem zero_add : ∀ (m : nat), zero + m = m 
+    theorem zero_add : ∀ (m : nnat), zero + m = m 
     | zero := rfl
     | (succ m) := congr_arg succ (zero_add m)
 
-    def mult: nat → nat → nat
+    def mult: nnat → nnat → nnat
     | m zero := zero
     | m (succ n) := (mult m n) + m 
+    
+    def powr : nnat → nnat → nnat
+    | m zero := succ zero
+    | m (succ n) := mult m (powr m n)
 
+    example : mult (succ (succ zero)) (succ (succ (succ zero))) = 
+        succ (succ (succ (succ (succ (succ zero))))) := rfl
+        
+    example : powr (succ (succ zero)) (succ (succ (succ zero))) =
+        succ (succ (succ (succ (succ (succ (succ (succ zero))))))) := rfl
+
+    end nnat
+
+  end Ex_8_9_2
+  
+    
     /- QUESTION: why doesn't the following type-check?
         theorem zero_add_alt (n : nat) : (zero + n = n)
         | zero := rfl
         | (succ m) := congr_arg succ (zero_add_alt m)
     -/
-  
-    theorem zero_add_alt_two : ∀ (n: nat), zero + n = n 
-    | zero := by rw [add]
-    | (succ m) := by rw [add, zero_add_alt_two m]
-
-
-    def add_alt (m : nat) : nat → nat
-    | zero := m
-    | (succ n) := succ (add_alt n)
-
-    instance : has_zero nat := has_zero.mk zero
-    instance : has_add nat := has_add.mk add
-
-    theorem zero_add_alt : ∀ (n: nat), zero + n = n 
-    | zero := by rw [add]
-    | (succ m) := by rw [add, zero_add_alt m]
-
-    --??    theorem succ_add :  ∀ (m n : nat),  (succ m) + n = succ (m + n)  
-    --??    | zero, _ : (succ m), (succ n) := n ih { rw [add_succ, ih, succ_add] }    
-
-/-     
-    theorem add_assoc (m n k : nat) : add (add m n) k = add m (add n k) := nat.rec_on k
-    rfl (λ k ih, by simp only [add_succ, ih])
-
-    theorem add_comm (m n : nat) : add m n = add n m := nat.rec_on n 
-    (by simp only [zero_add, add_zero])
-    (λ n ih, by simp only [add_succ, ih, succ_add])
- -/
-
-    end nat
-
-  end Ex_8_9_2
-  
 
   #print "
   8.9.3. Similarly, use the equation compiler to define some basic operations on lists (like 
   the `reverse` function) and prove theorems about lists by induction (such as the fact that 
   `reverse (reverse l) = l` for any list `l`)."
   namespace Ex_8_9_2
+    universe u
+    
+    inductive list (α : Type u) -- : Type u
+    | nil {} : list
+    | cons : α → list → list
+    --| cons (x : α) (l : list) : list
+
+    --open hidden.nat
+    namespace list
+
+      -- __NOTATION__
+      local notation h :: t := cons h t
+      local notation `[]` := nil
+      -- Lean allows us to define iterative notation for lists:
+      notation `{` l:(foldr `,` (h t, cons h t) nil) `}` := l
+
+      #check nil                       -- nil : list ?M_1
+      #check (nil: list ℕ)             -- nil : list ℕ
+      #check cons 0 nil                -- 0 :: nil : list ℕ
+      #check cons "a" nil              -- 0 :: nil : list string
+      #check {"a", "b"}   -- a :: b :: nil : list string
+      #check {1,2,3,4,5}               -- Lean assumes this is a list of nats
+      #check ({1,2,3,4,5} : list int)  -- Forces Lean to take this as a list of ints.
+    
+      -- __LENGTH__
+      variable {α : Type}
+      def length_new : list α → nat  -- := list.rec_on l zero 
+      | nil := 0                     --          (λ (x: α) (xs: list α) n, succ n)
+      | (cons x xs) := (length_new xs) + 1
+      -- Previous definition: (sometimes makes proofs easier)
+      def length (l: list α ) : nat := list.rec_on l 0 (λ (x: α) (xs: list α) n, n+1)
+
+      -- __APPEND__
+      def append_new : list α → list α → list α
+      | nil ys := ys
+      | xs nil := xs
+      | (x :: xs) ys := x :: append_new xs ys
+      -- Previous definition (makes some proofs easier)
+      def append (s t: list α): list α:= list.rec t (λ (x:α) (l:list α) (u:list α), x :: u) s
+
+      #print append
+      
+      local notation xs ++ ys := append xs ys
+
+      example : (cons 1 (cons 2 (cons 3 nil))) ++ (cons 4 (cons 5 nil)) = 
+      cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil)))) := rfl
+
+      -- same example with nicer notation
+      example : {1, 2, 3} ++ {4, 5} = {1,2,3,4,5} := rfl
+
+      #reduce length nil
+      #reduce length (cons 0 (cons 0 nil))
+
+      -- __LENGTH_PROPERTIES__
+      lemma len_nil {α: Type} : length (nil: list α) = 0 := rfl
+      lemma list_add_one (x: nat) (t : list nat) : length (x :: t) = (length t) +1 := rfl
+      theorem nil_append (t : list α) : (nil: list α) ++ t = t := rfl
+      -- theorem append_nil (t : list α) : t++(nil: list α) = t := rfl
+      theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
+
+      theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := list.rec_on r
+      rfl
+      (assume (x: α) (r : list α),
+        assume ih: r ++ s ++ t = r ++ (s ++ t),
+        show (x::r) ++ s ++ t = (x::r) ++ (s ++ t), from
+          calc (x::r) ++ s ++ t = x::(r++s) ++ t: by rw [cons_append]
+                            ... = x::((r++s)++t) : by rw [cons_append]
+                            ... = x::(r++(s++t)) : by rw [ih]
+                            ... = (x::r)++(s++t) : by rw [cons_append])
+ 
+
+      -- As an exercise, prove the following:
+      theorem append_nil (t : list α) : t ++ nil = t := 
+      list.rec_on t rfl  -- more explicitly, `(show (append nil nil) = nil, from rfl)`
+      (assume (x : α), assume (t : list α),
+        assume ih : (append t nil) = t,
+          show append (x :: t) nil = (x :: t), from
+          calc append (x :: t) nil = x :: append t nil  : cons_append x t nil
+                               ... = x :: t             : by rw ih)
+
+      -- As an exercise, prove the following:
+      theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
+        rfl  -- (base)
+        (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
+
+      --variables α β : Type
+      lemma succ_add_old (m n : nat) : (m+1) + n = (m + n) + 1 := nat.rec_on n
+      (show (m + 1) + 0 = m + 1, from rfl)
+       (assume n,
+         assume ih : (m+1)+ n = (m + n) + 1,
+         show (m+1) + (n+1) = (m + (n + 1)) + 1, from
+           calc (m+1) +(n+1) = ((m+1) +n) +1: rfl
+                                  ... = ((m +n)+1) + 1 : by rw ih
+                                  ... = (m + (n+1)) + 1 : rfl)
+      --variables α β : Type
+      lemma succ_add (m n : nat) : (m+1) + n = (m + n) + 1 := match n with
+      | 0 := rfl
+      | (n+1) := by simp [zero_add]
+      end
+
+      #print succ_add 
+
+      theorem length_is_a_monoid_morphism (s t : list α) : 
+      length (s ++ t) = length s + length t := 
+      match s with
+      | nil := -- base set: s = nil
+        (show length (nil ++ t) = (length nil) + (length t), from 
+        have h₁ : length (nil: list α)  = 0, from rfl,
+          calc length (nil ++ t) = length t : rfl
+                             ... = 0 + (length t) : by rw [zero_add]
+                             ... = (length nil) + (length t) : rfl)
+      | x::s := -- (show length (x::s ++ t) = (length (x::s)) + (length t), from
+                (have h₁ : length (x::s) = (length s)+1, from rfl,
+                calc length (x::s ++ t) = length (x:: (s ++ t)): by rw [cons_append]
+                              ... = (length (s ++ t))+1: rfl
+                              ... = ((length s) + (length t))+1 : by rw [_match s]
+                              ... = ((length s)+1) + (length t) : by rw succ_add
+                              ... = (length (x::s)) + (length t): by rw h₁)
+      end     
+
+      /--  `length (reverse t) = length t`--/
+      def reverse {α : Type} : list α → list α 
+      | nil := nil
+      | (x::xs) := (reverse xs) ++ (x::nil)
+
+      #reduce (cons 0 (cons 1 (cons 2 nil)))
+      #reduce 0::1::2::nil                            -- {0,1,2}
+      #reduce reverse (cons 0 (cons 1 (cons 2 nil)))  -- {2,1,0}
+
+      theorem len_rev_eq_len {α : Type} (t: list α) : length (reverse t) = length t := 
+      match t with 
+      | nil := rfl
+      | x::t:=  --  assume ih: length (reverse t) = length t,
+        (show length (reverse (x::t)) = length (x::t), from
+        have hr: reverse (x::t) = reverse t ++ x::nil, from rfl,
+        have hrl: length (reverse t ++ x::nil) = (length (reverse t)) + (length (x::nil)), 
+          by rw [length_is_a_monoid_morphism],
+        have hh: (length t) + (length (x::nil)) = (length t) + 1, from rfl,
+        have lhs: length (reverse (x::t)) = (length t) +1, by rw [hr,hrl,_match,hh],
+        have rhs: length (x::t) = (length t)+1, from rfl,
+        have done : length (reverse (x::t)) = length (x::t), by rw [lhs,rhs], 
+        done)
+      end
+
+   --c. `reverse (reverse t) = t`
+   lemma reverse_swapomorphism (s t: list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) := 
+     list.rec_on s 
+     (show (reverse (nil ++ t)) = (reverse t) ++ (reverse nil), from
+      calc reverse (nil ++ t) = reverse t : by rw [nil_append]
+                          ... = reverse t ++ nil : by rw [append_nil (reverse t)]
+                          ... = reverse t ++ (reverse nil) : rfl)
+     (assume (x: α) (s: list α),
+      assume ih: reverse (s ++ t) = (reverse t) ++ (reverse s),
+      show reverse ((x::s) ++ t) = (reverse t) ++ (reverse (x::s)), from
+      have hrs: reverse s ++ (x::nil) = reverse (x::s), from rfl,
+      calc reverse ((x::s) ++ t) = reverse ( x :: (s++t)) : rfl
+                             ... = reverse (s++t) ++ x::nil : rfl
+                             ... = reverse t ++ reverse s ++ (x::nil) : by rw [ih]
+                             ... = reverse t ++ (reverse s ++ (x::nil)) : append_associative (reverse t) (reverse s) (x::nil)
+                             ... = reverse t ++ reverse (x::s) : by simp [append_associative,hrs])
+
+     theorem reverse_is_an_involution (t : list α) : reverse (reverse t) = t := list.rec_on t
+      rfl
+      (assume (x: α) (t: list α),
+        assume ih: reverse (reverse t) = t,
+        have hrx : reverse (x::nil) = x::nil, from rfl,
+        show reverse (reverse (x::t)) = x::t, from
+        calc reverse (reverse (x::t)) = reverse ((reverse t) ++ (x::nil)) : rfl
+                  ... = reverse (x::nil) ++ (reverse (reverse t)) : reverse_swapomorphism (reverse t) (x::nil)
+                  ... = (x::nil) ++ (reverse (reverse t)) : by rw [hrx]
+                  ... = (x::nil) ++ t : by rw [ih])
+
+    end list
+
   end Ex_8_9_2
 
   #print "
@@ -906,10 +1062,10 @@ namespace Sec_8_9
     plus (times (var 0) (const 7)) (times (const 2) (var 1))
 
     def aeval (v : ℕ → ℕ) : aexpr → ℕ
-    | (const n)    := sorry
+    | (const n)    := n
     | (var n)      := v n
-    | (plus e₁ e₂)  := sorry
-    | (times e₁ e₂) := sorry
+    | (plus e₁ e₂)  := aeval e₁ + aeval e₂ 
+    | (times e₁ e₂) := aeval e₁ * aeval e₂ 
 
     def sample_val : ℕ → ℕ
     | 0 := 5
@@ -921,7 +1077,10 @@ namespace Sec_8_9
   end Ex_8_9_7
 
   #print "
-  8.9.8.    Implement "constant fusion," a procedure that simplifies subterms like ``5 + 7`` to ``12``. Using the auxiliary function ``simp_const``, define a function "fuse": to simplify a plus or a times, first simplify the arguments recursively, and then apply ``simp_const`` to try to simplify the result.
+  8.9.8.    Implement 'constant fusion,' a procedure that simplifies subterms like 
+  `5 + 7` to `12`. Using the auxiliary function `simp_const`, define a function `fuse`: 
+  to simplify a plus or a times, first simplify the arguments recursively, and then 
+  apply `simp_const` to try to simplify the result."
 
   begin Ex_8_9_8
     inductive aexpr : Type
@@ -933,10 +1092,10 @@ namespace Sec_8_9
     open aexpr
 
     def aeval (v : ℕ → ℕ) : aexpr → ℕ
-    | (const n)    := sorry
+    | (const n)    := n
     | (var n)      := v n
-    | (plus e₁ e₂)  := sorry
-    | (times e₁ e₂) := sorry
+    | (plus e₁ e₂)  := aeval e₁ + aeval e₂ 
+    | (times e₁ e₂) := aeval e₁ * aeval e₂ 
 
     def simp_const : aexpr → aexpr
     | (plus (const n₁) (const n₂))  := const (n₁ + n₂)
@@ -960,8 +1119,8 @@ namespace Sec_8_9
 end Sec_8_9
 
 
-
 /- [GoMM06] Healfdene Goguen, Conor McBride, and James McKinna. 'Eliminating dependent pattern 
 matching. In Kokichi Futatsugi, Jean-Pierre Jouannaud, and José Meseguer, editors, 
 Algebra, Meaning, and Computation, Essays Dedicated to Joseph A. Goguen."
  -/
+ 
