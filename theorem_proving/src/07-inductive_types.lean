@@ -391,7 +391,7 @@ namespace Sec_7_3
     #check @exists.intro α
     #check @exists.intro α p
     #check @exists.intro α p a
-  end hide₆
+  end hide₆ 
 
   -- The notation `∃ x : α, p` is syntactic sugar for `Exists (λ x : α, p)`.
 
@@ -596,7 +596,7 @@ namespace hidden
     list.rec t (λ (x: α) (l: list α) (u: list α), x :: u) s
   /- Dissection of append: 
      The first arg to `list.rec` is `t`, meaning return `t` when `s` is `nil`.
-     The second arg is `(λ x l u, x :: u) s`.  I *think* this means the following:
+     The second arg is `(λ x l u, x :: u) s`.  I believe this means the following:
      assuming `u` is the result of `append l t`, then `append (x :: l) t` results
      in `x :: u`.  
   -/
@@ -617,6 +617,7 @@ namespace hidden
   --notation a + b := add a b
 
   theorem nil_append (t : list α) : nil ++ t = t := rfl
+  theorem nil_append' (t : list α) : append' nil t = t := rfl
   theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
 
   theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := list.rec_on r

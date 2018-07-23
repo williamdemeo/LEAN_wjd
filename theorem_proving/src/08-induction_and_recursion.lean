@@ -840,7 +840,7 @@ namespace Sec_8_9
   8.9.3. Similarly, use the equation compiler to define some basic operations on lists (like 
   the `reverse` function) and prove theorems about lists by induction (such as the fact that 
   `reverse (reverse l) = l` for any list `l`)."
-  namespace Ex_8_9_2
+  namespace Ex_8_9_3
     universe u
     
     inductive list (α : Type u) -- : Type u
@@ -1015,19 +1015,19 @@ namespace Sec_8_9
 
     end list
 
-  end Ex_8_9_2
+  end Ex_8_9_3
 
   #print "
   8.9.4. Define your own function to carry out course-of-value recursion on the natural numbers. 
   Similarly, see if you can figure out how to define `well_founded.fix` on your own."
-  namespace Ex_8_9_2
-  end Ex_8_9_2
+  namespace Ex_8_9_4
+  end Ex_8_9_4
 
   #print "
   8.9.5. Following the examples in the 'Dependent pattern matching' section, define a function 
   that will append two vectors. This is tricky; you will have to define an auxiliary function."
-  namespace Ex_8_9_2
-  end Ex_8_9_2
+  namespace Ex_8_9_5
+  end Ex_8_9_5
 
   #print "
   8.9.6 Consider the following type of arithmetic expressions. The idea is that `var n` is a 
@@ -1082,7 +1082,7 @@ namespace Sec_8_9
   to simplify a plus or a times, first simplify the arguments recursively, and then 
   apply `simp_const` to try to simplify the result."
 
-  begin Ex_8_9_8
+  namespace Ex_8_9_8
     inductive aexpr : Type
     | const : ℕ → aexpr
     | var : ℕ → aexpr
@@ -1114,7 +1114,7 @@ namespace Sec_8_9
 
     #print "The last two theorems show that the definitions preserve the value."
 
-  end Ex_8_9_7
+  end Ex_8_9_8
 
 end Sec_8_9
 

@@ -1,4 +1,4 @@
--- Chapter 4 Quantifiers and Equality
+          -- Chapter 4 Quantifiers and Equality
 
 
 #print "=================================="
