@@ -643,22 +643,30 @@ namespace hidden
 
   -- As an exercise, prove the following:
   theorem append_nil (t : list α) : t ++ nil = t := 
+    begin 
+      induction t with a t ih,
+      refl,
+      simp [nil_append,cons_append,ih]
+    end
+
+  theorem append_nil_first_try (t : list α) : t ++ nil = t := 
     list.rec_on t 
       rfl  -- more explicitly, `(show (append nil nil) = nil, from rfl)`
-      (assume (x : α), assume (t : list α),
-        assume ih : (append t nil) = t,
+      (assume (x : α) (t : list α) (ih : append t nil = t),
         show append (x :: t) nil = (x :: t), from
           calc append (x :: t) nil = x :: append t nil  : cons_append x t nil
                                ... = x :: t             : by rw ih)
 
-  -- As an exercise, prove the following:
-  theorem append_nil' (t : list α) : t ++ nil = t := list.rec_on t 
-    rfl  -- (base)
-    (λ (x : α) (t : list α) (ih : (append t nil) = t), by simp [cons_append, ih]) -- (induct)
+  theorem append_nil_second_try (t : list α) : t ++ nil = t := list.rec_on t 
+    rfl                                                        -- base step
+    (λ x t (ih : append t nil = t), by simp [cons_append, ih]) -- induction step
 
-  -- theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := sorry
-  -- TODO: prove append_assoc
-
+ theorem append_assoc (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := 
+  begin induction r with a r ih,
+    simp [nil_append],              -- base step
+    simp [cons_append, ih]                   -- induction step
+  end
+  
   -- binary trees
   inductive binary_tree
   | leaf : binary_tree
@@ -1146,26 +1154,36 @@ namespace hidden
   open hidden.list
   variables α β : Type
 
+    lemma len_nil {α: Type} : length (nil: list α) = 0 := rfl
+    lemma z_add (n : nat) : n = 0 + n :=
+    begin
+      induction n with n ih,
+      refl,
+      have h1 : succ (0 + n) = 0 + succ n, from rfl,
+      have h2 : succ n = succ (0 + n), from congr_arg succ ih,
+      exact eq.trans h2 h1
+    end
+
+  lemma len_cons {α : Type} (a : α) (s : list α) : length (a :: s) = succ (length s) := rfl
+
+  theorem add_suc (m n : nat) : m + (succ n) = succ (m + n) := rfl
+  theorem add_zer (n : nat) : n + 0 = n := rfl
+  theorem suc_add (m n : nat) : (succ m) + n = succ (m + n) :=
+  begin
+    induction n,
+    case zero : { refl },
+    case succ : _ ih { simp [add_suc, ih] }
+  end
+
+
 -- a. `length (s ++ t) = length s + length t` 
-  theorem length_is_a_monoid_morphism (s t : list α) : 
-    length (s ++ t) = add (length s) (length t) := list.rec_on s 
-    -- base case: s = nil
-    (show length (nil ++ t) = add (length nil) (length t), from 
-      have h₁ : length (nil: list α)  = zero, from rfl,
-      calc length (nil ++ t) = length t : rfl
-                        ... = add zero (length t) : by rw [hidden.nat.zero_add]
-                        ... = add (length nil) (length t) : rfl)
-                        
-    -- induction step: t : list α 
-    (assume (x: α) (s : list α), 
-      assume ih: length (s ++ t) = add (length s) (length t), 
-      show length (x::s ++ t) = add (length (x::s)) (length t), from
-        have h₁ : length (x::s) = succ (length s), from rfl,
-        calc length (x::s ++ t) = length (x:: (s ++ t)): by rw [cons_append]
-         ... = succ (length (s ++ t)): rfl
-         ... = succ (add (length s) (length t)) : by rw ih
-         ... = add (succ (length s)) (length t) : by rw succ_add
-         ... = add (length (x::s)) (length t): by rw h₁)
+  theorem length_homomorphic (s t : list α) : 
+    length (s ++ t) =  (length s) + (length t) := 
+    begin
+      induction s,
+      case nil : { rw [nil_append t, len_nil], exact z_add (length t)},
+      case cons : _ _ ih { simp [cons_append,len_cons,suc_add,ih] }
+    end
 
  --   b. `length (reverse t) = length t`
   def reverse {α : Type} : list α → list α 
@@ -1176,47 +1194,44 @@ namespace hidden
   #reduce 0::1::2::nil                            -- {0,1,2}
   #reduce reverse (cons 0 (cons 1 (cons 2 nil)))  -- {2,1,0}
 
-  theorem len_rev_eq_len (t: list α) : length (reverse t) = length t := list.rec_on t 
-    rfl 
-    (assume (x: α) (t: list α), 
-      assume ih: length (reverse t) = length t,
-        show length (reverse (x::t)) = length (x::t), from
-        have hr: reverse (x::t) = reverse t ++ x::nil, from rfl,
-        have hrl: length (reverse t ++ x::nil) = add (length (reverse t)) (length (x::nil)), 
-          by rw [length_is_a_monoid_morphism],
-        have hh: add (length t) (length (x::nil)) = succ (length t), from rfl,
-        have lhs: length (reverse (x::t)) = succ (length t), by rw [hr,hrl,ih,hh],
-        have rhs: length (x::t) = succ (length t), from rfl,
-        have done : length (reverse (x::t)) = length (x::t), by rw [lhs,rhs],
-        done)
-  
-   --c. `reverse (reverse t) = t`
-   lemma reverse_swapomorphism (s t: list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) := 
-     list.rec_on s 
-     (show (reverse (nil ++ t)) = (reverse t) ++ (reverse nil), from
-      calc reverse (nil ++ t) = reverse t : by rw [nil_append]
-                          ... = reverse t ++ nil : by rw [append_nil (reverse t)]
-                          ... = reverse t ++ (reverse nil) : rfl)
-     (assume (x: α) (s: list α),
-      assume ih: reverse (s ++ t) = (reverse t) ++ (reverse s),
-      show reverse ((x::s) ++ t) = (reverse t) ++ (reverse (x::s)), from
-      have hrs: reverse s ++ (x::nil) = reverse (x::s), from rfl,
-      calc reverse ((x::s) ++ t) = reverse ( x :: (s++t)) : rfl
-                             ... = reverse (s++t) ++ x::nil : rfl
-                             ... = reverse t ++ reverse s ++ (x::nil) : by rw [ih]
-                             ... = reverse t ++ (reverse s ++ (x::nil)) : append_associative (reverse t) (reverse s) (x::nil)
-                             ... = reverse t ++ reverse (x::s) : by simp [append_associative,hrs])
+  theorem len_rev_eq_len (t: list α) : length (reverse t) = length t := 
+  begin
+    induction t,
+    case nil : {refl},
+    case cons : a t ih {
+      have h : reverse (a :: t) = (reverse t) ++ (a :: nil), by refl,
+      simp [h,length_homomorphic,ih,len_cons],
+      rw [len_nil,add_suc,add_zer]
+    }
+  end   
 
-   theorem reverse_is_an_involution (t : list α) : reverse (reverse t) = t := list.rec_on t
-    rfl
-    (assume (x: α) (t: list α),
-      assume ih: reverse (reverse t) = t,
-      have hrx : reverse (x::nil) = x::nil, from rfl,
-        show reverse (reverse (x::t)) = x::t, from
-        calc reverse (reverse (x::t)) = reverse ((reverse t) ++ (x::nil)) : rfl
-                                  ... = reverse (x::nil) ++ (reverse (reverse t)) : reverse_swapomorphism _ (reverse t) (x::nil)
-                                  ... = (x::nil) ++ (reverse (reverse t)) : by rw [hrx]
-                                  ... = (x::nil) ++ t : by rw [ih])
+  theorem nil_append (t : list α) : nil ++ t = t := rfl
+  theorem cons_append (x : α) (s t : list α) : (x :: s) ++ t = x :: (s ++ t) := rfl
+  --theorem append_associative (r s t : list α) : r ++ s ++ t = r ++ (s ++ t) := list.rec_on r
+
+   --c. `reverse (reverse t) = t`
+  lemma reverse_swapomorph (s t: list α) : reverse (s ++ t) = (reverse t) ++ (reverse s) := 
+  begin induction s,
+    case nil : { 
+      have h0 : reverse nil = nil, refl,
+      rw [nil_append,h0,append_nil],
+    },
+    case cons : a s ih {
+      have hs : reverse (a :: s) = (reverse s) ++ (a :: nil), by refl,
+      have hst : reverse (a :: (s ++ t)) = reverse (s ++ t) ++ (a :: nil), by refl,
+      rw [hs, cons_append, hst, ih, append_assoc]
+    } 
+  end 
+
+  theorem reverse_is_an_involution (t : list α) : reverse (reverse t) = t := 
+  begin induction t,
+    case nil : { refl },
+    case cons : a t ih {
+      have ht : reverse (a :: t) = (reverse t) ++ (a :: nil), by refl,
+      have ha : reverse {a} = {a}, by refl,
+      rw [ht,reverse_swapomorph,ih,ha], refl
+    }
+  end
 
 -- 3. Define an inductive data type consisting of terms built from the following constructors:
 
