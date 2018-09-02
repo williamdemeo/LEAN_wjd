@@ -954,7 +954,7 @@ namespace Sec_8_9
         case cons : _ _ ih { simp [cons_append,len_cons,suc_add,ih] }
       end
 
-      /--  `length (reverse t) = length t`--/
+      --  `length (reverse t) = length t`
       def reverse {α : Type} : list α → list α 
       | nil := nil
       | (x::xs) := (reverse xs) ++ (x::nil)
